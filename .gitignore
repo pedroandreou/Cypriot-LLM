@@ -1,0 +1,10 @@
+# Venv, direnv
+.env
+.envrc
+.venv
+
+# IDEs
+.vscode
+
+# Python
+**/__pycache__
