@@ -28,5 +28,13 @@ cmd.exe /C uninstall_install_requirements.bat
 ```
 
 
+### How to run the Preprocessing stage
+```
+python count_tokens.py C:\\Users\\user\\Desktop\\dataset
+
+python create_df.py C:\\Users\\user\\Desktop\\dataset
+```
+
+
 ## 🛠 Initialization & Setup
     git clone https://github.com/pedroandreou/Cypriot-LLM.git
