@@ -1,3 +1,7 @@
+# Access the Google Colab notebook below for further preprocessing
+    https://colab.research.google.com/drive/1cDvsdvFXVbQgoTl4_-t7XqY9D0-M91UU#scrollTo=QIjnWfk381H4
+
+
 ## :building_construction: Environment
 
 ### You should create a virtualenv with the required dependencies by running
@@ -28,10 +32,8 @@ cmd.exe /C uninstall_install_requirements.bat
 ```
 
 
-### How to run the Preprocessing stage
+### How to create a Dataframe out of all the docs
 ```
-python count_tokens.py C:\\Users\\user\\Desktop\\dataset
-
 python create_df.py C:\\Users\\user\\Desktop\\dataset
 ```
 

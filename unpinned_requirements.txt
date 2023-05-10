@@ -1,4 +1,3 @@
-python-docx
 typer
 PyPDF2
 textract

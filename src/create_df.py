@@ -10,7 +10,7 @@ from PyPDF2 import PdfReader
 
 """
 Notes:
-1.  Converted the doc file extensions to docx
+1.  Converted the doc file extensions to docx before running this file (just a note so I can remember)
 2.  Ignored the txt files due to ethical reasons
 """
 
@@ -18,6 +18,7 @@ Notes:
 def read_pdf(path):
     with open(path, "rb") as file:
         pdf_reader = PdfReader(file)
+
         text = ""
         for page_num in range(len(pdf_reader.pages)):
             page = pdf_reader.pages[page_num]
@@ -48,14 +49,16 @@ def create_dataframe(data_path: str):
             os.path.join(data_path, "**", f"*.{ext}"), recursive=True
         ):
             try:
-                filename = os.path.splitext(os.path.basename(path))[0]
+                filename = os.path.splitext(os.path.basename(path))[0].replace(
+                    ".docx", ""
+                )
 
                 if ext == "pdf":
                     content = read_pdf(path)
                 elif ext == ["doc", "docx"]:
                     content = read_docx(path)
                 elif (
-                    ext in "odt"
+                    ext == "odt"
                 ):  # "txt" can be added here but won't be added due to ethical reasons
                     content = read_odt(path)
 
@@ -65,6 +68,7 @@ def create_dataframe(data_path: str):
                 print(f"Could not process {path}: {e}")
 
     df = pd.DataFrame(data, columns=["filename", "content"])
+
     return df
 
 
