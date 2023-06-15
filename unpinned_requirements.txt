@@ -1,4 +1,6 @@
 typer
 PyPDF2
+python-docx
 textract
 pandas
+openpyxl

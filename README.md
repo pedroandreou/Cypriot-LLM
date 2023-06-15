@@ -28,13 +28,13 @@ source ./.venv/Scripts/activate
 
 ### How to update the requirements
 ```
-cmd.exe /C uninstall_install_requirements.bat
+cmd.exe /C setup_new_environment.bat
 ```
 
 
 ### How to create a Dataframe out of all the docs
 ```
-python create_df.py C:\\Users\\user\\Desktop\\dataset
+python multiformat_document_reader.py "G:\My Drive\Uni\Masters\Thesis\dataset"
 ```
 
 

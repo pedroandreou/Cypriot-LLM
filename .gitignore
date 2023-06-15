@@ -9,5 +9,5 @@
 # Python
 **/__pycache__
 
-# Excel file
-**/output.xlsx
+# Excel files
+**/*.xlsx
