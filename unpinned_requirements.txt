@@ -1,6 +1,7 @@
 typer
-PyPDF2
 python-docx
 textract
+pdfminer.six
+nltk
 pandas
 openpyxl

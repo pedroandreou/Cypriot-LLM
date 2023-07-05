@@ -6,7 +6,7 @@ import docx
 import pandas as pd
 import textract
 import typer
-from PyPDF2 import PdfReader
+from pdfminer.high_level import extract_text
 
 
 """
@@ -29,13 +29,7 @@ class DocumentReader:
 
     @staticmethod
     def read_pdf(path):
-        with open(path, "rb") as file:
-            pdf_reader = PdfReader(file)
-
-            text = ""
-            for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                text += page.extract_text()
+        text = extract_text(path)
 
         return text
 
@@ -55,7 +49,7 @@ class DocumentReader:
     def create_dataframe(self):
         data = []
 
-        for ext in ["pdf", "docx", "odt"]:  # "txt"
+        for ext in ["pdf", "docx", "odt"]:
             for path in glob.glob(
                 os.path.join(self.data_path, "**", f"*.{ext}"), recursive=True
             ):
@@ -69,8 +63,12 @@ class DocumentReader:
                     elif ext == "odt":
                         content = self.read_odt(path)
 
-                    filename = os.path.splitext(os.path.basename(path))[0]
-                    data.append([filename, content])
+                    # Append the extracted text
+                    if content is not None:
+                        filename = os.path.splitext(os.path.basename(path))[0]
+                        data.append([filename, content])
+                    else:
+                        print(f"{path} was processed but no content was extracted")
 
                 except Exception as e:
                     print(f"Could not process {path}: {e}")
@@ -85,6 +83,7 @@ if __name__ == "__main__":
     def main(data_path: str):
         reader = DocumentReader(data_path)
 
+        # Create the dataframe
         df = reader.create_dataframe()
         print(df.head())
 

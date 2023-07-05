@@ -38,5 +38,11 @@ python multiformat_document_reader.py "G:\My Drive\Uni\Masters\Thesis\dataset"
 ```
 
 
+### How to compare the tokens of files
+```
+python compare_token_counts.py document_data_2023=07=05_12=28=20.xlsx document_data_2023=07=05_19=27=10.xlsx output.xlsx another_file.xlsx yet_another_file.xlsx
+```
+
+
 ## 🛠 Initialization & Setup
     git clone https://github.com/pedroandreou/Cypriot-LLM.git
