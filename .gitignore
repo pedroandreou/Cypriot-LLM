@@ -14,3 +14,6 @@
 
 # Smaller split files
 **/keimena_kypriakis_logotexnias_b*
+
+# CSV overall files
+**/*.csv

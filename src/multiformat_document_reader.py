@@ -87,7 +87,7 @@ def main():
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
 
-    output_file = os.path.join(script_directory, f"document_data_lastone.xlsx")
+    output_file = os.path.join(script_directory, f"document_data_lastone.csv")
     df.to_csv(output_file, index=False)
 
 
