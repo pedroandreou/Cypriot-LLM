@@ -11,3 +11,6 @@
 
 # Excel files
 **/*.xlsx
+
+# Smaller split files
+**/keimena_kypriakis_logotexnias_b*
