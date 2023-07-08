@@ -1,3 +1,6 @@
+import os
+import shutil
+
 import typer
 from PyPDF2 import PdfReader, PdfWriter
 
@@ -5,7 +8,7 @@ from PyPDF2 import PdfReader, PdfWriter
 def split_pdf(file: str):
     pdf = PdfReader(file)
     num_pages = len(pdf.pages)
-    pages_per_file = 50  # number of pages per split file
+    pages_per_file = 10  # number of pages per split file
 
     for i in range(0, num_pages, pages_per_file):
         pdf_writer = PdfWriter()
@@ -13,7 +16,14 @@ def split_pdf(file: str):
         for j in range(i, min(i + pages_per_file, num_pages)):
             pdf_writer.add_page(pdf.pages[j])
 
-        output_filename = f"./new_docs/keimena_kypriakis_logotexnias_b_{i + 1}_to_{min(i + pages_per_file, num_pages)}.pdf"
+        output_dir = os.path.basename(file)
+
+        # Check if directory exists
+        if os.path.isdir(f"./{output_dir}"):
+            shutil.rmtree(f"./{output_dir}")
+
+        os.mkdir(f"./{output_dir}")
+        output_filename = f"./new_docs/{output_dir}/{output_dir}_{i + 1}_to_{min(i + pages_per_file, num_pages)}.pdf"
 
         with open(output_filename, "wb") as out:
             pdf_writer.write(out)
@@ -22,7 +32,7 @@ def split_pdf(file: str):
 
 
 def main():
-    file = "G:\\My Drive\\Uni\\Masters\\Thesis\\dataset\\Miscellaneous\\keimena_kypriakis_logotexnias_b.pdf"
+    file = r"G:\My Drive\Uni\Masters\Thesis\dataset"
     split_pdf(file)
 
 

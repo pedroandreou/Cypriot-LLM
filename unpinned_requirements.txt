@@ -5,4 +5,3 @@ pdfminer.six
 PyPDF2
 nltk
 pandas
-openpyxl

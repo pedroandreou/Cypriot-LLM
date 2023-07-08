@@ -1,6 +1,5 @@
 import glob
 import os
-from datetime import datetime
 
 import docx
 import pandas as pd
@@ -88,11 +87,8 @@ def main():
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
 
-    now = datetime.now()
-    timestamp = now.strftime("%Y=%m=%d_%H=%M=%S")
-    output_file = os.path.join(script_directory, f"document_data_{timestamp}.xlsx")
-
-    df.to_excel(output_file, index=False)
+    output_file = os.path.join(script_directory, f"document_data_lastone.xlsx")
+    df.to_csv(output_file, index=False)
 
 
 if __name__ == "__main__":
