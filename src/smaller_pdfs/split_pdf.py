@@ -13,7 +13,7 @@ def split_pdf(file: str):
         for j in range(i, min(i + pages_per_file, num_pages)):
             pdf_writer.add_page(pdf.pages[j])
 
-        output_filename = f"./keimena_kypriakis_logotexnias_b_{i + 1}_to_{min(i + pages_per_file, num_pages)}.pdf"
+        output_filename = f"./new_docs/keimena_kypriakis_logotexnias_b_{i + 1}_to_{min(i + pages_per_file, num_pages)}.pdf"
 
         with open(output_filename, "wb") as out:
             pdf_writer.write(out)

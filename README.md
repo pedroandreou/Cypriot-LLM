@@ -34,7 +34,7 @@ cmd.exe /C setup_new_environment.bat
 
 ### How to create a Dataframe out of all the docs
 ```
-python multiformat_document_reader.py "G:\My Drive\Uni\Masters\Thesis\dataset"
+python multiformat_document_reader.py
 ```
 
 

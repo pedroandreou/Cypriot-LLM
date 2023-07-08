@@ -78,21 +78,22 @@ class DocumentReader:
         return df
 
 
+def main():
+    data_path = r"G:\My Drive\Uni\Masters\Thesis\dataset"
+    reader = DocumentReader(data_path)
+
+    # Create the dataframe
+    df = reader.create_dataframe()
+    print(df.head())
+
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+
+    now = datetime.now()
+    timestamp = now.strftime("%Y=%m=%d_%H=%M=%S")
+    output_file = os.path.join(script_directory, f"document_data_{timestamp}.xlsx")
+
+    df.to_excel(output_file, index=False)
+
+
 if __name__ == "__main__":
-
-    def main(data_path: str):
-        reader = DocumentReader(data_path)
-
-        # Create the dataframe
-        df = reader.create_dataframe()
-        print(df.head())
-
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-
-        now = datetime.now()
-        timestamp = now.strftime("%Y=%m=%d_%H=%M=%S")
-        output_file = os.path.join(script_directory, f"document_data_{timestamp}.xlsx")
-
-        df.to_excel(output_file, index=False)
-
     typer.run(main)
