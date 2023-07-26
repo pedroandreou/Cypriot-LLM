@@ -16,9 +16,9 @@ Pre-Execution Notes:
     - Prior to running this script, all DOC files were manually converted to DOCX on the local machine. This was necessary for proper operation, as the script relies on specific libraries for parsing these document types.
     - Some DOCX files were also manually converted to PDF as they could not be opened otherwise.
 2. TXT File Exclusion:
-    - TXT files were intentionally not processed due to ethical considerations.
+    - TXT files were intentionally not processed due to ethical considerations; web-scraped data.
 
-These manual conversions were performed prior to the execution of this script and are mentioned here to provide context for the person running the script again in the future. It's important to know that the data passed to this script had undergone these conversions manually.
+These manual conversions were performed prior to the execution of this script and are mentioned here to provide context for the person running the script again in the future.
 """
 
 

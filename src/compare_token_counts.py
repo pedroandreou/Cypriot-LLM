@@ -18,7 +18,7 @@ def count_tokens(df):
 
 def compare_content(files: List[str]):
     for file in files:
-        df = pd.read_excel(file)
+        df = pd.read_csv(file)
         # Calculate token count for df
         token_count_df = count_tokens(df)
         print(f"Token count in {file}: {token_count_df}")

@@ -1,5 +1,14 @@
-# Access the Google Colab notebook below for further preprocessing
-    https://colab.research.google.com/drive/1cDvsdvFXVbQgoTl4_-t7XqY9D0-M91UU#scrollTo=QIjnWfk381H4
+# Google Colabs
+- Preprocessing
+    https://colab.research.google.com/drive/15PowGyrbMmuWo7UHDszL79fqgvVenKMj#scrollTo=AxXFXqijO9yW
+- Training
+    https://colab.research.google.com/drive/1HctL2fAkkYQi-POhiISeXLrLn5rPNTJe#scrollTo=2Yc9HpaXpbZ-
+<br>
+<br>
+The repository contains the code from the Notebooks. To amend or enhance the code, directly utilize the Notebooks, which contain debugging functions that are not part of this repo.
+<br>
+<br>
+Despite executing identical code, the output dataframes from the Notebook and the repository differ in token count - 1,495,516 and 1,495,682 respectively. This discrepancy may be attributable to my laptop's hardware. Consequently, I'll proceed using the output CSV from the Notebook.
 
 
 ## :building_construction: Environment
@@ -38,9 +47,16 @@ python multiformat_document_reader.py
 ```
 
 
+### How to preprocess the created Dataframe above
+```
+cd ./src/preprocess_data
+python preprocessing.py
+```
+
+
 ### How to compare the tokens of files
 ```
-python compare_token_counts.py document_data_2023=07=05_12=28=20.xlsx document_data_2023=07=05_19=27=10.xlsx output.xlsx another_file.xlsx yet_another_file.xlsx
+python compare_token_counts.py first_file.xlsx another_file.xlsx yet_another_file.xlsx
 ```
 
 
