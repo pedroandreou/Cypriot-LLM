@@ -54,15 +54,15 @@ cd ./src/preprocessing
 ```
 cd create_doc_csv.py --data_path=r"G:\My Drive\Uni\Masters\Thesis\dataset" --output_file_name="all_documents"
 ```
-### How to preprocess the docs of the CSV
+#### How to preprocess the docs of the CSV
 ```
 cd clean_data.py --input_file_name="all_documents" --output_file_name="preprocessed_docs"
 ```
-### How to compare the tokens of files
+#### How to compare the tokens of files
 ```
 python compare_token_counts.py --files=["first_file.csv", "another_file.csv", "yet_another_file.csv"]
 ```
-### How to calculate the file capacity
+#### How to calculate the file capacity
 ```
 python calculate_file_capacity.py --input_file_name="preprocessed_docs"
 ```
