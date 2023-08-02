@@ -50,23 +50,23 @@ cmd.exe /C setup_new_environment.bat
 ```
 cd ./src/preprocessing
 ```
-#### How to create a CSV containg all the docs
+#### Create a CSV containg all the docs
 ```
 python create_doc_csv.py --data-path="G:\My Drive\Uni\Masters\Thesis\dataset" --output-file-name="all_documents"
 ```
-#### How to preprocess the docs of the CSV
+#### Preprocess the docs of the CSV
 ```
 python clean_data.py --input-file-name="all_documents" --output-file-name="preprocessed_docs"
 ```
-#### How to export all docs to separate txt files as this would be easier
+#### Export all docs to separate txt files as this would make our life easier when the tokenizer will need the paths to the files
 ```
 python export_csv_docs_to_txt_files.py --input-file-name="preprocessed_docs" --output-dir-path="/content/drive/MyDrive/Uni/Masters/Thesis/cleaned_files"
 ```
-#### How to compare the tokens of files
+#### Compare the tokens of files
 ```
 python compare_token_counts.py --files='["all_documents.csv", "preprocessed_docs.csv"]'
 ```
-#### How to calculate the file capacity
+#### Calculate the file capacity
 ```
 python calculate-file-capacity.py --input-file-name="preprocessed_docs"
 ```

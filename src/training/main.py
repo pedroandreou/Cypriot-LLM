@@ -8,7 +8,7 @@ from pipeline import PipelineWrapper
 from tokenizer import TokenizerWrapper
 
 
-def validate_file_path(path: str):
+def validate_path(path: str):
     if not os.path.exists(path):
         typer.echo(f"The path {path} does not exist.")
         raise typer.Exit()
@@ -36,7 +36,7 @@ def main(
     mlm_method: str = "manual",
 ):
 
-    validate_file_path(base_path)
+    validate_path(base_path)
     validate_model_type(model_type)
     validate_mlm_method(mlm_method)
 
@@ -55,11 +55,11 @@ def main(
 
     # Create an instance of TrainTextDataset for training data
     train_dataset = TrainTextDataset(
-        tokenizer, train_file_paths, mlm_method="manual", max_length=max_length
+        tokenizer, train_file_paths, mlm_method=mlm_method, max_length=max_length
     )
     # Create an instance of TestTextDataset for testing data
     test_dataset = TestTextDataset(
-        tokenizer, test_file_paths, mlm_method="manual", max_length=max_length
+        tokenizer, test_file_paths, mlm_method=mlm_method, max_length=max_length
     )
 
     # # Encoding example
@@ -78,8 +78,8 @@ def main(
     ## Train model
     if mlm_method == "manual":
         model_wrapper = ModelWrapper(
-            train_dataset,
-            test_dataset,
+            train_set=train_dataset,
+            test_set=test_dataset,
             base_path=base_path,
             model_type=model_type,
             vocab_size=vocab_size,
@@ -87,8 +87,8 @@ def main(
         )
     else:  # automatic
         model_wrapper = ModelWrapper(
-            train_dataset,
-            test_dataset,
+            train_set=train_dataset,
+            test_set=test_dataset,
             data_collator=train_data_collator,
             base_path=base_path,
             model_type=model_type,
