@@ -17,5 +17,3 @@
 
 # CSV overall files
 **/*.csv
-
-**/training
