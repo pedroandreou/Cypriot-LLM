@@ -24,7 +24,7 @@ def count_tokens(df):
     return token_count
 
 
-def compare_content(files: List[str]):
+def main(files: List[str]):
     if len(files) < 2:
         typer.echo("At least two file paths must be provided for comparison.")
         raise typer.Exit()
@@ -36,9 +36,5 @@ def compare_content(files: List[str]):
         print(f"Token count in {file}: {token_count_df}")
 
 
-def main():
-    typer.run(compare_content)
-
-
 if __name__ == "__main__":
-    main()
+    typer.run(main)

@@ -1,7 +1,10 @@
 import pandas as pd
+import typer
 
 
-def calc_memory(df):
+def main(input_file_name: str = "preprocessed_docs"):
+    df = pd.read_csv(f"{input_file_name}.csv")
+
     # calculate the size of the content column in bytes
     total_size_in_bytes = df["content"].str.len().sum()
     total_size_in_kb = total_size_in_bytes / 1024
@@ -16,7 +19,4 @@ def calc_memory(df):
 
 
 if __name__ == "__main__":
-    file_name = "preprocessed_docs.csv"
-    df = pd.read_csv(file_name)
-
-    calc_memory(df)
+    typer.run(main)
