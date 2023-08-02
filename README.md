@@ -46,24 +46,22 @@ cmd.exe /C setup_new_environment.bat
 
 
 # Source Code
-### How to create a CSV containg all the docs
+## Preprocessing
 ```
-cd ./src/preprocessing/create_doc_csv.py --data_path=r"G:\My Drive\Uni\Masters\Thesis\dataset" --output_file_name="all_documents"
+cd ./src/preprocessing
 ```
-
-
+#### How to create a CSV containg all the docs
+```
+cd create_doc_csv.py --data_path=r"G:\My Drive\Uni\Masters\Thesis\dataset" --output_file_name="all_documents"
+```
 ### How to preprocess the docs of the CSV
 ```
-cd ./src/preprocessing/clean_data.py --input_file_name="all_documents" --output_file_name="preprocessed_docs"
+cd clean_data.py --input_file_name="all_documents" --output_file_name="preprocessed_docs"
 ```
-
-
 ### How to compare the tokens of files
 ```
-python compare_token_counts.py first_file.csv another_file.csv yet_another_file.csv
+python compare_token_counts.py --files=["first_file.csv", "another_file.csv", "yet_another_file.csv"]
 ```
-
-
 ### How to calculate the file capacity
 ```
 python calculate_file_capacity.py --input_file_name="preprocessed_docs"
