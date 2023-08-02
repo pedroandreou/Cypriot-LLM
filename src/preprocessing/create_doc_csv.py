@@ -77,8 +77,10 @@ class DocumentReader:
         return df
 
 
-def main():
-    data_path = r"G:\My Drive\Uni\Masters\Thesis\dataset"
+def main(
+    data_path: str = r"G:\My Drive\Uni\Masters\Thesis\dataset",
+    output_file_name: str = "all_documents",
+):
     reader = DocumentReader(data_path)
 
     # Create the dataframe
@@ -86,8 +88,7 @@ def main():
     print(df.head())
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
-
-    output_file = os.path.join(script_directory, f"document_data_lastone.csv")
+    output_file = os.path.join(script_directory, f"{output_file_name}.csv")
     df.to_csv(output_file, index=False)
 
 

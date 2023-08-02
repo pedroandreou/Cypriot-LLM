@@ -45,22 +45,22 @@ cmd.exe /C setup_new_environment.bat
 ```
 
 
-### How to create a Dataframe out of all the docs
+# Code
+### How to create a CSV containg all the docs
 ```
-python multiformat_document_reader.py
+cd ./src/preprocessing/create_doc_csv.py --data_path=r"G:\My Drive\Uni\Masters\Thesis\dataset" --output_file_name="all_documents"
 ```
 
 
-### How to preprocess the created Dataframe above
+### How to preprocess the docs of the CSV
 ```
-cd ./src/preprocessing
-python clean_data.py
+cd ./src/preprocessing/clean_data.py --input_file_name="all_documents" --output_file_name="preprocessed_docs"
 ```
 
 
 ### How to compare the tokens of files
 ```
-python compare_token_counts.py first_file.xlsx another_file.xlsx yet_another_file.xlsx
+python compare_token_counts.py first_file.csv another_file.csv yet_another_file.csv
 ```
 
 

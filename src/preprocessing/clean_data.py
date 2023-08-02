@@ -101,9 +101,10 @@ def combine_vowels(text):
     return re.sub(r"([αεηιουωάέήίόύώ]) \b([αεηιουωάέήίόύώ])(?=\b)", r"\1\2", text)
 
 
-def main():
-    file_name = "../document_data_lastone.csv"
-    df = pd.read_csv(file_name)
+def main(
+    input_file_name: str = "all_documents", output_file_name: str = "preprocessed_docs"
+):
+    df = pd.read_csv(f"{input_file_name}.csv")
 
     # Each pattern is a tuple where the first element is the regex pattern and the second element is the replacement string
     patterns_to_remove = [
@@ -433,7 +434,7 @@ def main():
     df["content"] = df["content"].apply(combine_vowels)
 
     # Save preprocessed dataframe as a new csv file
-    df.to_csv("preprocessed_docs.csv", index=False)
+    df.to_csv(f"{output_file_name}.csv", index=False)
 
 
 if __name__ == "__main__":
