@@ -1,5 +1,6 @@
-from transformers import pipeline
 import json
+
+from transformers import pipeline
 
 
 class PipelineWrapper:

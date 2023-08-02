@@ -8,9 +8,6 @@ class MLMTask:
         self.method = method
         self.data_collator = None
 
-        if self.method not in ["manual", "automatic"]:
-            raise ValueError("Method should be either 'manual' or 'automatic'")
-
     def manual_mlm(self, batch):
         labels = batch["input_ids"].clone().detach()
         mask = batch["input_ids"].clone().detach()
@@ -49,5 +46,5 @@ class MLMTask:
     def process_batch(self, batch):
         if self.method == "manual":
             return self.manual_mlm(batch)
-        elif self.method == "automatic":
+        else:  # automatic
             return self.automatic_mlm(batch)

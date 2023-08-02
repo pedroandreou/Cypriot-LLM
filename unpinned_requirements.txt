@@ -1,7 +1,9 @@
-typer
 python-docx
 textract
 pdfminer.six
 PyPDF2
 nltk
 pandas
+transformers[torch]
+scikit-learn
+typer
