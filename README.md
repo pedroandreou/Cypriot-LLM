@@ -1,4 +1,4 @@
-# Google Colab Notebooks
+# :memo: Google Colab Notebooks
 - Preprocessing
     https://colab.research.google.com/drive/15PowGyrbMmuWo7UHDszL79fqgvVenKMj#scrollTo=AxXFXqijO9yW
 - Testing different models
@@ -45,8 +45,8 @@ cmd.exe /C setup_new_environment.bat
 ```
 
 
-# Source Code
-## Preprocessing
+# :crossed_flags: Source Code
+## :hammer: Preprocessing
 ```
 cd ./src/preprocessing
 ```
