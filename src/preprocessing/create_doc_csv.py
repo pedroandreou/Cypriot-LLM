@@ -6,7 +6,7 @@ import pandas as pd
 import textract
 import typer
 from pdfminer.high_level import extract_text
-
+from rich import print
 
 """
 This script reads different document formats (PDF, Docx, ODT), extracts their text content, and creates a DataFrame from it.
@@ -67,10 +67,12 @@ class DocumentReader:
                         filename = os.path.splitext(os.path.basename(path))[0]
                         data.append([filename, content])
                     else:
-                        print(f"{path} was processed but no content was extracted")
+                        print(
+                            f"[bold red]{path} was processed but no content was extracted[/bold red]"
+                        )
 
                 except Exception as e:
-                    print(f"Could not process {path}: {e}")
+                    print(f"[bold red]Could not process {path}: {e}[/bold red]")
 
         df = pd.DataFrame(data, columns=["filename", "content"])
 

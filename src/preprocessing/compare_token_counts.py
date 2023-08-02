@@ -1,11 +1,10 @@
 from typing import List
-from rich.console import Console
-from rich.table import Table
 
 import pandas as pd
 import typer
 from nltk.tokenize import word_tokenize
-
+from rich.console import Console
+from rich.table import Table
 
 """
     Compares the token counts of multiple file paths provided as arguments.
