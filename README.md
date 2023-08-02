@@ -34,10 +34,12 @@ source ./.env/bin/activate
 
 ## Windows
 source ./.venv/Scripts/activate
+pip install -r requirements.txt
 ```
 
 
 ### How to update the requirements
+When a new requirement is needed you should add it to `unpinned_requirements.txt` and run
 ```
 cmd.exe /C setup_new_environment.bat
 ```
