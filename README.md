@@ -4,7 +4,7 @@
 - Testing different models<br>
     https://colab.research.google.com/drive/1HctL2fAkkYQi-POhiISeXLrLn5rPNTJe#scrollTo=XiB3JcbY1WS4
 - This repo's code<br>
-    https://colab.research.google.com/drive/1n0M7negqCKG--658g3hBdmpZ0IcgZgNe#scrollTo=AfPCh_SskAKs
+    https://colab.research.google.com/drive/1n0M7negqCKG--658g3hBdmpZ0IcgZgNe#scrollTo=Bzr8cCpGeqJO&uniqifier=3
 <br>
 <br>
 The repository contains the code from the Notebooks. To amend or enhance the code, directly utilize the Notebooks, which contain debugging functions that are not part of this repo.
@@ -52,19 +52,23 @@ cd ./src/preprocessing
 ```
 #### How to create a CSV containg all the docs
 ```
-cd create_doc_csv.py --data_path=r"G:\My Drive\Uni\Masters\Thesis\dataset" --output_file_name="all_documents"
+python create_doc_csv.py --data-path="G:\My Drive\Uni\Masters\Thesis\dataset" --output-file-name="all_documents"
 ```
 #### How to preprocess the docs of the CSV
 ```
-cd clean_data.py --input_file_name="all_documents" --output_file_name="preprocessed_docs"
+python clean_data.py --input-file-name="all_documents" --output-file-name="preprocessed_docs"
+```
+#### How to export all docs to separate txt files as this would be easier
+```
+python export_csv_docs_to_txt_files.py --input-file-name="preprocessed_docs" --output-dir-path="/content/drive/MyDrive/Uni/Masters/Thesis/cleaned_files"
 ```
 #### How to compare the tokens of files
 ```
-python compare_token_counts.py --files=["first_file.csv", "another_file.csv", "yet_another_file.csv"]
+python compare_token_counts.py --files='["all_documents.csv", "preprocessed_docs.csv"]'
 ```
 #### How to calculate the file capacity
 ```
-python calculate_file_capacity.py --input_file_name="preprocessed_docs"
+python calculate-file-capacity.py --input-file-name="preprocessed_docs"
 ```
 
 
