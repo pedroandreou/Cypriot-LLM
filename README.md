@@ -51,8 +51,8 @@ python multiformat_document_reader.py
 
 ### How to preprocess the created Dataframe above
 ```
-cd ./src/preprocess_data
-python preprocessing.py
+cd ./src/preprocessing
+python clean_data.py
 ```
 
 
