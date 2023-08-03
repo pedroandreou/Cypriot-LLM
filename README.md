@@ -1,17 +1,13 @@
 # :memo: Google Colab Notebooks
+All of the following Notebooks are integral components of this repository. They come equipped with additional debugging functions designed to assist future developers in expanding upon them.<br>
 - Preprocessing<br>
     https://colab.research.google.com/drive/15PowGyrbMmuWo7UHDszL79fqgvVenKMj#scrollTo=AxXFXqijO9yW
-- Testing different models<br>
+- Testing different use cases following various tutorials<br>
     https://colab.research.google.com/drive/1HctL2fAkkYQi-POhiISeXLrLn5rPNTJe#scrollTo=XiB3JcbY1WS4
-- This repo's code<br>
+- Training<br>
     https://colab.research.google.com/drive/1n0M7negqCKG--658g3hBdmpZ0IcgZgNe#scrollTo=Bzr8cCpGeqJO&uniqifier=3
 <br>
 <br>
-The repository contains the code from the Notebooks. To amend or enhance the code, directly utilize the Notebooks, which contain debugging functions that are not part of this repo.
-<br>
-<br>
-Despite executing identical code, the output dataframes from the Notebook and the repository differ in token count - 1,495,516 and 1,495,682 respectively. This discrepancy may be attributable to my laptop's hardware. Consequently, I'll proceed using the output CSV from the Notebook.
-
 
 ## :building_construction: Environment
 
@@ -50,7 +46,7 @@ cmd.exe /C setup_new_environment.bat
 ```
 cd ./src/preprocessing
 ```
-#### Create a CSV containg all the docs
+#### Create a CSV containing all the docs
 ```
 python create_doc_csv.py --data-path="G:\My Drive\Uni\Masters\Thesis\dataset" --output-file-name="all_documents"
 ```
@@ -64,11 +60,11 @@ python export_csv_docs_to_txt_files.py --input-file-name="preprocessed_docs" --o
 ```
 #### Compare the tokens of files
 ```
-python compare_token_counts.py --files='["all_documents.csv", "preprocessed_docs.csv"]'
+python compare_token_counts.py "all_documents" "preprocessed_docs"
 ```
 #### Calculate the file capacity
 ```
-python calculate-file-capacity.py --input-file-name="preprocessed_docs"
+python calculate_file_capacity.py --input-file-name="preprocessed_docs"
 ```
 
 

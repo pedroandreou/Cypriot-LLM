@@ -34,7 +34,7 @@ def main(files: List[str]):
 
     table = Table("Filename", "Token count")
     for file in files:
-        df = pd.read_csv(file)
+        df = pd.read_csv(f"{file}.csv")
         # Calculate token count for df
         token_count_df = count_tokens(df)
 
