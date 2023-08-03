@@ -1,9 +1,8 @@
 import pandas as pd
 import typer
-
 from diacritic_remover import DiacriticRemover
-from pattern_remover import PatternRemover
 from greek_letter_joiner import GreekLetterJoiner
+from pattern_remover import PatternRemover
 
 
 def main(

@@ -1,7 +1,6 @@
 import os
 
 import typer
-
 from dataset import TestTextDataset, TrainTextDataset
 from model import ModelWrapper
 from pipeline import PipelineWrapper

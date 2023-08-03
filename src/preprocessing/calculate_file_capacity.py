@@ -15,8 +15,6 @@ def main(input_file_name: str = "preprocessed_docs"):
     total_size_in_mb = total_size_in_kb / 1024
     total_size_in_gb = total_size_in_mb / 1024
 
-    print(f"Total size of contents in the CSV file:\n")
-
     table = Table()
     table.add_column("Filename", style="cyan", no_wrap=True)
     table.add_column("Bytes", style="red bold", no_wrap=True, min_width=12)
