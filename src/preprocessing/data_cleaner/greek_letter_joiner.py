@@ -7,7 +7,8 @@ class GreekLetterJoiner:
         self.text = text
 
     def reverse_text(self):
-        return self.text[::-1]
+        self.text = self.text[::-1]
+        return self
 
     def handle_single_letters(self):
         # Join single lowercase letters with the first Greek uppercase letter or a Greek lowercase word on their left

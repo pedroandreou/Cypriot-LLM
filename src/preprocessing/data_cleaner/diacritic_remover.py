@@ -56,8 +56,3 @@ class DiacriticRemover:
         self.remove_diacritic_generic(diaeresis_code)
 
         return self
-
-    def join_letters_and_combine_vowels(self):
-        self.reverse_text().handle_single_letters().reverse_text().handle_uppercase().handle_oti()
-        self.combine_vowels()
-        return self

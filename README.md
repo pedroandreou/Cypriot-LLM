@@ -52,7 +52,7 @@ python create_doc_csv.py --data-path="G:\My Drive\Uni\Masters\Thesis\dataset" --
 ```
 #### Preprocess the docs of the CSV
 ```
-python clean_data.py --input-file-name="all_documents" --output-file-name="preprocessed_docs"
+python data_cleaner/main.py --input-file-name="all_documents" --output-file-name="preprocessed_docs"
 ```
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer will need the paths to the files
 ```
