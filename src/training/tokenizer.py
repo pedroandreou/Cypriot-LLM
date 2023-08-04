@@ -133,7 +133,7 @@ class TokenizerWrapper:
 
     def get_paths(self):
         """Return all paths"""
-        return self.all_paths, self.train_paths, self.test_paths
+        return self.train_paths, self.test_paths
 
     def get_tokenizer(self):
         if self.model_type == "bert":

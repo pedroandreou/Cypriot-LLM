@@ -48,7 +48,7 @@ cd ./src/preprocessing
 ```
 #### Create a CSV containing all the docs
 ```
-python create_doc_csv.py --data-path="G:\My Drive\Uni\Masters\Thesis\dataset" --output-file-name="all_documents"
+python docs_to_csv.py --data-path="G:\\My Drive\\Uni\\Masters\\Thesis\\dataset" --output-file-name="all_documents"
 ```
 #### Preprocess the docs of the CSV
 ```
@@ -56,7 +56,7 @@ python data_cleaner/main.py --input-file-name="all_documents" --output-file-name
 ```
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer will need the paths to the files
 ```
-python export_csv_docs_to_txt_files.py --input-file-name="preprocessed_docs" --output-dir-path="/content/drive/MyDrive/Uni/Masters/Thesis/cleaned_files"
+python export_csv_docs_to_txt_files.py --input-file-name="preprocessed_docs" --output-dir-path="G:\\My Drive\\Uni\\Masters\\Thesis\\cleaned_files"
 ```
 #### Compare the tokens of files
 ```

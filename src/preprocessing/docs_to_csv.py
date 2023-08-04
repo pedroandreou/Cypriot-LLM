@@ -80,7 +80,7 @@ class DocumentReader:
 
 
 def main(
-    data_path: str = r"G:\My Drive\Uni\Masters\Thesis\dataset",
+    data_path: str = "G:\\My Drive\\Uni\\Masters\\Thesis\\dataset",
     output_file_name: str = "all_documents",
 ):
     reader = DocumentReader(data_path)

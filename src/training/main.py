@@ -70,10 +70,6 @@ def main(
     # vocab_size = len(vocab)
     # print("\nThe vocab size is: ", vocab_size)
 
-    # Get the data collators of each set
-    train_data_collator = train_dataset.get_data_collator()
-    test_data_collator = test_dataset.get_data_collator()
-
     ## Train model
     if mlm_method == "manual":
         model_wrapper = ModelWrapper(
@@ -85,6 +81,10 @@ def main(
             max_length=max_length,
         )
     else:  # automatic
+        # Get the data collators of each set
+        train_data_collator = train_dataset.get_data_collator()
+        test_data_collator = test_dataset.get_data_collator()
+
         model_wrapper = ModelWrapper(
             train_set=train_dataset,
             test_set=test_dataset,

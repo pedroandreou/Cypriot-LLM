@@ -9,6 +9,7 @@ class PatternRemover:
         self.patterns_to_remove = [
             # doc 0
             ("_x000C_", ""),  # Remove the "_x000C_" string from the text
+            ("", ""),  # up arrow
             # doc 1
             (
                 r"^\d+\.\s*",
