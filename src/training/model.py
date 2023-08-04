@@ -36,6 +36,8 @@ class ModelWrapper:
             torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         )
 
+        # As we are training from scratch, we initialize from a config
+        # not from an existing pretrained model or checkpoint
         if self.model_type == "bert":
             config = BertConfig(
                 vocab_size=vocab_size, max_position_embeddings=max_length
@@ -52,6 +54,9 @@ class ModelWrapper:
                 type_vocab_size=1,
             )
             self.model = RobertaForMaskedLM(config=config).to(self.device)
+
+        # Print the model parameters
+        print(self.model.num_parameters())
 
         # e.g. "cybert" or "cyroberta"
         self.model_dir_path = f"{base_path}/Project/cy{self.model_type}/model"
