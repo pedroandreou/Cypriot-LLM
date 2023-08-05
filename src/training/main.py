@@ -4,6 +4,7 @@ from pathlib import Path
 
 import typer
 from dataset import TestTextDataset, TrainTextDataset
+from dotenv import load_dotenv
 from model import ModelWrapper
 from pipeline import PipelineWrapper
 from sklearn.model_selection import train_test_split
@@ -11,11 +12,10 @@ from tokenizer import TokenizerWrapper
 from transformers import (
     BertForMaskedLM,
     BertTokenizerFast,
+    DataCollatorForLanguageModeling,
     RobertaForMaskedLM,
     RobertaTokenizer,
-    DataCollatorForLanguageModeling,
 )
-from dotenv import load_dotenv
 
 load_dotenv()
 
