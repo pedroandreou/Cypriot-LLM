@@ -54,7 +54,7 @@ def load_dataset(file_path):
 
 
 def main(
-    base_path: str = os.getenv("BASE_PATH"),
+    cleaned_files_dir_path: str = os.getenv("CLEANED_FILES_DIR_PATH"),
     cybert_dir_path: str = os.getenv("CYBERT_DIR_PATH"),
     cyroberta_dir_path: str = os.getenv("CYROBERTA_DIR_PATH"),
     cybert_tokenizer_dir_path: str = os.getenv("CYBERT_TOKENIZER_DIR_PATH"),
@@ -84,7 +84,7 @@ def main(
     # num_gpus: int = int(os.environ['SM_NUM_GPUS']),
 ):
 
-    validate_path(base_path)
+    validate_path(cleaned_files_dir_path)
     validate_model_type(model_type)
 
     # Set paths
@@ -121,7 +121,7 @@ def main(
     test_save_path = Path("test_dataset.pkl")
 
     if should_create_train_test_sets:
-        all_paths = [str(x) for x in Path(f"{base_path}/cleaned_files/").glob("*.txt")]
+        all_paths = [str(x) for x in Path(cleaned_files_dir_path).glob("*.txt")]
 
         # Get the list of file paths for training and testing datasets
         train_file_paths, test_file_paths = train_test_split(all_paths, test_size=0.2)
@@ -173,7 +173,6 @@ def main(
         model.save_pretrained(model_path)
 
     # Load model
-    loaded_model = None
     if model_type == "bert":
         loaded_model = BertForMaskedLM.from_pretrained(model_path)
 
