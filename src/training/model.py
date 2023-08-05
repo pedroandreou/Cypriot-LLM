@@ -27,14 +27,13 @@ class ModelWrapper:
         self.data_collator = data_collator  # Optional as this is way that RoBeRTa is trained using the HuggingFace API works
 
         self.model_path = model_path
-        self.model_type = model_type
         self.device = (
             torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         )
 
         # As we are training from scratch, we initialize from a config
         # not from an existing pretrained model or checkpoint
-        if self.model_type == "bert":
+        if model_type == "bert":
             config = BertConfig(
                 vocab_size=vocab_size, max_position_embeddings=max_length
             )
@@ -55,7 +54,7 @@ class ModelWrapper:
         print(self.model.num_parameters())
 
         # Train model
-        if self.model_type == "bert":
+        if model_type == "bert":
             self.train_model_using_pytorch_api()
 
         else:  # roberta

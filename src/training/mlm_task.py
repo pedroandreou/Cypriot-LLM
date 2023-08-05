@@ -1,16 +1,16 @@
 import torch
-from transformers import DataCollatorForLanguageModeling
 
 
 class MLMTask:
     def __init__(
         self,
         tokenizer,
+        data_collator=None,
         model_type="bert",
     ):
         self.model_type = model_type
         self.tokenizer = tokenizer
-        self.data_collator = None
+        self.data_collator = data_collator  # Optional as this is way that RoBeRTa is trained using the HuggingFace API works
 
     def bert_mlm(self, batch):
         labels = batch["input_ids"].clone().detach()
@@ -42,9 +42,6 @@ class MLMTask:
         }
 
     def roberta_mlm(self, batch):
-        self.data_collator = DataCollatorForLanguageModeling(
-            tokenizer=self.tokenizer, mlm=True, mlm_probability=0.15
-        )
         return self.data_collator(batch)
 
     def process_batch(self, batch):

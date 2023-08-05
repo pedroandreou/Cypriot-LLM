@@ -47,10 +47,6 @@ class BaseDataset(MLMTask):
         item = {key: val[index] for key, val in self.dataset.items()}
         return item
 
-    def get_data_collator(self):
-        """Return data collator from the MLM task as its the superclass of this class"""
-        return self.data_collator
-
 
 class TrainTextDataset(BaseDataset):
     def __init__(self, tokenizer, file_paths, model_type="bert", max_length=512):

@@ -13,6 +13,7 @@ from transformers import (
     BertTokenizerFast,
     RobertaForMaskedLM,
     RobertaTokenizer,
+    DataCollatorForLanguageModeling,
 )
 from dotenv import load_dotenv
 
@@ -75,11 +76,6 @@ def main(
     # learning_rate: float = 0.01,
     # seed: int = 42,
     # run_validation: bool = False,
-    # model_dir: str = os.environ['SM_MODEL_DIR'],
-    # train_data: str = os.environ['SM_CHANNEL_TRAIN'],
-    # validation_data: str = os.environ['SM_CHANNEL_VALIDATION'],
-    # output_dir: str = os.environ['SM_OUTPUT_DIR'],
-    # num_gpus: int = int(os.environ['SM_NUM_GPUS']),
 ):
 
     validate_model_type(model_type)
@@ -129,9 +125,8 @@ def main(
             )
             raise typer.Exit()
 
-    # Train tokenizer
+    # Train/Build a tokenizer
     if should_train_tokenizer:
-        # Build tokenizer
         TokenizerWrapper(
             train_paths=train_file_paths,
             tokenizer_path=tokenizer_path,
@@ -150,7 +145,6 @@ def main(
     # Define save paths
     train_save_path = Path("dataset_encodings/train_dataset.pkl")
     test_save_path = Path("dataset_encodings/test_dataset.pkl")
-
     if should_create_train_test_sets:
         # Create train set
         train_dataset = create_dataset(
@@ -163,15 +157,14 @@ def main(
             loaded_tokenizer, test_file_paths, TestTextDataset, max_length
         )
         save_dataset(test_dataset, test_save_path)
-
     # Load datasets
     train_dataset = load_dataset(train_save_path)
     test_dataset = load_dataset(test_save_path)
 
-    ## Train model
+    # Train model
     if should_train_model:
         if model_type == "bert":
-            model = ModelWrapper(
+            ModelWrapper(
                 train_set=train_dataset,
                 test_set=test_dataset,
                 model_type=model_type,
@@ -180,14 +173,14 @@ def main(
             )
 
         else:  # roberta
-            # CANNOT GET THEM LIKE THIS
-            train_data_collator = train_dataset.get_data_collator()
-            test_data_collator = test_dataset.get_data_collator()
+            data_collator = DataCollatorForLanguageModeling(
+                tokenizer=loaded_tokenizer, mlm=True, mlm_probability=0.15
+            )
 
             ModelWrapper(
                 train_set=train_dataset,
                 test_set=test_dataset,
-                data_collator=train_data_collator,
+                data_collator=data_collator,
                 model_path=model_path,
                 model_type=model_type,
                 vocab_size=vocab_size,
