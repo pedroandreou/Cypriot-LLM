@@ -72,9 +72,17 @@ python utils/calculate_file_capacity.py --input-file-name="preprocessed_docs"
 ```
 cd ./src/training
 ```
-#### Train tokenizer, Create datasets, Train Model, Do Inference
+#### First time: Train tokenizer, Split Paths to 80% for training and 20% for testing, Create datasets, Train Model, Do Inference
 ```
 python main.py --should-train-tokenizer --should-split-train-test --should-create-train-test-sets --should-train-model --should-inference
+```
+#### Train Model
+```
+python main.py --should-train-model
+```
+#### Do Inference
+```
+python main.py --should-inference
 ```
 
 

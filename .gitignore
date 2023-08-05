@@ -8,14 +8,11 @@
 # Python
 **/__pycache__
 
-# Excel files
-**/*.xlsx
-
-# Smaller split files
-**/keimena_kypriakis_logotexnias_b*
-
 # CSV overall files
 **/*.csv
 
 # Filepaths
 **/*.txt
+
+# Dataset saved encodings
+**/*.pkl

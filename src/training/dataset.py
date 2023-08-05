@@ -6,9 +6,9 @@ class BaseDataset(MLMTask):
     def __init__(
         self,
         tokenizer,
-        file_paths: list,
-        model_type: str = "bert",
-        max_length: int = 512,
+        file_paths,
+        model_type="bert",
+        max_length=512,
     ):
         MLMTask.__init__(self, tokenizer, model_type)
 
@@ -17,7 +17,7 @@ class BaseDataset(MLMTask):
 
         self.texts = []
         for file_path in file_paths:
-            with open(file_path, "r") as file:
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as file:
                 self.texts.append(file.read())
         self.dataset = self._create_masked_dataset()
 

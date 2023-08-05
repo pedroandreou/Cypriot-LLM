@@ -24,10 +24,9 @@ class ModelWrapper:
     ):
         self.train_set = train_set
         self.test_set = test_set
-
         self.data_collator = data_collator  # Optional as this is way that RoBeRTa is trained using the HuggingFace API works
-        self.model_path = model_path  # Optional as this is way that RoBeRTa is trained using the HuggingFace API works
 
+        self.model_path = model_path
         self.model_type = model_type
         self.device = (
             torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -99,8 +98,8 @@ class ModelWrapper:
                 loop.set_description(f"Epoch {epoch}")
                 loop.set_postfix(loss=loss.item())
 
-        # Return model
-        return self.model
+        # Save model
+        self.model.save_pretrained(self.model_path)
 
     def train_model_using_huggingface_trainer_api(self):
         """
@@ -141,5 +140,5 @@ class ModelWrapper:
         # Train the model
         trainer.train()
 
-        # Return model
-        return self.model
+        # Save model
+        self.model.save_pretrained(self.model_path)

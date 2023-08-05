@@ -23,7 +23,6 @@ def validate_path(path: str):
     if not os.path.exists(path):
         os.makedirs(path)
         typer.echo(f"The directory {path} has just been created.")
-        # raise typer.Exit()
 
 
 def validate_model_type(model_type: str):
@@ -98,7 +97,6 @@ def main(
         # Set paths
         tokenizer_path = cyroberta_tokenizer_dir_path
         model_path = cyroberta_model_dir_path
-
     validate_path(tokenizer_path)
     validate_path(model_path)
 
@@ -108,20 +106,23 @@ def main(
         train_file_paths, test_file_paths = train_test_split(all_paths, test_size=0.2)
 
         # Saving the lists
-        with open("train_file_paths.txt", "w") as f:
+        with open("training_testing_file_paths/train_file_paths.txt", "w") as f:
             for item in train_file_paths:
                 f.write("%s\n" % item)
-        with open("test_file_paths.txt", "w") as f:
+        with open("training_testing_file_paths/test_file_paths.txt", "w") as f:
             for item in test_file_paths:
                 f.write("%s\n" % item)
     else:
         try:
             # Loading the lists
-            with open("train_file_paths.txt", "r") as f:
+            with open("training_testing_file_paths/train_file_paths.txt", "r") as f:
                 train_file_paths = f.read().splitlines()
+                print("the train file paths are: ", train_file_paths)
 
-            with open("test_file_paths.txt", "r") as f:
+            with open("training_testing_file_paths/test_file_paths.txt", "r") as f:
                 test_file_paths = f.read().splitlines()
+                print("the test file paths are: ", test_file_paths)
+
         except FileNotFoundError:
             typer.echo(
                 f"train_file_paths.txt and test_file_paths.txt not found.\nYou should run the script with --should-split-train-test flag first."
@@ -141,14 +142,14 @@ def main(
 
     # Load the tokenizer
     if model_type == "bert":
-        loaded_tokenizer = BertTokenizerFast.from_pretrained(tokenizer_path, max_length)
+        loaded_tokenizer = BertTokenizerFast.from_pretrained(tokenizer_path)
 
     else:  # roberta
-        loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_path, max_length)
+        loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_path)
 
     # Define save paths
-    train_save_path = Path("train_dataset.pkl")
-    test_save_path = Path("test_dataset.pkl")
+    train_save_path = Path("dataset_encodings/train_dataset.pkl")
+    test_save_path = Path("dataset_encodings/test_dataset.pkl")
 
     if should_create_train_test_sets:
         # Create train set
@@ -183,7 +184,7 @@ def main(
             train_data_collator = train_dataset.get_data_collator()
             test_data_collator = test_dataset.get_data_collator()
 
-            model = ModelWrapper(
+            ModelWrapper(
                 train_set=train_dataset,
                 test_set=test_dataset,
                 data_collator=train_data_collator,
@@ -192,8 +193,6 @@ def main(
                 vocab_size=vocab_size,
                 max_length=max_length,
             )
-
-        model.save_pretrained(model_path)
 
     # Load model
     if model_type == "bert":
