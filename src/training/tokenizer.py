@@ -7,10 +7,14 @@ from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 class TokenizerWrapper:
     def __init__(
         self,
-        model_type="bert",
+        train_paths: list,
+        tokenizer_path: str,
+        model_type: str = "bert",
         vocab_size=30_522,
-        max_length=512,
+        max_length: str = 512,
     ):
+        self.train_paths = train_paths
+        self.tokenizer_path = tokenizer_path
         self.model_type = model_type
         self.vocab_size = vocab_size
         self.max_length = max_length
@@ -29,7 +33,7 @@ class TokenizerWrapper:
         # Train tokenizer
         self.train_tokenizer()
 
-        # Export tokenizer in a dir called either 'cybert' or 'cyroberta'
+        # Export tokenizer
         self.save_tokenizer()
 
     def train_tokenizer(self):

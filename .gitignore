@@ -16,3 +16,6 @@
 
 # CSV overall files
 **/*.csv
+
+# Filepaths
+**/*.txt

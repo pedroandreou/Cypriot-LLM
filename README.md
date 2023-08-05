@@ -68,5 +68,15 @@ python utils/calculate_file_capacity.py --input-file-name="preprocessed_docs"
 ```
 
 
+## :runner: Training
+```
+cd ./src/training
+```
+#### Train tokenizer, Create datasets, Train Model, Do Inference
+```
+python main.py --should-train-tokenizer --should-split-train-test --should-create-train-test-sets --should-train-model --should-inference
+```
+
+
 ## 🛠 Initialization & Setup
     git clone https://github.com/pedroandreou/Cypriot-LLM.git

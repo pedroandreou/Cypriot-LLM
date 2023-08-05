@@ -14,12 +14,16 @@ from transformers import (
     RobertaForMaskedLM,
     RobertaTokenizer,
 )
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def validate_path(path: str):
     if not os.path.exists(path):
-        typer.echo(f"The path {path} does not exist.")
-        raise typer.Exit()
+        os.makedirs(path)
+        typer.echo(f"The directory {path} has just been created.")
+        # raise typer.Exit()
 
 
 def validate_model_type(model_type: str):
@@ -27,12 +31,6 @@ def validate_model_type(model_type: str):
     if model_type not in valid_model_types:
         typer.echo(f"Model type should be one of {valid_model_types}")
         raise typer.Exit()
-
-
-def create_directory_if_does_not_exist(path: str):
-    # Create the directory if not already there
-    if not os.path.exists(path):
-        os.makedirs(path)
 
 
 def create_dataset(tokenizer, paths, DatasetClass, max_length):
@@ -65,6 +63,7 @@ def main(
     vocab_size: int = 30522,
     max_length: int = 512,
     should_train_tokenizer: bool = False,
+    should_split_train_test: bool = False,
     should_create_train_test_sets: bool = False,
     should_train_model: bool = False,
     should_inference: bool = False,
@@ -84,26 +83,57 @@ def main(
     # num_gpus: int = int(os.environ['SM_NUM_GPUS']),
 ):
 
-    validate_path(cleaned_files_dir_path)
     validate_model_type(model_type)
-
-    # Set paths
+    validate_path(cleaned_files_dir_path)
     if model_type == "bert":
-        dir_path = cybert_dir_path
+        validate_path(cybert_dir_path)
+
+        # Set paths
         tokenizer_path = cybert_tokenizer_dir_path
         model_path = cybert_model_dir_path
+
     else:  # roberta
-        dir_path = cyroberta_dir_path
+        validate_path(cyroberta_dir_path)
+
+        # Set paths
         tokenizer_path = cyroberta_tokenizer_dir_path
         model_path = cyroberta_model_dir_path
 
-    if should_train_tokenizer:
-        # Create dirs if do not exist
-        create_directory_if_does_not_exist(dir_path)
-        create_directory_if_does_not_exist(tokenizer_path)
+    validate_path(tokenizer_path)
+    validate_path(model_path)
 
+    if should_split_train_test:
+        all_paths = [str(x) for x in Path(cleaned_files_dir_path).glob("*.txt")]
+        # Get the list of file paths for training and testing datasets
+        train_file_paths, test_file_paths = train_test_split(all_paths, test_size=0.2)
+
+        # Saving the lists
+        with open("train_file_paths.txt", "w") as f:
+            for item in train_file_paths:
+                f.write("%s\n" % item)
+        with open("test_file_paths.txt", "w") as f:
+            for item in test_file_paths:
+                f.write("%s\n" % item)
+    else:
+        try:
+            # Loading the lists
+            with open("train_file_paths.txt", "r") as f:
+                train_file_paths = f.read().splitlines()
+
+            with open("test_file_paths.txt", "r") as f:
+                test_file_paths = f.read().splitlines()
+        except FileNotFoundError:
+            typer.echo(
+                f"train_file_paths.txt and test_file_paths.txt not found.\nYou should run the script with --should-split-train-test flag first."
+            )
+            raise typer.Exit()
+
+    # Train tokenizer
+    if should_train_tokenizer:
         # Build tokenizer
         TokenizerWrapper(
+            train_paths=train_file_paths,
+            tokenizer_path=tokenizer_path,
             model_type=model_type,
             vocab_size=vocab_size,
             max_length=max_length,
@@ -121,11 +151,6 @@ def main(
     test_save_path = Path("test_dataset.pkl")
 
     if should_create_train_test_sets:
-        all_paths = [str(x) for x in Path(cleaned_files_dir_path).glob("*.txt")]
-
-        # Get the list of file paths for training and testing datasets
-        train_file_paths, test_file_paths = train_test_split(all_paths, test_size=0.2)
-
         # Create train set
         train_dataset = create_dataset(
             loaded_tokenizer, train_file_paths, TrainTextDataset, max_length
@@ -144,8 +169,6 @@ def main(
 
     ## Train model
     if should_train_model:
-        create_directory_if_does_not_exist(model_path)
-
         if model_type == "bert":
             model = ModelWrapper(
                 train_set=train_dataset,
