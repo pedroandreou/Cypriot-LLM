@@ -54,7 +54,13 @@ def load_dataset(file_path):
 
 
 def main(
-    base_path: str = "/content/drive/MyDrive/Uni/Masters/Thesis",
+    base_path: str = os.getenv("BASE_PATH"),
+    cybert_dir_path: str = os.getenv("CYBERT_DIR_PATH"),
+    cyroberta_dir_path: str = os.getenv("CYROBERTA_DIR_PATH"),
+    cybert_tokenizer_dir_path: str = os.getenv("CYBERT_TOKENIZER_DIR_PATH"),
+    cyroberta_tokenizer_dir_path: str = os.getenv("CYROBERTA_TOKENIZER_DIR_PATH"),
+    cybert_model_dir_path: str = os.getenv("CYBERT_MODEL_DIR_PATH"),
+    cyroberta_model_dir_path: str = os.getenv("CYROBERTA_MODEL_DIR_PATH"),
     model_type: str = "bert",
     vocab_size: int = 30522,
     max_length: int = 512,
@@ -82,8 +88,14 @@ def main(
     validate_model_type(model_type)
 
     # Set paths
-    dir_path = f"{base_path}/Project/cy{model_type}"
-    tokenizer_path = f"{dir_path}/tokenizer"
+    if model_type == "bert":
+        dir_path = cybert_dir_path
+        tokenizer_path = cybert_tokenizer_dir_path
+        model_path = cybert_model_dir_path
+    else:  # roberta
+        dir_path = cyroberta_dir_path
+        tokenizer_path = cyroberta_tokenizer_dir_path
+        model_path = cyroberta_model_dir_path
 
     if should_train_tokenizer:
         # Create dirs if do not exist
@@ -98,7 +110,6 @@ def main(
         )
 
     # Load the tokenizer
-    loaded_tokenizer = None
     if model_type == "bert":
         loaded_tokenizer = BertTokenizerFast.from_pretrained(tokenizer_path, max_length)
 
@@ -131,18 +142,8 @@ def main(
     train_dataset = load_dataset(train_save_path)
     test_dataset = load_dataset(test_save_path)
 
-    # e.g. "cybert" or "cyroberta"
-    model_dir_path = f"{base_path}/Project/cy{model_type}/model"
-    # "cybert/pytorch" or "cybert/huggingface"
-    # "cyroberta/pytorch" or "cyroberta/huggingface"
-    model_path = (
-        f"{model_dir_path}/{('pytorch' if model_type == 'bert' else 'huggingface')}"
-    )
-
     ## Train model
-    model = None
     if should_train_model:
-        create_directory_if_does_not_exist(model_dir_path)
         create_directory_if_does_not_exist(model_path)
 
         if model_type == "bert":
@@ -155,7 +156,7 @@ def main(
             )
 
         else:  # roberta
-            # Cannot get them like that - need to find a different way
+            # CANNOT GET THEM LIKE THIS
             train_data_collator = train_dataset.get_data_collator()
             test_data_collator = test_dataset.get_data_collator()
 
@@ -163,6 +164,7 @@ def main(
                 train_set=train_dataset,
                 test_set=test_dataset,
                 data_collator=train_data_collator,
+                model_path=model_path,
                 model_type=model_type,
                 vocab_size=vocab_size,
                 max_length=max_length,

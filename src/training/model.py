@@ -17,13 +17,16 @@ class ModelWrapper:
         train_set,
         test_set,
         data_collator=None,
+        model_path=None,
         model_type="bert",
         vocab_size=30_522,
         max_length=512,
     ):
         self.train_set = train_set
         self.test_set = test_set
+
         self.data_collator = data_collator  # Optional as this is way that RoBeRTa is trained using the HuggingFace API works
+        self.model_path = model_path  # Optional as this is way that RoBeRTa is trained using the HuggingFace API works
 
         self.model_type = model_type
         self.device = (

@@ -1,5 +1,4 @@
 # Venv, direnv
-.env
 .envrc
 .venv
 
