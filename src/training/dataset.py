@@ -7,10 +7,10 @@ class BaseDataset(MLMTask):
         self,
         tokenizer,
         file_paths: list,
-        mlm_method: str = "manual",
+        model_type: str = "bert",
         max_length: int = 512,
     ):
-        MLMTask.__init__(self, tokenizer, mlm_method)
+        MLMTask.__init__(self, tokenizer, model_type)
 
         self.tokenizer = tokenizer
         self.max_len = max_length
@@ -53,10 +53,10 @@ class BaseDataset(MLMTask):
 
 
 class TrainTextDataset(BaseDataset):
-    def __init__(self, tokenizer, file_paths, mlm_method="manual", max_length=512):
-        super().__init__(tokenizer, file_paths, mlm_method, max_length)
+    def __init__(self, tokenizer, file_paths, model_type="bert", max_length=512):
+        super().__init__(tokenizer, file_paths, model_type, max_length)
 
 
 class TestTextDataset(BaseDataset):
-    def __init__(self, tokenizer, file_paths, mlm_method="manual", max_length=512):
-        super().__init__(tokenizer, file_paths, mlm_method, max_length)
+    def __init__(self, tokenizer, file_paths, model_type="bert", max_length=512):
+        super().__init__(tokenizer, file_paths, model_type, max_length)

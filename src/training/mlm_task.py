@@ -3,12 +3,16 @@ from transformers import DataCollatorForLanguageModeling
 
 
 class MLMTask:
-    def __init__(self, tokenizer, method="manual"):
+    def __init__(
+        self,
+        tokenizer,
+        model_type="bert",
+    ):
+        self.model_type = model_type
         self.tokenizer = tokenizer
-        self.method = method
         self.data_collator = None
 
-    def manual_mlm(self, batch):
+    def bert_mlm(self, batch):
         labels = batch["input_ids"].clone().detach()
         mask = batch["input_ids"].clone().detach()
 
@@ -37,14 +41,14 @@ class MLMTask:
             "special_tokens_mask": batch["special_tokens_mask"],
         }
 
-    def automatic_mlm(self, batch):
+    def roberta_mlm(self, batch):
         self.data_collator = DataCollatorForLanguageModeling(
             tokenizer=self.tokenizer, mlm=True, mlm_probability=0.15
         )
         return self.data_collator(batch)
 
     def process_batch(self, batch):
-        if self.method == "manual":
-            return self.manual_mlm(batch)
-        else:  # automatic
-            return self.automatic_mlm(batch)
+        if self.model_type == "bert":
+            return self.bert_mlm(batch)
+        else:  # roberta
+            return self.roberta_mlm(batch)

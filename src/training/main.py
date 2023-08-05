@@ -1,10 +1,19 @@
 import os
+import pickle
+from pathlib import Path
 
 import typer
 from dataset import TestTextDataset, TrainTextDataset
 from model import ModelWrapper
 from pipeline import PipelineWrapper
+from sklearn.model_selection import train_test_split
 from tokenizer import TokenizerWrapper
+from transformers import (
+    BertForMaskedLM,
+    BertTokenizerFast,
+    RobertaForMaskedLM,
+    RobertaTokenizer,
+)
 
 
 def validate_path(path: str):
@@ -20,11 +29,28 @@ def validate_model_type(model_type: str):
         raise typer.Exit()
 
 
-def validate_mlm_method(mlm_method: str):
-    valid_mlm_methods = ["manual", "automatic"]
-    if mlm_method not in valid_mlm_methods:
-        typer.echo(f"MLM method should be one of {valid_mlm_methods}")
-        raise typer.Exit()
+def create_directory_if_does_not_exist(path: str):
+    # Create the directory if not already there
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+def create_dataset(tokenizer, paths, DatasetClass, max_length):
+    dataset = DatasetClass(tokenizer, paths, max_length=max_length)
+    return dataset
+
+
+def save_dataset(dataset, file_path):
+    with open(file_path, "wb") as f:
+        pickle.dump(dataset, f)
+
+
+def load_dataset(file_path):
+    if not Path(file_path).exists():
+        raise FileNotFoundError(f"No dataset found at {file_path}")
+
+    with open(file_path, "rb") as f:
+        return pickle.load(f)
 
 
 def main(
@@ -32,80 +58,138 @@ def main(
     model_type: str = "bert",
     vocab_size: int = 30522,
     max_length: int = 512,
-    mlm_method: str = "manual",
+    should_train_tokenizer: bool = False,
+    should_create_train_test_sets: bool = False,
+    should_train_model: bool = False,
+    should_inference: bool = False,
+    # train_batch_size: int = 64,
+    # train_steps_per_epoch: int = 64,
+    # validation_batch_size: int = 64,
+    # validation_steps_per_epoch: int = 64,
+    # epochs: int = 1,
+    # freeze_bert_layer: bool = False,
+    # learning_rate: float = 0.01,
+    # seed: int = 42,
+    # run_validation: bool = False,
+    # model_dir: str = os.environ['SM_MODEL_DIR'],
+    # train_data: str = os.environ['SM_CHANNEL_TRAIN'],
+    # validation_data: str = os.environ['SM_CHANNEL_VALIDATION'],
+    # output_dir: str = os.environ['SM_OUTPUT_DIR'],
+    # num_gpus: int = int(os.environ['SM_NUM_GPUS']),
 ):
 
     validate_path(base_path)
     validate_model_type(model_type)
-    validate_mlm_method(mlm_method)
 
-    # Initialize tokenizer
-    tokenizer_wrapper = TokenizerWrapper(
-        base_path=base_path,
-        model_type=model_type,
-        vocab_size=vocab_size,
-        max_length=max_length,
-    )
-    # Get tokenizer
-    tokenizer = tokenizer_wrapper.get_tokenizer()
-    # Get the list of file paths for training and testing datasets
-    train_file_paths = tokenizer_wrapper.get_paths()[0]
-    test_file_paths = tokenizer_wrapper.get_paths()[1]
+    # Set paths
+    dir_path = f"{base_path}/Project/cy{model_type}"
+    tokenizer_path = f"{dir_path}/tokenizer"
 
-    # Create an instance of TrainTextDataset for training data
-    train_dataset = TrainTextDataset(
-        tokenizer, train_file_paths, mlm_method=mlm_method, max_length=max_length
-    )
-    # Create an instance of TestTextDataset for testing data
-    test_dataset = TestTextDataset(
-        tokenizer, test_file_paths, mlm_method=mlm_method, max_length=max_length
-    )
+    if should_train_tokenizer:
+        # Create dirs if do not exist
+        create_directory_if_does_not_exist(dir_path)
+        create_directory_if_does_not_exist(tokenizer_path)
 
-    # # Encoding example
-    # print("The input ids of the encoded input is: ", text_dataset[2]['input_ids'][:10]) # show only the first 10 out of the 512
-    # # Decoding example
-    # print("The corresponding tokens of the input ids are:\n", text_dataset.decode_input_ids_to_string(text_dataset[2]['input_ids']))
-    # # Check the vocab size
-    # vocab = tokenizer_wrapper.get_tokenizer().get_vocab()
-    # vocab_size = len(vocab)
-    # print("\nThe vocab size is: ", vocab_size)
+        # Build tokenizer
+        TokenizerWrapper(
+            model_type=model_type,
+            vocab_size=vocab_size,
+            max_length=max_length,
+        )
+
+    # Load the tokenizer
+    loaded_tokenizer = None
+    if model_type == "bert":
+        loaded_tokenizer = BertTokenizerFast.from_pretrained(tokenizer_path, max_length)
+
+    else:  # roberta
+        loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_path, max_length)
+
+    # Define save paths
+    train_save_path = Path("train_dataset.pkl")
+    test_save_path = Path("test_dataset.pkl")
+
+    if should_create_train_test_sets:
+        all_paths = [str(x) for x in Path(f"{base_path}/cleaned_files/").glob("*.txt")]
+
+        # Get the list of file paths for training and testing datasets
+        train_file_paths, test_file_paths = train_test_split(all_paths, test_size=0.2)
+
+        # Create train set
+        train_dataset = create_dataset(
+            loaded_tokenizer, train_file_paths, TrainTextDataset, max_length
+        )
+        save_dataset(train_dataset, train_save_path)
+
+        # Create test set
+        test_dataset = create_dataset(
+            loaded_tokenizer, test_file_paths, TestTextDataset, max_length
+        )
+        save_dataset(test_dataset, test_save_path)
+
+    # Load datasets
+    train_dataset = load_dataset(train_save_path)
+    test_dataset = load_dataset(test_save_path)
+
+    # e.g. "cybert" or "cyroberta"
+    model_dir_path = f"{base_path}/Project/cy{model_type}/model"
+    # "cybert/pytorch" or "cybert/huggingface"
+    # "cyroberta/pytorch" or "cyroberta/huggingface"
+    model_path = (
+        f"{model_dir_path}/{('pytorch' if model_type == 'bert' else 'huggingface')}"
+    )
 
     ## Train model
-    if mlm_method == "manual":
-        model_wrapper = ModelWrapper(
-            train_set=train_dataset,
-            test_set=test_dataset,
-            base_path=base_path,
-            model_type=model_type,
-            vocab_size=vocab_size,
-            max_length=max_length,
-        )
-    else:  # automatic
-        # Get the data collators of each set
-        train_data_collator = train_dataset.get_data_collator()
-        test_data_collator = test_dataset.get_data_collator()
+    model = None
+    if should_train_model:
+        create_directory_if_does_not_exist(model_dir_path)
+        create_directory_if_does_not_exist(model_path)
 
-        model_wrapper = ModelWrapper(
-            train_set=train_dataset,
-            test_set=test_dataset,
-            data_collator=train_data_collator,
-            base_path=base_path,
-            model_type=model_type,
-            vocab_size=vocab_size,
-            max_length=max_length,
-        )
+        if model_type == "bert":
+            model = ModelWrapper(
+                train_set=train_dataset,
+                test_set=test_dataset,
+                model_type=model_type,
+                vocab_size=vocab_size,
+                max_length=max_length,
+            )
 
-    pipeline_wrapper = PipelineWrapper(
-        model_wrapper.get_model(), tokenizer_wrapper.get_tokenizer()
-    )
-    # method 1
-    result = pipeline_wrapper.predict_next_token("είσαι")
-    # method 2
-    examples = [
-        "Today's most trending hashtags on [MASK] is Donald Trump",
-        "The [MASK] was cloudy yesterday, but today it's rainy.",
-    ]
-    pipeline_wrapper.predict_specific_token_within_a_passing_sequence(examples)
+        else:  # roberta
+            # Cannot get them like that - need to find a different way
+            train_data_collator = train_dataset.get_data_collator()
+            test_data_collator = test_dataset.get_data_collator()
+
+            model = ModelWrapper(
+                train_set=train_dataset,
+                test_set=test_dataset,
+                data_collator=train_data_collator,
+                model_type=model_type,
+                vocab_size=vocab_size,
+                max_length=max_length,
+            )
+
+        model.save_pretrained(model_path)
+
+    # Load model
+    loaded_model = None
+    if model_type == "bert":
+        loaded_model = BertForMaskedLM.from_pretrained(model_path)
+
+    else:  # roberta
+        loaded_model = RobertaForMaskedLM.from_pretrained(model_path)
+
+    if should_inference:
+        pipeline_wrapper = PipelineWrapper(loaded_model, loaded_tokenizer)
+
+        # method 1
+        pipeline_wrapper.predict_next_token("είσαι")
+
+        # method 2
+        examples = [
+            "Today's most trending hashtags on [MASK] is Donald Trump",
+            "The [MASK] was cloudy yesterday, but today it's rainy.",
+        ]
+        pipeline_wrapper.predict_specific_token_within_a_passing_sequence(examples)
 
 
 if __name__ == "__main__":

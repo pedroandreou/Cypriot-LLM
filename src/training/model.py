@@ -1,5 +1,3 @@
-import os
-
 import torch
 from torch.optim import AdamW
 from tqdm.auto import tqdm
@@ -19,17 +17,13 @@ class ModelWrapper:
         train_set,
         test_set,
         data_collator=None,
-        base_path="/content/drive/MyDrive/Uni/Masters/Thesis",
-        mlm_method="manual",
         model_type="bert",
         vocab_size=30_522,
         max_length=512,
     ):
         self.train_set = train_set
         self.test_set = test_set
-        self.data_collator = (
-            data_collator  # Optional as it only exists for the automatic mlm task
-        )
+        self.data_collator = data_collator  # Optional as this is way that RoBeRTa is trained using the HuggingFace API works
 
         self.model_type = model_type
         self.device = (
@@ -58,24 +52,12 @@ class ModelWrapper:
         # Print the model parameters
         print(self.model.num_parameters())
 
-        # e.g. "cybert" or "cyroberta"
-        self.model_dir_path = f"{base_path}/Project/cy{self.model_type}/model"
-        self.create_directory_if_does_not_exist(self.model_dir_path)
-        # "cybert/pytorch" or "cybert/huggingface"
-        # "cyroberta/pytorch" or "cyroberta/huggingface"
-        self.model_path = f"{self.model_dir_path}/{('pytorch' if mlm_method == 'manual' else 'huggingface')}"
-        self.create_directory_if_does_not_exist(self.model_path)
-
-        if mlm_method == "manual":  # PyTorch
+        # Train model
+        if self.model_type == "bert":
             self.train_model_using_pytorch_api()
 
-        else:  # Automatic MLM task => HuggingFace
+        else:  # roberta
             self.train_model_using_huggingface_trainer_api()
-
-    def create_directory_if_does_not_exist(self, path):
-        # Create the directory if not already there
-        if not os.path.exists(path):
-            os.makedirs(path)
 
     def train_model_using_pytorch_api(self):
         """
@@ -114,8 +96,8 @@ class ModelWrapper:
                 loop.set_description(f"Epoch {epoch}")
                 loop.set_postfix(loss=loss.item())
 
-        # Save model
-        self.model.save_pretrained(self.model_path)
+        # Return model
+        return self.model
 
     def train_model_using_huggingface_trainer_api(self):
         """
@@ -156,15 +138,5 @@ class ModelWrapper:
         # Train the model
         trainer.train()
 
-        # Save model
-        self.model.save_pretrained(self.model_path)
-
-    def get_model(self):
-        if self.model_type == "bert":
-            loaded_model = BertForMaskedLM.from_pretrained(self.model_path)
-            # model = BertForMaskedLM.from_pretrained(os.path.join(model_path, "checkpoint-10000"))
-
-        else:  # roberta
-            loaded_model = RobertaForMaskedLM.from_pretrained(self.model_path)
-
-        return loaded_model
+        # Return model
+        return self.model

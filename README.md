@@ -60,11 +60,11 @@ python export_csv_docs_to_txt_files.py --input-file-name="preprocessed_docs" --o
 ```
 #### Compare the tokens of files
 ```
-python compare_token_counts.py "all_documents" "preprocessed_docs"
+python utils/compare_token_counts.py "all_documents" "preprocessed_docs"
 ```
 #### Calculate the file capacity
 ```
-python calculate_file_capacity.py --input-file-name="preprocessed_docs"
+python utils/calculate_file_capacity.py --input-file-name="preprocessed_docs"
 ```
 
 
