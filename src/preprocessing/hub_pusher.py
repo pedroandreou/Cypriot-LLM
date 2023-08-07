@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import typer
 from datasets import Dataset, DatasetDict
@@ -8,8 +10,8 @@ def push_dataset(
     huggingface_token: str,
     output_file_name: str,
     custom_key: str,
-    first_time_login: bool = False,
-    huggingface_dataset_repo_name: str = "your_repo_name",
+    first_time_login: bool,
+    huggingface_dataset_repo_name: str,
 ):
     typer.echo("Pushing to the hub...")
 
