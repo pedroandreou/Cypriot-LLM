@@ -1,6 +1,8 @@
-# Venv, direnv
-.envrc
+# Windows Virtual Environment
 .venv
+
+# Environment variables
+.env
 
 # IDEs
 .vscode

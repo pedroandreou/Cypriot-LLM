@@ -8,3 +8,5 @@ transformers[torch]
 scikit-learn
 typer
 rich
+# huggingface_hub
+# datasets

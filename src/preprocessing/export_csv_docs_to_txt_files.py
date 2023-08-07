@@ -1,16 +1,28 @@
-import pandas as pd
+import os
+
 import typer
+from datasets import load_dataset
+from dotenv import find_dotenv, load_dotenv
+
+load_dotenv(find_dotenv())
 
 
 def main(
-    input_file_name: str = "preprocessed_docs",
-    output_dir_path: str = r"G:\My Drive\Uni\Masters\Thesis\cleaned_files",
+    output_dir_path: str = os.getenv("CLEANED_FILES_DIR_PATH"),
+    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
 ):
-    df = pd.read_csv(f"{input_file_name}.csv")
+    # Load the dataset
+    dataset = load_dataset(huggingface_dataset_repo_name)
+
+    # Access the dataset
+    dataset = dataset["preprocessed_data"]
+
+    # Convert to Pandas DataFrame
+    df = dataset.to_pandas()
 
     for num in range(len(df)):
         value = df.iloc[num, 1]
-        # print(value)
+
         with open(f"{output_dir_path}\\text_file{num}.txt", "w", encoding="utf-8") as f:
             f.write(str(value))
 

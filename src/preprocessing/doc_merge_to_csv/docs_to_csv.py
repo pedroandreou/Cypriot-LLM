@@ -5,8 +5,11 @@ import docx
 import pandas as pd
 import textract
 import typer
+from dotenv import find_dotenv, load_dotenv
 from pdfminer.high_level import extract_text
 from rich import print
+
+load_dotenv(find_dotenv())
 
 """
 This script reads different document formats (PDF, Docx, ODT), extracts their text content, and creates a DataFrame from it.
@@ -80,8 +83,8 @@ class DocumentReader:
 
 
 def main(
-    data_path: str = "G:\\My Drive\\Uni\\Masters\\Thesis\\dataset",
-    output_file_name: str = "all_documents",
+    data_path: str = os.getenv("DATASET_DIR_PATH"),
+    output_file_name: str = os.getenv("COMPILED_DOCS_FILE_NAME"),
 ):
     reader = DocumentReader(data_path)
 
@@ -90,7 +93,7 @@ def main(
     print(df.head())
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    output_file = os.path.join(script_directory, f"{output_file_name}.csv")
+    output_file = os.path.join(script_directory, output_file_name)
     df.to_csv(output_file, index=False)
 
 

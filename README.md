@@ -34,6 +34,13 @@ pip install -r requirements.txt
 ```
 
 
+### Make a copy of the example environment variables file (this is not the virtual env; don't get confused; it's just for keeping your HuggingFace token secured)
+```
+cd src
+xcopy .env.example .env
+```
+
+
 ### How to update the requirements
 When a new requirement is needed you should add it to `unpinned_requirements.txt` and run
 ```
@@ -46,25 +53,31 @@ cmd.exe /C setup_new_environment.bat
 ```
 cd ./src/preprocessing
 ```
+
 #### Create a CSV containing all the docs
 ```
-python docs_to_csv.py --data-path="G:\\My Drive\\Uni\\Masters\\Thesis\\dataset" --output-file-name="all_documents"
+cd ./doc_merge_to_csv
+python docs_to_csv.py
 ```
+
 #### Preprocess the docs of the CSV
 ```
-python data_cleaner/main.py --input-file-name="all_documents" --output-file-name="preprocessed_docs"
+cd ./data_cleaner
 ```
+
+If you want to clean the data and push it to the hub for the first time
+```
+python main.py --clean-data --first-time-login --push-to-hub
+```
+
+If the data is already cleaned, you are already logged in to the huggingface-cli and you just want to push it to the hub
+```
+python main.py --no-clean-data --no-first-time-login --push-to-hub
+```
+
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer will need the paths to the files
 ```
-python export_csv_docs_to_txt_files.py --input-file-name="preprocessed_docs" --output-dir-path="G:\\My Drive\\Uni\\Masters\\Thesis\\cleaned_files"
-```
-#### Compare the tokens of files
-```
-python utils/compare_token_counts.py "all_documents" "preprocessed_docs"
-```
-#### Calculate the file capacity
-```
-python utils/calculate_file_capacity.py --input-file-name="preprocessed_docs"
+python export_csv_docs_to_txt_files.py
 ```
 
 
@@ -76,11 +89,11 @@ cd ./src/training
 ```
 python main.py --should-train-tokenizer --should-split-train-test --should-create-train-test-sets --should-train-model --should-inference
 ```
-#### Train Model
+#### Second time: Just focus on Training the Model
 ```
 python main.py --should-train-model
 ```
-#### Do Inference
+#### Thrid time: Just focus on Inferencing
 ```
 python main.py --should-inference
 ```
