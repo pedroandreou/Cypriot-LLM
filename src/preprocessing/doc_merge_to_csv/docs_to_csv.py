@@ -9,6 +9,8 @@ from dotenv import find_dotenv, load_dotenv
 from pdfminer.high_level import extract_text
 from rich import print
 
+from src.preprocessing.hub_pusher import push_dataset
+
 load_dotenv(find_dotenv())
 
 """
@@ -87,18 +89,46 @@ app = typer.Typer()
 
 @app.command()
 def main(
+    merge_data: bool = typer.Option(
+        False, help="Enable or disable data merging into a single CSV file."
+    ),
     data_path: str = os.getenv("DATASET_DIR_PATH"),
     output_file_name: str = os.getenv("COMPILED_DOCS_FILE_NAME"),
+    first_time_login: bool = typer.Option(
+        False,
+        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
+    ),
+    push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
+    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
+    huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
 ):
-    reader = DocumentReader(data_path)
 
-    # Create the dataframe
-    df = reader.create_dataframe()
-    print(df.head())
+    if merge_data:
+        typer.echo("Compiling the data into a single CSV file...")
 
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    output_file = os.path.join(script_directory, output_file_name)
-    df.to_csv(output_file, index=False)
+        reader = DocumentReader(data_path)
+
+        # Create the dataframe
+        df = reader.create_dataframe()
+        print(df.head())
+
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+        output_file = os.path.join(script_directory, output_file_name)
+        df.to_csv(output_file, index=False)
+    else:
+        typer.echo("Skipping the data compilation into a single CSV file...")
+
+    # Push all data to the hub
+    if push_to_hub:
+        push_dataset(
+            huggingface_token,
+            output_file_name,
+            custom_key="all_data",
+            first_time_login=first_time_login,
+            huggingface_dataset_repo_name=huggingface_dataset_repo_name,
+        )
+    else:
+        typer.echo("Skipping push to the hub...")
 
 
 if __name__ == "__main__":

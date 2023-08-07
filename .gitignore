@@ -9,6 +9,7 @@
 
 # Python
 **/__pycache__
+**/*.egg-info
 
 # CSV overall files
 **/*.csv
