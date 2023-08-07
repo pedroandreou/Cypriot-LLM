@@ -7,6 +7,10 @@ from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
 
 
+app = typer.Typer()
+
+
+@app.command()
 def main(
     output_dir_path: str = os.getenv("CLEANED_FILES_DIR_PATH"),
     huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),

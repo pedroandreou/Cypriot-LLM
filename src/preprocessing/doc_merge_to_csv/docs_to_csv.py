@@ -82,6 +82,10 @@ class DocumentReader:
         return df
 
 
+app = typer.Typer()
+
+
+@app.command()
 def main(
     data_path: str = os.getenv("DATASET_DIR_PATH"),
     output_file_name: str = os.getenv("COMPILED_DOCS_FILE_NAME"),

@@ -1,13 +1,21 @@
+import os
+
 import pandas as pd
 import typer
+from dotenv import find_dotenv, load_dotenv
 from rich.console import Console
 from rich.table import Table
 
+load_dotenv(find_dotenv())
 console = Console()
+app = typer.Typer()
 
 
-def main(input_file_name: str = "preprocessed_docs"):
-    df = pd.read_csv(f"{input_file_name}.csv")
+@app.command()
+def main(
+    input_file_name: str = f"../data_cleaner/{os.getenv('PREPROCESSED_DOCS_FILE_NAME')}",
+):
+    df = pd.read_csv(input_file_name)
 
     # calculate the size of the content column in bytes
     total_size_in_bytes = df["content"].str.len().sum()

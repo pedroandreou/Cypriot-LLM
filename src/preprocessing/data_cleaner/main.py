@@ -12,10 +12,6 @@ from pattern_remover import PatternRemover
 load_dotenv(find_dotenv())
 
 
-app = typer.Typer()
-
-
-@app.command()
 def main(
     clean_data: bool = typer.Option(False, help="Enable or disable data cleaning."),
     input_file_name: str = typer.Option(

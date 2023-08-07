@@ -13,7 +13,9 @@ from rich.table import Table
     A comparison is then made between the token counts of the files, and the results are returned.
 """
 
+
 console = Console()
+app = typer.Typer()
 
 
 def count_tokens(df):
@@ -27,6 +29,7 @@ def count_tokens(df):
     return token_count
 
 
+@app.command()
 def main(files: List[str]):
     if len(files) < 2:
         typer.echo("At least two file paths must be provided for comparison.")
