@@ -19,3 +19,6 @@
 
 # Dataset saved encodings
 **/*.pkl
+
+# Inference directory
+inference/

@@ -1,5 +1,6 @@
 import torch
-from mlm_task import MLMTask
+
+from .masked_language_model import MLMTask
 
 
 class BaseDataset(MLMTask):

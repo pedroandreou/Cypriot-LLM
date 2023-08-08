@@ -99,5 +99,11 @@ python main.py --should-inference
 ```
 
 
+## :trophy: Inference
+```
+cd ./src/inference
+```
+
+
 ## 🛠 Initialization & Setup
     git clone https://github.com/pedroandreou/Cypriot-LLM.git

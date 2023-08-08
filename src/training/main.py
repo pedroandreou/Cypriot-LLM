@@ -3,21 +3,18 @@ import pickle
 from pathlib import Path
 
 import typer
-from dataset import TestTextDataset, TrainTextDataset
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
+from mlm_components.dataset import TestTextDataset, TrainTextDataset
 from model import ModelWrapper
-from path_splitter import PathSplitter
-from pipeline import PipelineWrapper
-from tokenizer import TokenizerWrapper
+from tokenizer.path_splitter import PathSplitter
+from tokenizer.tokenizer import TokenizerWrapper
 from transformers import (
-    BertForMaskedLM,
     BertTokenizerFast,
     DataCollatorForLanguageModeling,
-    RobertaForMaskedLM,
     RobertaTokenizer,
 )
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 
 def validate_path(path: str):
@@ -55,6 +52,8 @@ def main(
     cleaned_files_dir_path: str = os.getenv("CLEANED_FILES_DIR_PATH"),
     cybert_dir_path: str = os.getenv("CYBERT_DIR_PATH"),
     cyroberta_dir_path: str = os.getenv("CYROBERTA_DIR_PATH"),
+    trainpaths_file_path: str = os.getenv("TRAINPATHS_FILE_PATH"),
+    testpaths_file_path: str = os.getenv("TESTPATHS_FILE_PATH"),
     cybert_tokenizer_dir_path: str = os.getenv("CYBERT_TOKENIZER_DIR_PATH"),
     cyroberta_tokenizer_dir_path: str = os.getenv("CYROBERTA_TOKENIZER_DIR_PATH"),
     train_ecodings_file_path: str = os.getenv("TRAIN_DATASET_ENCODINGS_FILE_PATH"),
@@ -64,11 +63,10 @@ def main(
     model_type: str = "bert",
     vocab_size: int = 30522,
     max_length: int = 512,
-    should_train_tokenizer: bool = False,
     should_split_paths: bool = False,
+    should_train_tokenizer: bool = False,
     should_create_train_test_sets: bool = False,
     should_train_model: bool = False,
-    should_inference: bool = False,
     # train_batch_size: int = 64,
     # train_steps_per_epoch: int = 64,
     # validation_batch_size: int = 64,
@@ -102,8 +100,12 @@ def main(
     if should_split_paths:
         typer.echo("Splitting all paths to train and test path sets...")
 
-        path_splitter = PathSplitter(cleaned_files_dir_path=cleaned_files_dir_path)
-        train_file_paths, test_file_paths = path_splitter.split_paths()
+        path_splitter = PathSplitter(
+            cleaned_files_dir_path=cleaned_files_dir_path,
+            trainpaths_file_path=trainpaths_file_path,  # file path where the save the train paths
+            testpaths_file_path=testpaths_file_path,  # file path where the save the test paths
+        )
+        train_paths_list, test_paths_list = path_splitter.split_paths()
         path_splitter.save_paths()
 
     else:
@@ -111,14 +113,18 @@ def main(
             "Skipping the split of all paths...\nWill try to load the train and test path sets from the files."
         )
 
-        path_splitter = PathSplitter(cleaned_files_dir_path=cleaned_files_dir_path)
-        train_file_paths, test_file_paths = path_splitter.load_paths()
+        path_splitter = PathSplitter(
+            cleaned_files_dir_path=cleaned_files_dir_path,
+            trainpaths_file_path=trainpaths_file_path,  # file path where the save the train paths
+            testpaths_file_path=testpaths_file_path,  # file path where the save the test paths
+        )
+        train_paths_list, test_paths_list = path_splitter.load_paths()
 
     if should_train_tokenizer:
         typer.echo("Training a tokenizer from scratch...")
 
         TokenizerWrapper(
-            train_paths=train_file_paths,
+            train_paths=train_paths_list,
             tokenizer_path=tokenizer_path,
             model_type=model_type,
             vocab_size=vocab_size,
@@ -139,7 +145,7 @@ def main(
 
         typer.echo("Creating masked encodings of the train set...")
         train_dataset = create_dataset(
-            loaded_tokenizer, train_file_paths, TrainTextDataset, max_length
+            loaded_tokenizer, train_paths_list, TrainTextDataset, max_length
         )
 
         typer.echo("Saving the masked encodings of the train set...")
@@ -147,7 +153,7 @@ def main(
 
         typer.echo("Creating masked encodings of the test set...")
         test_dataset = create_dataset(
-            loaded_tokenizer, test_file_paths, TestTextDataset, max_length
+            loaded_tokenizer, test_paths_list, TestTextDataset, max_length
         )
 
         typer.echo("Saving the masked encodings of the test set...")
@@ -189,27 +195,6 @@ def main(
 
     else:
         typer.echo("Skipping the training of a model from scratch...")
-
-    typer.echo("Loading the saved model...")
-    if model_type == "bert":
-        loaded_model = BertForMaskedLM.from_pretrained(model_path)
-
-    else:  # roberta
-        loaded_model = RobertaForMaskedLM.from_pretrained(model_path)
-
-    typer.echo("Inference...")
-    if should_inference:
-        pipeline_wrapper = PipelineWrapper(loaded_model, loaded_tokenizer)
-
-        # method 1
-        pipeline_wrapper.predict_next_token("είσαι")
-
-        # method 2
-        examples = [
-            "Today's most trending hashtags on [MASK] is Donald Trump",
-            "The [MASK] was cloudy yesterday, but today it's rainy.",
-        ]
-        pipeline_wrapper.predict_specific_token_within_a_passing_sequence(examples)
 
 
 if __name__ == "__main__":
