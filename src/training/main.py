@@ -6,8 +6,8 @@ import typer
 from dotenv import find_dotenv, load_dotenv
 from mlm_components.dataset import TestTextDataset, TrainTextDataset
 from model import ModelWrapper
-from tokenizer.path_splitter import PathSplitter
-from tokenizer.tokenizer import TokenizerWrapper
+from tokenizer_components.path_splitter import PathSplitter
+from tokenizer_components.tokenizer import TokenizerWrapper
 from transformers import (
     BertTokenizerFast,
     DataCollatorForLanguageModeling,

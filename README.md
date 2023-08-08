@@ -85,17 +85,13 @@ python export_csv_docs_to_txt_files.py
 ```
 cd ./src/training
 ```
-#### First time: Train tokenizer, Split Paths to 80% for training and 20% for testing, Create datasets, Train Model, Do Inference
+#### First time: Split Paths to 80% for training and 20% for testing, Train tokenizer, Create dataset masked encodings
 ```
-python main.py --should-train-tokenizer --should-split-train-test --should-create-train-test-sets --should-train-model --should-inference
+python main.py --should-split-paths --should-train-tokenizer --should-create-train-test-sets
 ```
 #### Second time: Just focus on Training the Model
 ```
 python main.py --should-train-model
-```
-#### Thrid time: Just focus on Inferencing
-```
-python main.py --should-inference
 ```
 
 
