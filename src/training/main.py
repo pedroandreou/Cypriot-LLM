@@ -5,7 +5,7 @@ from pathlib import Path
 import typer
 from dotenv import find_dotenv, load_dotenv
 from mlm_components.dataset import TestTextDataset, TrainTextDataset
-from model import ModelWrapper
+from model_components.model import ModelWrapper
 from tokenizer_components.path_splitter import PathSplitter
 from tokenizer_components.tokenizer import TokenizerWrapper
 from transformers import (
