@@ -9,6 +9,9 @@ class HuggingFaceTrainer:
         self.data_collator = data_collator
         self.model_path = model_path
 
+        # Train model
+        self.train()
+
     def train(self):
         """
         This training method is considered as automatic since it is used in combination with the automatic implementation of the MLM task

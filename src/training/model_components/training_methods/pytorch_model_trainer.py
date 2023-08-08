@@ -10,6 +10,9 @@ class PyTorchModelTrainer:
         self.device = device
         self.model_path = model_path
 
+        # Train model
+        self.train()
+
     def train(self):
         """
         PyTorch is considered as the manual way to train since it is used in combination with the manual implementation of the MLM task
