@@ -6,8 +6,8 @@ import typer
 from dataset import TestTextDataset, TrainTextDataset
 from dotenv import load_dotenv
 from model import ModelWrapper
+from path_splitter import PathSplitter
 from pipeline import PipelineWrapper
-from sklearn.model_selection import train_test_split
 from tokenizer import TokenizerWrapper
 from transformers import (
     BertForMaskedLM,
@@ -57,13 +57,15 @@ def main(
     cyroberta_dir_path: str = os.getenv("CYROBERTA_DIR_PATH"),
     cybert_tokenizer_dir_path: str = os.getenv("CYBERT_TOKENIZER_DIR_PATH"),
     cyroberta_tokenizer_dir_path: str = os.getenv("CYROBERTA_TOKENIZER_DIR_PATH"),
+    train_ecodings_file_path: str = os.getenv("TRAIN_DATASET_ENCODINGS_FILE_PATH"),
+    test_encodings_file_path: str = os.getenv("TEST_DATASET_ENCODINGS_FILE_PATH"),
     cybert_model_dir_path: str = os.getenv("CYBERT_MODEL_DIR_PATH"),
     cyroberta_model_dir_path: str = os.getenv("CYROBERTA_MODEL_DIR_PATH"),
     model_type: str = "bert",
     vocab_size: int = 30522,
     max_length: int = 512,
     should_train_tokenizer: bool = False,
-    should_split_train_test: bool = False,
+    should_split_paths: bool = False,
     should_create_train_test_sets: bool = False,
     should_train_model: bool = False,
     should_inference: bool = False,
@@ -77,6 +79,7 @@ def main(
     # seed: int = 42,
     # run_validation: bool = False,
 ):
+    typer.echo("Validating given model type and paths...")
 
     validate_model_type(model_type)
     validate_path(cleaned_files_dir_path)
@@ -96,37 +99,24 @@ def main(
     validate_path(tokenizer_path)
     validate_path(model_path)
 
-    if should_split_train_test:
-        all_paths = [str(x) for x in Path(cleaned_files_dir_path).glob("*.txt")]
-        # Get the list of file paths for training and testing datasets
-        train_file_paths, test_file_paths = train_test_split(all_paths, test_size=0.2)
+    if should_split_paths:
+        typer.echo("Splitting all paths to train and test path sets...")
 
-        # Saving the lists
-        with open("training_testing_file_paths/train_file_paths.txt", "w") as f:
-            for item in train_file_paths:
-                f.write("%s\n" % item)
-        with open("training_testing_file_paths/test_file_paths.txt", "w") as f:
-            for item in test_file_paths:
-                f.write("%s\n" % item)
+        path_splitter = PathSplitter(cleaned_files_dir_path=cleaned_files_dir_path)
+        train_file_paths, test_file_paths = path_splitter.split_paths()
+        path_splitter.save_paths()
+
     else:
-        try:
-            # Loading the lists
-            with open("training_testing_file_paths/train_file_paths.txt", "r") as f:
-                train_file_paths = f.read().splitlines()
-                print("the train file paths are: ", train_file_paths)
+        typer.echo(
+            "Skipping the split of all paths...\nWill try to load the train and test path sets from the files."
+        )
 
-            with open("training_testing_file_paths/test_file_paths.txt", "r") as f:
-                test_file_paths = f.read().splitlines()
-                print("the test file paths are: ", test_file_paths)
+        path_splitter = PathSplitter(cleaned_files_dir_path=cleaned_files_dir_path)
+        train_file_paths, test_file_paths = path_splitter.load_paths()
 
-        except FileNotFoundError:
-            typer.echo(
-                f"train_file_paths.txt and test_file_paths.txt not found.\nYou should run the script with --should-split-train-test flag first."
-            )
-            raise typer.Exit()
-
-    # Train/Build a tokenizer
     if should_train_tokenizer:
+        typer.echo("Training a tokenizer from scratch...")
+
         TokenizerWrapper(
             train_paths=train_file_paths,
             tokenizer_path=tokenizer_path,
@@ -135,35 +125,43 @@ def main(
             max_length=max_length,
         )
 
-    # Load the tokenizer
+    else:
+        typer.echo("Skipping the training of a tokenizer from scratch...")
+
+    typer.echo("Loading the saved tokenizer...")
     if model_type == "bert":
         loaded_tokenizer = BertTokenizerFast.from_pretrained(tokenizer_path)
 
     else:  # roberta
         loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_path)
 
-    # Define save paths
-    train_save_path = Path("dataset_encodings/train_dataset.pkl")
-    test_save_path = Path("dataset_encodings/test_dataset.pkl")
     if should_create_train_test_sets:
-        # Create train set
+
+        typer.echo("Creating masked encodings of the train set...")
         train_dataset = create_dataset(
             loaded_tokenizer, train_file_paths, TrainTextDataset, max_length
         )
-        save_dataset(train_dataset, train_save_path)
 
-        # Create test set
+        typer.echo("Saving the masked encodings of the train set...")
+        save_dataset(train_dataset, train_ecodings_file_path)
+
+        typer.echo("Creating masked encodings of the test set...")
         test_dataset = create_dataset(
             loaded_tokenizer, test_file_paths, TestTextDataset, max_length
         )
-        save_dataset(test_dataset, test_save_path)
-    # Load datasets
-    train_dataset = load_dataset(train_save_path)
-    test_dataset = load_dataset(test_save_path)
+
+        typer.echo("Saving the masked encodings of the test set...")
+        save_dataset(test_dataset, test_encodings_file_path)
+
+    typer.echo("Loading the masked encodings of the train and test sets...")
+    train_dataset = load_dataset(train_ecodings_file_path)
+    test_dataset = load_dataset(test_encodings_file_path)
 
     # Train model
     if should_train_model:
         if model_type == "bert":
+            typer.echo("Training a BERT model using the PyTorch API...")
+
             ModelWrapper(
                 train_set=train_dataset,
                 test_set=test_dataset,
@@ -173,6 +171,8 @@ def main(
             )
 
         else:  # roberta
+            typer.echo("Training a RoBeRTa model using the HuggingFace API...")
+
             data_collator = DataCollatorForLanguageModeling(
                 tokenizer=loaded_tokenizer, mlm=True, mlm_probability=0.15
             )
@@ -187,13 +187,17 @@ def main(
                 max_length=max_length,
             )
 
-    # Load model
+    else:
+        typer.echo("Skipping the training of a model from scratch...")
+
+    typer.echo("Loading the saved model...")
     if model_type == "bert":
         loaded_model = BertForMaskedLM.from_pretrained(model_path)
 
     else:  # roberta
         loaded_model = RobertaForMaskedLM.from_pretrained(model_path)
 
+    typer.echo("Inference...")
     if should_inference:
         pipeline_wrapper = PipelineWrapper(loaded_model, loaded_tokenizer)
 

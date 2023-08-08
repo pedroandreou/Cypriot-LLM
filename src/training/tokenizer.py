@@ -1,6 +1,7 @@
 import json
 import os
 
+import typer
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 
 
@@ -19,7 +20,7 @@ class TokenizerWrapper:
         self.vocab_size = vocab_size
         self.max_length = max_length
 
-        # Initialize tokenizer
+        typer.echo("Initializing the tokenizer...")
         self.tokenizer = (
             BertWordPieceTokenizer(
                 clean_text=True,
@@ -30,10 +31,11 @@ class TokenizerWrapper:
             if self.model_type.lower() == "bert"
             else ByteLevelBPETokenizer()
         )
-        # Train tokenizer
+
+        typer.echo("Training the tokenizer...")
         self.train_tokenizer()
 
-        # Export tokenizer
+        typer.echo("Saving the tokenizer...")
         self.save_tokenizer()
 
     def train_tokenizer(self):

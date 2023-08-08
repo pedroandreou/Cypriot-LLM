@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 import typer
 from datasets import Dataset, DatasetDict
