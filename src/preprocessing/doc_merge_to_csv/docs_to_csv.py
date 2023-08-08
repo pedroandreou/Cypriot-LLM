@@ -9,7 +9,7 @@ from dotenv import find_dotenv, load_dotenv
 from pdfminer.high_level import extract_text
 from rich import print
 
-from src.preprocessing.hub_pusher import push_dataset
+from src.hub_pusher import push_dataset
 
 load_dotenv(find_dotenv())
 

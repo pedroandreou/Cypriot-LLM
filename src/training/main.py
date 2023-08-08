@@ -14,6 +14,8 @@ from transformers import (
     RobertaTokenizer,
 )
 
+from src.hub_pusher import push_tokenizer
+
 load_dotenv(find_dotenv())
 
 
@@ -60,12 +62,26 @@ def main(
     test_encodings_file_path: str = os.getenv("TEST_DATASET_ENCODINGS_FILE_PATH"),
     cybert_model_dir_path: str = os.getenv("CYBERT_MODEL_DIR_PATH"),
     cyroberta_model_dir_path: str = os.getenv("CYROBERTA_MODEL_DIR_PATH"),
+    # model type
     model_type: str = "bert",
+    # hyperparameters
     vocab_size: int = 30522,
     max_length: int = 512,
+    # tokenizer
     should_split_paths: bool = False,
     should_train_tokenizer: bool = False,
+    push_tokenizer_to_hub: bool = typer.Option(
+        False, help="Enable or disable pushing tokenizer to hub."
+    ),
+    first_time_login: bool = typer.Option(
+        False,
+        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
+    ),
+    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
+    huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
+    # create train and test sets
     should_create_train_test_sets: bool = False,
+    # model
     should_train_model: bool = False,
     # train_batch_size: int = 64,
     # train_steps_per_epoch: int = 64,
@@ -129,6 +145,10 @@ def main(
             model_type=model_type,
             vocab_size=vocab_size,
             max_length=max_length,
+            push_to_hub=push_tokenizer_to_hub,
+            first_time_login=first_time_login,
+            huggingface_dataset_repo_name=huggingface_dataset_repo_name,
+            huggingface_token=huggingface_token,
         )
 
     else:
@@ -140,6 +160,17 @@ def main(
 
     else:  # roberta
         loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_path)
+
+    # Push tokenizer to Hub
+    if push_tokenizer_to_hub:
+        push_tokenizer(
+            tokenizer=loaded_tokenizer,
+            first_time_login=first_time_login,
+            huggingface_repo_name=huggingface_dataset_repo_name,
+            huggingface_token=huggingface_token,
+        )
+    else:
+        typer.echo("Skipping the push of the tokenizer to the hub...")
 
     if should_create_train_test_sets:
 
@@ -159,12 +190,12 @@ def main(
         typer.echo("Saving the masked encodings of the test set...")
         save_dataset(test_dataset, test_encodings_file_path)
 
-    typer.echo("Loading the masked encodings of the train and test sets...")
-    train_dataset = load_dataset(train_ecodings_file_path)
-    test_dataset = load_dataset(test_encodings_file_path)
-
     # Train model
     if should_train_model:
+        typer.echo("Loading the masked encodings of the train and test sets...")
+        train_dataset = load_dataset(train_ecodings_file_path)
+        test_dataset = load_dataset(test_encodings_file_path)
+
         if model_type == "bert":
             typer.echo("Training a BERT model using the PyTorch API...")
 

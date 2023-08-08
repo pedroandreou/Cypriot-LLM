@@ -40,11 +40,11 @@ class PathSplitter:
 
             with open(self.trainpaths_file_path, "r") as f:
                 self.train_paths_list = f.read().splitlines()
-                print("the train file paths are: ", self.train_paths_list)
 
             with open(self.testpaths_file_path, "r") as f:
                 self.test_paths_list = f.read().splitlines()
-                print("the test file paths are: ", self.test_paths_list)
+
+            return self.train_paths_list, self.test_paths_list
 
         except FileNotFoundError:
             typer.echo(

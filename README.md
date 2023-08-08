@@ -89,7 +89,11 @@ cd ./src/training
 ```
 python main.py --should-split-paths --should-train-tokenizer --should-create-train-test-sets
 ```
-#### Second time: Just focus on Training the Model
+#### Second time: Just push tokenizer to the HuggingFace Hub
+```
+python main.py --push-tokenizer-to-hub
+```
+#### Third time: Just focus on Training the Model
 ```
 python main.py --should-train-model
 ```

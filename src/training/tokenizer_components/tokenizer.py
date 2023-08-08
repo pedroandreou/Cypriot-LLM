@@ -10,9 +10,9 @@ class TokenizerWrapper:
         self,
         train_paths: list,
         tokenizer_path: str,
-        model_type: str = "bert",
-        vocab_size=30_522,
-        max_length: str = 512,
+        model_type: str,
+        vocab_size,
+        max_length: str,
     ):
         self.train_paths = train_paths
         self.tokenizer_path = tokenizer_path

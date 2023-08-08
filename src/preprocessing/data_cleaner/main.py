@@ -7,7 +7,7 @@ from dotenv import find_dotenv, load_dotenv
 from greek_letter_joiner import GreekLetterJoiner
 from pattern_remover import PatternRemover
 
-from src.preprocessing.hub_pusher import push_dataset
+from src.hub_pusher import push_dataset
 
 load_dotenv(find_dotenv())
 
