@@ -46,7 +46,7 @@ class TokenizerWrapper:
         )
 
         train_params = {
-            "files": self.train_paths[:5],  # CHANGE THIS
+            "files": self.train_paths,  # CHANGE THIS
             "vocab_size": self.vocab_size,  # number of tokens in our tokenizer
             "special_tokens": self.special_tokens,
         }

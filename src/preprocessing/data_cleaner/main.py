@@ -26,13 +26,13 @@ def main(
         os.getenv("PREPROCESSED_DOCS_FILE_NAME"),
         help="Name of the file to save the preprocessed documents CSV file.",
     ),
+    push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
     first_time_login: bool = typer.Option(
         False,
         help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
     ),
-    push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
-    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
     huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
+    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
 ):
     if clean_data:
         typer.echo("Cleaning the data...")
@@ -78,11 +78,11 @@ def main(
     # Push the preprocessed data to the hub
     if push_to_hub:
         push_dataset(
-            huggingface_token,
-            output_file_name,
-            custom_key="preprocessed_data",
             first_time_login=first_time_login,
+            huggingface_token=huggingface_token,
             huggingface_dataset_repo_name=huggingface_dataset_repo_name,
+            output_file_name=output_file_name,
+            custom_key="preprocessed_data",
         )
     else:
         typer.echo("Skipping push to the hub...")

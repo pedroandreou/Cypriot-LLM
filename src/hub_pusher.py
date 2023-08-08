@@ -13,11 +13,11 @@ def hub_login(token: str, first_time_login: bool) -> None:
 
 
 def push_dataset(
+    first_time_login: bool,
     huggingface_token: str,
+    huggingface_dataset_repo_name: str,
     output_file_name: str,
     custom_key: str,
-    first_time_login: bool,
-    huggingface_dataset_repo_name: str,
 ) -> None:
     typer.echo("Pushing dataset to the hub...")
     hub_login(huggingface_token, first_time_login)
@@ -34,8 +34,8 @@ def push_dataset(
 def push_tokenizer(
     tokenizer,
     first_time_login: bool,
-    huggingface_repo_name: str,
     huggingface_token: str,
+    huggingface_repo_name: str,
 ) -> None:
     typer.echo("Pushing tokenizer to the hub...")
     hub_login(huggingface_token, first_time_login)

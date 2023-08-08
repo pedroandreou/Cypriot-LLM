@@ -77,8 +77,8 @@ def main(
         False,
         help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
     ),
-    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
     huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
+    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
     # create train and test sets
     should_create_train_test_sets: bool = False,
     # model
@@ -147,8 +147,8 @@ def main(
             max_length=max_length,
             push_to_hub=push_tokenizer_to_hub,
             first_time_login=first_time_login,
-            huggingface_dataset_repo_name=huggingface_dataset_repo_name,
             huggingface_token=huggingface_token,
+            huggingface_dataset_repo_name=huggingface_dataset_repo_name,
         )
 
     else:
@@ -166,8 +166,8 @@ def main(
         push_tokenizer(
             tokenizer=loaded_tokenizer,
             first_time_login=first_time_login,
-            huggingface_repo_name=huggingface_dataset_repo_name,
             huggingface_token=huggingface_token,
+            huggingface_repo_name=huggingface_dataset_repo_name,
         )
     else:
         typer.echo("Skipping the push of the tokenizer to the hub...")

@@ -67,12 +67,12 @@ cd ./data_cleaner
 
 If you want to clean the data and push it to the hub for the first time
 ```
-python main.py --clean-data --first-time-login --push-to-hub
+python main.py --clean-data --push-to-hub --first-time-login
 ```
 
 If the data is already cleaned, you are already logged in to the huggingface-cli and you just want to push it to the hub
 ```
-python main.py --no-clean-data --no-first-time-login --push-to-hub
+python main.py --no-clean-data --push-to-hub --no-first-time-login
 ```
 
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer will need the paths to the files
