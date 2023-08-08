@@ -1,5 +1,6 @@
 import torch
-from training_methods import HuggingFaceTrainer, PyTorchModelTrainer
+from .training_methods.huggingface_model_trainer import HuggingFaceTrainer
+from .training_methods.pytorch_model_trainer import PyTorchModelTrainer
 from transformers import BertConfig, BertForMaskedLM, RobertaConfig, RobertaForMaskedLM
 
 
