@@ -25,24 +25,17 @@ def validate_path(path: str):
         typer.echo(f"The directory {path} has just been created.")
 
 
-def validate_model_type(model_type: str):
-    valid_model_types = ["bert", "roberta"]
-    if model_type not in valid_model_types:
-        typer.echo(f"Model type should be one of {valid_model_types}")
-        raise typer.Exit()
-
-
-def create_dataset(tokenizer, paths, DatasetClass, max_length):
+def create_masked_encodings(tokenizer, paths, DatasetClass, max_length):
     dataset = DatasetClass(tokenizer, paths, max_length=max_length)
     return dataset
 
 
-def save_dataset(dataset, file_path):
+def save_masked_encodings(dataset, file_path):
     with open(file_path, "wb") as f:
         pickle.dump(dataset, f)
 
 
-def load_dataset(file_path):
+def load_masked_encodings(file_path):
     if not Path(file_path).exists():
         raise FileNotFoundError(f"No dataset found at {file_path}")
 
@@ -51,38 +44,24 @@ def load_dataset(file_path):
 
 
 def main(
-    cleaned_files_dir_path: str = os.getenv("CLEANED_FILES_DIR_PATH"),
-    cybert_dir_path: str = os.getenv("CYBERT_DIR_PATH"),
-    cyroberta_dir_path: str = os.getenv("CYROBERTA_DIR_PATH"),
-    trainpaths_file_path: str = os.getenv("TRAINPATHS_FILE_PATH"),
-    testpaths_file_path: str = os.getenv("TESTPATHS_FILE_PATH"),
-    cybert_tokenizer_dir_path: str = os.getenv("CYBERT_TOKENIZER_DIR_PATH"),
-    cyroberta_tokenizer_dir_path: str = os.getenv("CYROBERTA_TOKENIZER_DIR_PATH"),
-    train_ecodings_file_path: str = os.getenv("TRAIN_DATASET_ENCODINGS_FILE_PATH"),
-    test_encodings_file_path: str = os.getenv("TEST_DATASET_ENCODINGS_FILE_PATH"),
-    cybert_model_dir_path: str = os.getenv("CYBERT_MODEL_DIR_PATH"),
-    cyroberta_model_dir_path: str = os.getenv("CYROBERTA_MODEL_DIR_PATH"),
-    # model type
+    ### main dir ###
+    cybert_dir_path: str = os.getenv("MAIN_DIR_PATH"),
+    ### model type ###
     model_type: str = "bert",
-    # hyperparameters
-    vocab_size: int = 30522,
-    max_length: int = 512,
-    # tokenizer
+    ### tokenizer ###
     should_split_paths: bool = False,
     should_train_tokenizer: bool = False,
+    tokenizer_dir_path: str = os.getenv("TOKENIZER_DIR_PATH"),
     push_tokenizer_to_hub: bool = typer.Option(
         False, help="Enable or disable pushing tokenizer to hub."
     ),
-    first_time_login: bool = typer.Option(
-        False,
-        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
-    ),
-    huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
-    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
-    # create train and test sets
-    should_create_train_test_sets: bool = False,
-    # model
-    should_train_model: bool = False,
+    vocab_size: int = 30522,
+    max_length: int = 512,
+    ### model ###
+    should_create_train_test_sets: bool = False,  # Create train and test sets
+    should_train_model: bool = False,  # Train model
+    train_ecodings_file_path: str = os.getenv("TRAIN_DATASET_ENCODINGS_FILE_PATH"),
+    test_encodings_file_path: str = os.getenv("TEST_DATASET_ENCODINGS_FILE_PATH"),
     # train_batch_size: int = 64,
     # train_steps_per_epoch: int = 64,
     # validation_batch_size: int = 64,
@@ -92,35 +71,21 @@ def main(
     # learning_rate: float = 0.01,
     # seed: int = 42,
     # run_validation: bool = False,
+    ## huggingface ###
+    first_time_login: bool = typer.Option(
+        False,
+        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
+    ),
+    huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
+    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
 ):
-    typer.echo("Validating given model type and paths...")
-
-    validate_model_type(model_type)
-    validate_path(cleaned_files_dir_path)
-    if model_type == "bert":
-        validate_path(cybert_dir_path)
-
-        # Set paths
-        tokenizer_path = cybert_tokenizer_dir_path
-        model_path = cybert_model_dir_path
-
-    else:  # roberta
-        validate_path(cyroberta_dir_path)
-
-        # Set paths
-        tokenizer_path = cyroberta_tokenizer_dir_path
-        model_path = cyroberta_model_dir_path
-    validate_path(tokenizer_path)
-    validate_path(model_path)
+    # create main dir path if does not exist
+    validate_path(cybert_dir_path)
 
     if should_split_paths:
         typer.echo("Splitting all paths to train and test path sets...")
 
-        path_splitter = PathSplitter(
-            cleaned_files_dir_path=cleaned_files_dir_path,
-            trainpaths_file_path=trainpaths_file_path,  # file path where the save the train paths
-            testpaths_file_path=testpaths_file_path,  # file path where the save the test paths
-        )
+        path_splitter = PathSplitter()
         train_paths_list, test_paths_list = path_splitter.split_paths()
         path_splitter.save_paths()
 
@@ -129,11 +94,7 @@ def main(
             "Skipping the split of all paths...\nWill try to load the train and test path sets from the files."
         )
 
-        path_splitter = PathSplitter(
-            cleaned_files_dir_path=cleaned_files_dir_path,
-            trainpaths_file_path=trainpaths_file_path,  # file path where the save the train paths
-            testpaths_file_path=testpaths_file_path,  # file path where the save the test paths
-        )
+        path_splitter = PathSplitter()
         train_paths_list, test_paths_list = path_splitter.load_paths()
 
     if should_train_tokenizer:
@@ -141,7 +102,7 @@ def main(
 
         TokenizerWrapper(
             train_paths=train_paths_list,
-            tokenizer_path=tokenizer_path,
+            tokenizer_path=tokenizer_dir_path,
             model_type=model_type,
             vocab_size=vocab_size,
             max_length=max_length,
@@ -156,10 +117,10 @@ def main(
 
     typer.echo("Loading the saved tokenizer...")
     if model_type == "bert":
-        loaded_tokenizer = BertTokenizerFast.from_pretrained(tokenizer_path)
+        loaded_tokenizer = BertTokenizerFast.from_pretrained(tokenizer_dir_path)
 
     else:  # roberta
-        loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_path)
+        loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_dir_path)
 
     # Push tokenizer to Hub
     if push_tokenizer_to_hub:
@@ -175,26 +136,26 @@ def main(
     if should_create_train_test_sets:
 
         typer.echo("Creating masked encodings of the train set...")
-        train_dataset = create_dataset(
+        train_dataset = create_masked_encodings(
             loaded_tokenizer, train_paths_list, TrainTextDataset, max_length
         )
 
         typer.echo("Saving the masked encodings of the train set...")
-        save_dataset(train_dataset, train_ecodings_file_path)
+        save_masked_encodings(train_dataset, train_ecodings_file_path)
 
         typer.echo("Creating masked encodings of the test set...")
-        test_dataset = create_dataset(
+        test_dataset = create_masked_encodings(
             loaded_tokenizer, test_paths_list, TestTextDataset, max_length
         )
 
         typer.echo("Saving the masked encodings of the test set...")
-        save_dataset(test_dataset, test_encodings_file_path)
+        save_masked_encodings(test_dataset, test_encodings_file_path)
 
     # Train model
     if should_train_model:
         typer.echo("Loading the masked encodings of the train and test sets...")
-        train_dataset = load_dataset(train_ecodings_file_path)
-        test_dataset = load_dataset(test_encodings_file_path)
+        train_dataset = load_masked_encodings(train_ecodings_file_path)
+        test_dataset = load_masked_encodings(test_encodings_file_path)
 
         if model_type == "bert":
             typer.echo("Training a BERT model using the PyTorch API...")
@@ -218,7 +179,6 @@ def main(
                 train_set=train_dataset,
                 test_set=test_dataset,
                 data_collator=data_collator,
-                model_path=model_path,
                 model_type=model_type,
                 vocab_size=vocab_size,
                 max_length=max_length,

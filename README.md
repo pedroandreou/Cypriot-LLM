@@ -75,7 +75,7 @@ If the data is already cleaned, you are already logged in to the huggingface-cli
 python main.py --no-clean-data --push-to-hub --no-first-time-login
 ```
 
-#### Export all docs to separate txt files as this would make our life easier when the tokenizer will need the paths to the files
+#### Export all docs to separate txt files as this would make our life easier when the tokenizer needs the paths to the files
 ```
 python export_csv_docs_to_txt_files.py
 ```

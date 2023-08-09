@@ -1,8 +1,13 @@
+import os
+
 import torch
+from dotenv import find_dotenv, load_dotenv
 from transformers import BertConfig, BertForMaskedLM, RobertaConfig, RobertaForMaskedLM
 
 from .training_methods.huggingface_model_trainer import HuggingFaceTrainer
 from .training_methods.pytorch_model_trainer import PyTorchModelTrainer
+
+load_dotenv(find_dotenv())
 
 
 class ModelWrapper:
@@ -11,7 +16,7 @@ class ModelWrapper:
         train_set,
         test_set,
         data_collator=None,
-        model_path=None,
+        model_path: str = os.getenv("MODEL_DIR_PATH"),
         model_type="bert",
         vocab_size=30_522,
         max_length=512,

@@ -78,7 +78,9 @@ class TokenizerWrapper:
         if self.model_type == "bert":
             # dumping some of the tokenizer config to config file,
             # including special tokens, whether to lower case and the maximum sequence length
-            with open(os.path.join(self.tokenizer_path, "config.json"), "w") as f:
+            with open(
+                os.path.join(self.tokenizer_path, "tokenizer_config.json"), "w"
+            ) as f:
                 tokenizer_cfg = {
                     "do_lower_case": True,
                     "unk_token": "[UNK]",
