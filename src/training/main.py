@@ -86,7 +86,7 @@ def main(
         typer.echo("Splitting all paths to train and test path sets...")
 
         path_splitter = PathSplitter()
-        train_paths_list, test_paths_list = path_splitter.split_paths()
+        path_splitter.split_paths()
         path_splitter.save_paths()
 
     else:
@@ -95,13 +95,15 @@ def main(
         )
 
         path_splitter = PathSplitter()
-        train_paths_list, test_paths_list = path_splitter.load_paths()
+        path_splitter.load_paths()
+
+    all_paths_list, train_paths_list, test_paths_list = path_splitter.get_paths()
 
     if should_train_tokenizer:
         typer.echo("Training a tokenizer from scratch...")
 
         TokenizerWrapper(
-            train_paths=train_paths_list,
+            train_paths=all_paths_list,
             tokenizer_path=tokenizer_dir_path,
             model_type=model_type,
             vocab_size=vocab_size,

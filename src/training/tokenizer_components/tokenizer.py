@@ -8,13 +8,13 @@ from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 class TokenizerWrapper:
     def __init__(
         self,
-        train_paths: list,
+        filepaths: list,
         tokenizer_path: str,
         model_type: str,
         vocab_size,
         max_length: str,
     ):
-        self.train_paths = train_paths
+        self.filepaths = filepaths
         self.tokenizer_path = tokenizer_path
         self.model_type = model_type
         self.vocab_size = vocab_size
@@ -28,7 +28,7 @@ class TokenizerWrapper:
                 strip_accents=False,
                 lowercase=False,
             )
-            if self.model_type.lower() == "bert"
+            if self.model_type == "bert"
             else ByteLevelBPETokenizer()
         )
 
@@ -46,7 +46,7 @@ class TokenizerWrapper:
         )
 
         train_params = {
-            "files": self.train_paths,  # CHANGE THIS
+            "files": self.filepaths,  # CHANGE THIS
             "vocab_size": self.vocab_size,  # number of tokens in our tokenizer
             "special_tokens": self.special_tokens,
         }
