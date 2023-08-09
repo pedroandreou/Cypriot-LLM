@@ -37,9 +37,19 @@ class PathSplitter:
         self.test_paths_list = []
 
     def split_paths(self):
-        all_paths = [str(x) for x in Path(self.cleaned_files_dir_path).glob("*.txt")]
+        def extract_number(file_name: str):
+            # Extract the numerical part from the file name
+            return int(file_name.split("text_file")[1].split(".txt")[0])
+
+        # Get all the paths in the right order
+        self.all_paths_list = [
+            str(x) for x in Path(self.cleaned_files_dir_path).glob("*.txt")
+        ]
+        self.all_paths_list.sort(key=extract_number)
+
+        # Split and shuffle the paths
         self.train_paths_list, self.test_paths_list = train_test_split(
-            all_paths, test_size=0.2
+            self.all_paths_list, test_size=0.2
         )
 
     def save_paths(self):

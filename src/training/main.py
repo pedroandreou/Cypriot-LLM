@@ -79,7 +79,7 @@ def main(
     huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
     huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
 ):
-    # create main dir path if does not exist
+    # Create the main dir path if does not exist
     validate_path(cybert_dir_path)
 
     if should_split_paths:
@@ -97,21 +97,18 @@ def main(
         path_splitter = PathSplitter()
         path_splitter.load_paths()
 
+    # Get paths
     all_paths_list, train_paths_list, test_paths_list = path_splitter.get_paths()
 
     if should_train_tokenizer:
         typer.echo("Training a tokenizer from scratch...")
 
         TokenizerWrapper(
-            train_paths=all_paths_list,
+            filepaths=all_paths_list,
             tokenizer_path=tokenizer_dir_path,
             model_type=model_type,
             vocab_size=vocab_size,
             max_length=max_length,
-            push_to_hub=push_tokenizer_to_hub,
-            first_time_login=first_time_login,
-            huggingface_token=huggingface_token,
-            huggingface_dataset_repo_name=huggingface_dataset_repo_name,
         )
 
     else:
