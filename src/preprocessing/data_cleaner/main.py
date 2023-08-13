@@ -1,43 +1,58 @@
 import os
+from dataclasses import dataclass, field
+from typing import Optional
 
 import pandas as pd
-import typer
 from diacritic_remover import DiacriticRemover
 from dotenv import find_dotenv, load_dotenv
 from greek_letter_joiner import GreekLetterJoiner
 from pattern_remover import PatternRemover
+from transformers import HfArgumentParser
 
 from src.hub_pusher import push_dataset
 
 load_dotenv(find_dotenv())
 
 
-app = typer.Typer()
+@dataclass
+class ScriptArguments:
+    do_clean_data: bool = field(
+        default=False, metadata={"help": "Enable or disable data cleaning."}
+    )
+    input_file_name: Optional[str] = field(
+        default=f"../doc_merge_to_csv/{os.getenv('COMPILED_DOCS_FILE_NAME')}",
+        metadata={"help": "Path to the compiled documents CSV file."},
+    )
+    output_file_name: Optional[str] = field(
+        default=os.getenv("PREPROCESSED_DOCS_FILE_NAME"),
+        metadata={
+            "help": "Name of the file to save the preprocessed documents CSV file."
+        },
+    )
+    do_push_to_hub: bool = field(
+        default=False, metadata={"help": "Enable or disable push to hub."}
+    )
+    first_time_login: bool = field(
+        default=False,
+        metadata={
+            "help": "Toggle first-time login. Credentials will be cached after the initial login to the hub."
+        },
+    )
+    huggingface_token: Optional[str] = field(default=os.getenv("HUGGINGFACE_TOKEN"))
+    huggingface_dataset_repo_name: Optional[str] = field(
+        default=os.getenv("HUGGINGFACE_DATASET_REPO_NAME")
+    )
 
 
-@app.command()
-def main(
-    clean_data: bool = typer.Option(False, help="Enable or disable data cleaning."),
-    input_file_name: str = typer.Option(
-        f"../doc_merge_to_csv/{os.getenv('COMPILED_DOCS_FILE_NAME')}",
-        help="Path to the compiled documents CSV file.",
-    ),
-    output_file_name: str = typer.Option(
-        os.getenv("PREPROCESSED_DOCS_FILE_NAME"),
-        help="Name of the file to save the preprocessed documents CSV file.",
-    ),
-    do_push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
-    first_time_login: bool = typer.Option(
-        False,
-        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
-    ),
-    huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
-    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
-):
-    if clean_data:
-        typer.echo("Cleaning the data...")
+def main():
+    # Parse arguments
+    parser = HfArgumentParser(ScriptArguments)
+    script_args = parser.parse_args_into_dataclasses()[0]
 
-        df = pd.read_csv(input_file_name)
+    if script_args.do_clean_data:
+        print("Cleaning the data...")
+
+        df = pd.read_csv(script_args.input_file_name)
 
         # Apply the remove_caron_generic function on the content column
         df["content"] = df["content"].apply(
@@ -70,23 +85,23 @@ def main(
         )
 
         # Save preprocessed dataframe as a new csv file
-        df.to_csv(output_file_name, index=False)
+        df.to_csv(script_args.output_file_name, index=False)
 
     else:
-        typer.echo("Skipping data cleaning...")
+        print("Skipping data cleaning...")
 
     # Push the preprocessed data to the hub
-    if do_push_to_hub:
+    if script_args.do_push_to_hub:
         push_dataset(
-            first_time_login=first_time_login,
-            huggingface_token=huggingface_token,
-            huggingface_dataset_repo_name=huggingface_dataset_repo_name,
-            output_file_name=output_file_name,
+            first_time_login=script_args.first_time_login,
+            huggingface_token=script_args.huggingface_token,
+            huggingface_dataset_repo_name=script_args.huggingface_dataset_repo_name,
+            output_file_name=script_args.output_file_name,
             custom_key="preprocessed_data",
         )
     else:
-        typer.echo("Skipping push to the hub...")
+        print("Skipping push to the hub...")
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    main()

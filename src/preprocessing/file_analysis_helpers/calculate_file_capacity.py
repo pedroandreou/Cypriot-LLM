@@ -1,21 +1,30 @@
 import os
+from dataclasses import dataclass, field
 
 import pandas as pd
-import typer
 from dotenv import find_dotenv, load_dotenv
 from rich.console import Console
 from rich.table import Table
+from transformers import HfArgumentParser
 
 load_dotenv(find_dotenv())
 console = Console()
-app = typer.Typer()
 
 
-@app.command()
-def main(
-    input_file_name: str = f"../data_cleaner/{os.getenv('PREPROCESSED_DOCS_FILE_NAME')}",
-):
-    df = pd.read_csv(input_file_name)
+@dataclass
+class ScriptArguments:
+    input_file_name: str = field(
+        default=f"../data_cleaner/{os.getenv('PREPROCESSED_DOCS_FILE_NAME')}",
+        metadata={"help": "Path to the input file"},
+    )
+
+
+def main():
+    # Parse arguments
+    parser = HfArgumentParser(ScriptArguments)
+    script_args = parser.parse_args_into_dataclasses()[0]
+
+    df = pd.read_csv(script_args.input_file_name)
 
     # calculate the size of the content column in bytes
     total_size_in_bytes = df["content"].str.len().sum()
@@ -31,7 +40,7 @@ def main(
     table.add_column("Gigabytes (GB)", style="red bold", no_wrap=True, min_width=12)
 
     table.add_row(
-        input_file_name,
+        script_args.input_file_name,
         str(total_size_in_bytes),
         str(total_size_in_kb),
         str(total_size_in_mb),
@@ -41,4 +50,4 @@ def main(
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    main()

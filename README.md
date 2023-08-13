@@ -57,7 +57,8 @@ cd ./src/preprocessing
 #### Create a CSV containing all the docs
 ```
 cd ./doc_merge_to_csv
-python docs_to_csv.py
+python docs_to_csv.py \
+    --merge_data
 ```
 
 #### Preprocess the docs of the CSV
@@ -68,17 +69,15 @@ cd ./data_cleaner
 If you want to clean the data and push it to the hub for the first time
 ```
 python main.py \
-    --clean-data
-    --do-push-to-hub
-    --first-time-login
+    --do_clean_data \
+    --do_push_to_hub \
+    --first_time_login
 ```
 
 If the data is already cleaned, you are already logged in to the huggingface-cli and you just want to push it to the hub
 ```
 python main.py \
-    --no-clean-data
-    --do-push-to-hub
-    --no-first-time-login
+    --do_push_to_hub
 ```
 
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer needs the paths to the files
@@ -94,9 +93,9 @@ cd ./src/training
 #### First time: Split Paths to 80% for training and 20% for testing, Train tokenizer, Create dataset masked encodings
 ```
 python main.py \
-    --do-split-paths
-    --do-train-tokenizer
-    --do-create-train-test-sets
+    --do_split_paths \
+    --do_train_tokenizer \
+    --do_create_masked_encodings
 ```
 #### Second time: Just push tokenizer to the HuggingFace Hub
 ```
@@ -106,7 +105,7 @@ python main.py \
 #### Third time: Just focus on Training the Model
 ```
 python main.py \
-    --do-train-model
+    --do_train_model
 ```
 
 

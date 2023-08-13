@@ -1,10 +1,11 @@
+from dataclasses import dataclass, field
 from typing import List
 
 import pandas as pd
-import typer
 from nltk.tokenize import word_tokenize
 from rich.console import Console
 from rich.table import Table
+from transformers import HfArgumentParser
 
 """
     Compares the token counts of multiple file paths provided as arguments.
@@ -15,7 +16,6 @@ from rich.table import Table
 
 
 console = Console()
-app = typer.Typer()
 
 
 def count_tokens(df):
@@ -29,14 +29,24 @@ def count_tokens(df):
     return token_count
 
 
-@app.command()
-def main(files: List[str]):
-    if len(files) < 2:
-        typer.echo("At least two file paths must be provided for comparison.")
-        raise typer.Exit()
+@dataclass
+class ScriptArguments:
+    files: List[str] = field(
+        default_factory=list, metadata={"help": "List of file paths"}
+    )
+
+
+def main():
+    # Parse arguments
+    parser = HfArgumentParser(ScriptArguments)
+    script_args = parser.parse_args_into_dataclasses()[0]
+
+    if len(script_args.files) < 2:
+        print("At least two file paths must be provided for comparison.")
+        exit()
 
     table = Table("Filename", "Token count")
-    for file in files:
+    for file in script_args.files:
         df = pd.read_csv(f"{file}.csv")
         # Calculate token count for df
         token_count_df = count_tokens(df)
@@ -47,4 +57,4 @@ def main(files: List[str]):
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    main()

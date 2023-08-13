@@ -1,13 +1,15 @@
 import glob
 import os
+from dataclasses import dataclass, field
+from typing import Optional
 
 import docx
 import pandas as pd
 import textract
-import typer
 from dotenv import find_dotenv, load_dotenv
 from pdfminer.high_level import extract_text
 from rich import print
+from transformers import HfArgumentParser
 
 from src.hub_pusher import push_dataset
 
@@ -84,54 +86,73 @@ class DocumentReader:
         return df
 
 
-app = typer.Typer()
+@dataclass
+class ScriptArguments:
+    merge_data: bool = field(
+        default=False,
+        metadata={"help": "Enable or disable data merging into a single CSV file."},
+    )
+    data_path: Optional[str] = field(
+        default=os.getenv("DATASET_DIR_PATH"),
+        metadata={"help": "Path to the dataset directory."},
+    )
+    output_file_name: Optional[str] = field(
+        default=os.getenv("COMPILED_DOCS_FILE_NAME"),
+        metadata={"help": "Name of the compiled output file."},
+    )
+    first_time_login: bool = field(
+        default=False,
+        metadata={
+            "help": "Toggle first-time login. Credentials will be cached after the initial login to the hub."
+        },
+    )
+    do_push_to_hub: bool = field(
+        default=False, metadata={"help": "Enable or disable push to hub."}
+    )
+    huggingface_token: Optional[str] = field(
+        default=os.getenv("HUGGINGFACE_TOKEN"),
+        metadata={"help": "Hugging Face token for authentication."},
+    )
+    huggingface_dataset_repo_name: Optional[str] = field(
+        default=os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
+        metadata={"help": "Name of the Hugging Face dataset repository."},
+    )
 
 
-@app.command()
-def main(
-    merge_data: bool = typer.Option(
-        False, help="Enable or disable data merging into a single CSV file."
-    ),
-    data_path: str = os.getenv("DATASET_DIR_PATH"),
-    output_file_name: str = os.getenv("COMPILED_DOCS_FILE_NAME"),
-    first_time_login: bool = typer.Option(
-        False,
-        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
-    ),
-    do_push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
-    huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
-    huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
-):
+def main():
+    # Parse arguments
+    parser = HfArgumentParser(ScriptArguments)
+    script_args = parser.parse_args_into_dataclasses()[0]
 
-    if merge_data:
-        typer.echo("Compiling the data into a single CSV file...")
+    if script_args.merge_data:
+        print("Compiling the data into a single CSV file...")
 
-        reader = DocumentReader(data_path)
+        reader = DocumentReader(script_args.data_path)
 
         # Create the dataframe
         df = reader.create_dataframe()
         print(df.head())
 
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        output_file = os.path.join(script_directory, output_file_name)
+        output_file = os.path.join(script_directory, script_args.output_file_name)
         df.to_csv(output_file, index=False)
     else:
-        typer.echo("Skipping the data compilation into a single CSV file...")
+        print("Skipping the data compilation into a single CSV file...")
 
     # Do not push this dataset to the Hub - leave the preprocessed to be pushed
     # More than one dataset in the same dataset repo is supported but you will find it difficult
     # to load the right dataset (preprocessed) when you want to export the csv docs to txt files
-    if do_push_to_hub:
+    if script_args.do_push_to_hub:
         push_dataset(
-            first_time_login=first_time_login,
-            huggingface_token=huggingface_token,
-            huggingface_dataset_repo_name=huggingface_dataset_repo_name,
-            output_file_name=output_file_name,
+            first_time_login=script_args.first_time_login,
+            huggingface_token=script_args.huggingface_token,
+            huggingface_dataset_repo_name=script_args.huggingface_dataset_repo_name,
+            output_file_name=script_args.output_file_name,
             custom_key="all_data",
         )
     else:
-        typer.echo("Skipping push to the hub...")
+        print("Skipping push to the hub...")
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    main()

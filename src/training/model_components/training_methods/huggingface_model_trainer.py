@@ -26,17 +26,32 @@ class HuggingFaceTrainer:
 
         # Initialize training arguments
         training_args = TrainingArguments(
-            output_dir=self.model_path,  # output directory to where save model checkpoint
-            evaluation_strategy="steps",  # evaluate each `logging_steps` steps
+            output_dir=self.model_path,  # script_args.repository_id, - # output directory to where save model checkpoint
             overwrite_output_dir=True,
-            num_train_epochs=10,  # number of training epochs, feel free to tweak
             per_device_train_batch_size=10,  # the training batch size, put it as high as your GPU memory fits
-            gradient_accumulation_steps=8,  # accumulating the gradients before updating the weights
             per_device_eval_batch_size=64,  # evaluation batch size
+            num_train_epochs=10,  # number of training epochs, feel free to tweak
+            # learning_rate=script_args.learning_rate,
+            # seed=seed,
+            # max_steps=script_args.max_steps,
+            gradient_accumulation_steps=8,  # accumulating the gradients before updating the weights
+            ### logging & evaluation strategies ###
+            # logging_dir=f"{script_args.repository_id}/logs",
+            # logging_strategy="steps",
             logging_steps=1000,  # evaluate, log and save model checkpoints every 1000 step
-            save_steps=1000,
-            # load_best_model_at_end=True,  # whether to load the best model (in terms of loss) at the end of training
-            # save_total_limit=3,           # whether you don't have much space so you let only 3 model weights saved in the disk
+            # save_strategy="steps",
+            evaluation_strategy="steps",  # evaluate each `logging_steps` steps
+            save_steps=1000,  # 5_000
+            save_total_limit=3,  # 2 - # whether you don't have much space so you let only 3 model weights saved in the disk
+            # report_to="tensorboard",
+            ### push to hub parameters ###
+            # push_to_hub=True,
+            # hub_strategy="every_save",
+            # hub_model_id=script_args.repository_id,
+            load_best_model_at_end=True,  # whether to load the best model (in terms of loss) at the end of training
+            ### pretraining ###
+            # ddp_find_unused_parameters=True,
+            # throughput_warmup_steps=2,
         )
 
         # Initialize the trainer and pass everything to it
@@ -46,6 +61,7 @@ class HuggingFaceTrainer:
             data_collator=self.data_collator,
             train_dataset=self.train_set,
             eval_dataset=self.test_set,
+            # tokenizer=tokenizer, # do I need to pass the tokenizer too?
         )
 
         # Train the model

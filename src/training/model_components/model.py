@@ -2,7 +2,7 @@ import os
 
 import torch
 from dotenv import find_dotenv, load_dotenv
-from transformers import BertConfig, BertForMaskedLM, RobertaConfig, RobertaForMaskedLM
+from transformers import AutoConfig, AutoModelForMaskedLM
 
 from .training_methods.huggingface_model_trainer import HuggingFaceTrainer
 from .training_methods.pytorch_model_trainer import PyTorchModelTrainer
@@ -32,22 +32,15 @@ class ModelWrapper:
 
         # As we are training from scratch, we initialize from a config
         # not from an existing pretrained model or checkpoint
-        if model_type == "bert":
-            config = BertConfig(
-                vocab_size=vocab_size, max_position_embeddings=max_length
-            )
-            self.model = BertForMaskedLM(config=config).to(self.device)
-
-        else:  # roberta
-            config = RobertaConfig(
-                vocab_size=vocab_size,  # tutorial example was 7015
-                max_position_embeddings=max_length,  # tutorial example was 514
-                hidden_size=768,
-                num_attention_heads=12,
-                num_hidden_layers=6,
-                type_vocab_size=1,
-            )
-            self.model = RobertaForMaskedLM(config=config).to(self.device)
+        config = AutoConfig(
+            vocab_size=vocab_size,  # tutorial example was 7015
+            max_position_embeddings=max_length,  # tutorial example was 514
+            hidden_size=768,
+            num_attention_heads=12,
+            num_hidden_layers=6,
+            type_vocab_size=1,
+        )
+        self.model = AutoModelForMaskedLM(config=config).to(self.device)
 
         # Print the model parameters
         print(self.model.num_parameters())
