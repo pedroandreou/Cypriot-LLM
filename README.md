@@ -71,7 +71,7 @@ If you want to clean the data and push it to the hub for the first time
 python main.py \
     --do_clean_data \
     --do_push_to_hub \
-    --first_time_login
+    --do_login_first_time
 ```
 
 If the data is already cleaned, you are already logged in to the huggingface-cli and you just want to push it to the hub
@@ -100,7 +100,7 @@ python main.py \
 #### Second time: Just push tokenizer to the HuggingFace Hub
 ```
 python main.py \
-    --do-push-tokenizer-to-hub
+    --do_push_tokenizer_to_hub
 ```
 #### Third time: Just focus on Training the Model
 ```

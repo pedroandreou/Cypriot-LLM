@@ -17,7 +17,7 @@ class ScriptArguments:
         default=os.getenv("CLEANED_FILES_DIR_PATH"),
         metadata={"help": "Path to the directory for cleaned files"},
     )
-    first_time_login: bool = field(
+    do_login_first_time: bool = field(
         default=False,
         metadata={
             "help": "Toggle first-time login. Credentials will be cached after the initial login to the hub."
@@ -38,7 +38,7 @@ def main():
     parser = HfArgumentParser(ScriptArguments)
     script_args = parser.parse_args_into_dataclasses()[0]
 
-    hub_login(script_args.huggingface_token, script_args.first_time_login)
+    hub_login(script_args.huggingface_token, script_args.do_login_first_time)
 
     # Load the dataset
     dataset = load_dataset(script_args.huggingface_dataset_repo_name)

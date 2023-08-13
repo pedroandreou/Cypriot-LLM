@@ -100,7 +100,7 @@ class ScriptArguments:
         default=os.getenv("COMPILED_DOCS_FILE_NAME"),
         metadata={"help": "Name of the compiled output file."},
     )
-    first_time_login: bool = field(
+    do_login_first_time: bool = field(
         default=False,
         metadata={
             "help": "Toggle first-time login. Credentials will be cached after the initial login to the hub."
@@ -144,7 +144,7 @@ def main():
     # to load the right dataset (preprocessed) when you want to export the csv docs to txt files
     if script_args.do_push_to_hub:
         push_dataset(
-            first_time_login=script_args.first_time_login,
+            do_login_first_time=script_args.do_login_first_time,
             huggingface_token=script_args.huggingface_token,
             huggingface_dataset_repo_name=script_args.huggingface_dataset_repo_name,
             output_file_name=script_args.output_file_name,

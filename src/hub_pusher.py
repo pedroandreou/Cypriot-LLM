@@ -1,26 +1,25 @@
 import pandas as pd
-import typer
 from datasets import Dataset, DatasetDict
 from huggingface_hub import login
 
 
-def hub_login(token: str, first_time_login: bool) -> None:
-    if first_time_login:
-        typer.echo("Logging in...")
+def hub_login(token: str, do_login_first_time: bool) -> None:
+    if do_login_first_time:
+        print("Logging in...")
         login(token=token)
     else:
-        typer.echo("Skipping logging in since credentials are in the cache...")
+        print("Skipping logging in since credentials are in the cache...")
 
 
 def push_dataset(
-    first_time_login: bool,
+    do_login_first_time: bool,
     huggingface_token: str,
     huggingface_dataset_repo_name: str,
     output_file_name: str,
     custom_key: str,
 ) -> None:
-    typer.echo("Pushing dataset to the hub...")
-    hub_login(huggingface_token, first_time_login)
+    print("Pushing dataset to the hub...")
+    hub_login(huggingface_token, do_login_first_time)
 
     # Load the dataset and convert DataFrame to a Dataset
     dataset = Dataset.from_pandas(pd.read_csv(output_file_name))
@@ -33,12 +32,12 @@ def push_dataset(
 
 def push_tokenizer(
     tokenizer,
-    first_time_login: bool,
+    do_login_first_time: bool,
     huggingface_token: str,
     huggingface_repo_name: str,
 ) -> None:
-    typer.echo("Pushing tokenizer to the hub...")
-    hub_login(huggingface_token, first_time_login)
+    print("Pushing tokenizer to the hub...")
+    hub_login(huggingface_token, do_login_first_time)
 
     # Push tokenizer to HuggingFace Hub
     tokenizer.push_to_hub(huggingface_repo_name, private=True)

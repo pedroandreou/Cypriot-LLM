@@ -72,7 +72,7 @@ class ScriptArguments:
 
     do_train_model: bool = field(default=False, metadata={"help": "Train model"})
     train_encodings_file_path: Optional[str] = field(
-        default=os.getenv("TRAIN_DATASET_ENCODINGS_FILE_PATH")
+        default=os.getenv("TRAIN_SET_ENCODINGS_FILE_PATH")
     )
     test_encodings_file_path: Optional[str] = field(
         default=os.getenv("TEST_DATASET_ENCODINGS_FILE_PATH")
@@ -85,7 +85,7 @@ class ScriptArguments:
     )
     seed: int = field(default=42, metadata={"help": "Seed for reproducibility"})
 
-    first_time_login: bool = field(
+    do_login_first_time: bool = field(
         default=False,
         metadata={
             "help": "Toggle first-time login. Credentials will be cached after the initial login to the hub."
@@ -147,7 +147,7 @@ def main():
     if script_args.do_push_tokenizer_to_hub:
         push_tokenizer(
             tokenizer=loaded_tokenizer,
-            first_time_login=script_args.first_time_login,
+            do_login_first_time=script_args.do_login_first_time,
             huggingface_token=script_args.huggingface_token,
             huggingface_repo_name=script_args.huggingface_dataset_repo_name,
         )
@@ -157,12 +157,12 @@ def main():
     if script_args.do_create_masked_encodings:
 
         print("Creating masked encodings of the train set...")
-        train_dataset = create_masked_encodings(
+        train_set = create_masked_encodings(
             loaded_tokenizer, train_paths_list, TrainTextDataset, script_args.max_length
         )
 
         print("Saving the masked encodings of the train set...")
-        save_masked_encodings(train_dataset, script_args.train_ecodings_file_path)
+        save_masked_encodings(train_set, script_args.train_ecodings_file_path)
 
         print("Creating masked encodings of the test set...")
         test_dataset = create_masked_encodings(
@@ -175,14 +175,14 @@ def main():
     # Train model
     if script_args.do_train_model:
         print("Loading the masked encodings of the train and test sets...")
-        train_dataset = load_masked_encodings(script_args.train_ecodings_file_path)
+        train_set = load_masked_encodings(script_args.train_ecodings_file_path)
         test_dataset = load_masked_encodings(script_args.test_encodings_file_path)
 
         if script_args.model_type == "bert":
             print("Training a BERT model using the PyTorch API...")
 
             ModelWrapper(
-                train_set=train_dataset,
+                train_set=train_set,
                 test_set=test_dataset,
                 model_type=script_args.model_type,
                 vocab_size=script_args.vocab_size,
@@ -200,7 +200,7 @@ def main():
             )
 
             ModelWrapper(
-                train_set=train_dataset,
+                train_set=train_set,
                 test_set=test_dataset,
                 data_collator=data_collator,
                 model_type=script_args.model_type,
