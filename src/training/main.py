@@ -49,17 +49,17 @@ def main(
     ### model type ###
     model_type: str = "bert",
     ### tokenizer ###
-    should_split_paths: bool = False,
-    should_train_tokenizer: bool = False,
+    do_split_paths: bool = False,
+    do_train_tokenizer: bool = False,
     tokenizer_dir_path: str = os.getenv("TOKENIZER_DIR_PATH"),
-    push_tokenizer_to_hub: bool = typer.Option(
+    do_push_tokenizer_to_hub: bool = typer.Option(
         False, help="Enable or disable pushing tokenizer to hub."
     ),
     vocab_size: int = 30522,
     max_length: int = 512,
     ### model ###
-    should_create_train_test_sets: bool = False,  # Create train and test sets
-    should_train_model: bool = False,  # Train model
+    do_create_train_test_sets: bool = False,  # Create train and test sets
+    do_train_model: bool = False,  # Train modells
     train_ecodings_file_path: str = os.getenv("TRAIN_DATASET_ENCODINGS_FILE_PATH"),
     test_encodings_file_path: str = os.getenv("TEST_DATASET_ENCODINGS_FILE_PATH"),
     # train_batch_size: int = 64,
@@ -82,7 +82,7 @@ def main(
     # Create the main dir path if does not exist
     validate_path(cybert_dir_path)
 
-    if should_split_paths:
+    if do_split_paths:
         typer.echo("Splitting all paths to train and test path sets...")
 
         path_splitter = PathSplitter()
@@ -100,7 +100,7 @@ def main(
     # Get paths
     all_paths_list, train_paths_list, test_paths_list = path_splitter.get_paths()
 
-    if should_train_tokenizer:
+    if do_train_tokenizer:
         typer.echo("Training a tokenizer from scratch...")
 
         TokenizerWrapper(
@@ -122,7 +122,7 @@ def main(
         loaded_tokenizer = RobertaTokenizer.from_pretrained(tokenizer_dir_path)
 
     # Push tokenizer to Hub
-    if push_tokenizer_to_hub:
+    if do_push_tokenizer_to_hub:
         push_tokenizer(
             tokenizer=loaded_tokenizer,
             first_time_login=first_time_login,
@@ -132,7 +132,7 @@ def main(
     else:
         typer.echo("Skipping the push of the tokenizer to the hub...")
 
-    if should_create_train_test_sets:
+    if do_create_train_test_sets:
 
         typer.echo("Creating masked encodings of the train set...")
         train_dataset = create_masked_encodings(
@@ -151,7 +151,7 @@ def main(
         save_masked_encodings(test_dataset, test_encodings_file_path)
 
     # Train model
-    if should_train_model:
+    if do_train_model:
         typer.echo("Loading the masked encodings of the train and test sets...")
         train_dataset = load_masked_encodings(train_ecodings_file_path)
         test_dataset = load_masked_encodings(test_encodings_file_path)

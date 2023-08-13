@@ -26,7 +26,7 @@ def main(
         os.getenv("PREPROCESSED_DOCS_FILE_NAME"),
         help="Name of the file to save the preprocessed documents CSV file.",
     ),
-    push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
+    do_push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
     first_time_login: bool = typer.Option(
         False,
         help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
@@ -76,7 +76,7 @@ def main(
         typer.echo("Skipping data cleaning...")
 
     # Push the preprocessed data to the hub
-    if push_to_hub:
+    if do_push_to_hub:
         push_dataset(
             first_time_login=first_time_login,
             huggingface_token=huggingface_token,

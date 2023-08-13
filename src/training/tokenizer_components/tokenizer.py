@@ -41,7 +41,7 @@ class TokenizerWrapper:
     def train_tokenizer(self):
         self.special_tokens = (
             ["[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]", "<S>", "<T>"]
-            if self.model_type.lower() == "bert"
+            if self.model_type == "bert"
             else ["<s>", "<pad>", "</s>", "<unk>", "<mask>"]
         )
 
@@ -74,7 +74,7 @@ class TokenizerWrapper:
         #   ## bert
         #   # ['/content/drive/MyDrive/Uni/Masters/Thesis/project/cybert/tokenizer/vocab.txt']
 
-        #   # # ['/content/drive/MyDrive/Uni/Masters/Thesis/project/cybert/tokenizer/config.json']
+        #   # # ['/content/drive/MyDrive/Uni/Masters/Thesis/project/cybert/tokenizer/tokenizer_config.json']
         if self.model_type == "bert":
             # dumping some of the tokenizer config to config file,
             # including special tokens, whether to lower case and the maximum sequence length

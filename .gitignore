@@ -22,3 +22,6 @@
 
 # Inference directory
 inference/
+
+# Experimentation
+break_file

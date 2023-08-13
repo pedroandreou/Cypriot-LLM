@@ -98,7 +98,7 @@ def main(
         False,
         help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
     ),
-    push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
+    do_push_to_hub: bool = typer.Option(False, help="Enable or disable push to hub."),
     huggingface_token: str = os.getenv("HUGGINGFACE_TOKEN"),
     huggingface_dataset_repo_name: str = os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
 ):
@@ -121,7 +121,7 @@ def main(
     # Do not push this dataset to the Hub - leave the preprocessed to be pushed
     # More than one dataset in the same dataset repo is supported but you will find it difficult
     # to load the right dataset (preprocessed) when you want to export the csv docs to txt files
-    if push_to_hub:
+    if do_push_to_hub:
         push_dataset(
             first_time_login=first_time_login,
             huggingface_token=huggingface_token,

@@ -52,3 +52,66 @@ class PyTorchModelTrainer:
 
         # Save model
         self.model.save_pretrained(self.model_path)
+
+    def train_and_evaluate(self):
+        epochs = 10
+
+        for epoch in range(epochs):
+            loop = tqdm(loader, leave=True)
+
+            # set model to training mode
+            self.model.train()
+            losses = []
+
+            # iterate over dataset
+            for batch in loop:
+                self.optim.zero_grad()
+
+                # copy input to device
+                input_ids = batch["input_ids"].to(self.device)
+                attention_mask = batch["attention_mask"].to(self.device)
+                labels = batch["labels"].to(self.device)
+
+                # predict
+                outputs = self.model(
+                    input_ids, attention_mask=attention_mask, labels=labels
+                )
+
+                # update weights
+                loss = outputs.loss
+                loss.backward()
+
+                self.optim.step()
+
+                # output current loss
+                loop.set_description(f"Epoch {epoch}")
+                loop.set_postfix(loss=loss.item())
+                losses.append(loss.item())
+
+            print("Mean Training Loss", np.mean(losses))
+            losses = []
+            loop = tqdm(test_loader, leave=True)
+
+            # set model to evaluation mode
+            self.model.eval()
+
+            # iterate over dataset
+            for batch in loop:
+                # copy input to device
+                input_ids = batch["input_ids"].to(self.device)
+                attention_mask = batch["attention_mask"].to(self.device)
+                labels = batch["labels"].to(self.device)
+
+                # predict
+                outputs = self.model(
+                    input_ids, attention_mask=attention_mask, labels=labels
+                )
+
+                # update weights
+                loss = outputs.loss
+
+                # output current loss
+                loop.set_description(f"Epoch {epoch}")
+                loop.set_postfix(loss=loss.item())
+                losses.append(loss.item())
+            print("Mean Test Loss", np.mean(losses))
