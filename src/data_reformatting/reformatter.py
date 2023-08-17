@@ -1,10 +1,12 @@
 import os
+from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 
 import nltk
 from dotenv import find_dotenv, load_dotenv
 from nltk.tokenize import sent_tokenize
+from transformers import HfArgumentParser
 
 nltk.download("punkt")
 
@@ -17,7 +19,8 @@ class BookReformatter:
     https://gist.github.com/marrrcin/bcc115fbadf79eba9d9c8ca711da9e20
     """
 
-    def __init__(self):
+    def __init__(self, sliding_window_size):
+        self.sw = sliding_window_size
         directory_path = os.getenv("CLEANED_FILES_DIR_PATH")
         self.book_paths = list(glob(os.path.join(directory_path, "*.txt")))[
             :20
@@ -34,7 +37,7 @@ class BookReformatter:
         sentences = [s for s in sent_tokenize(content) if len(s) >= 16]
         windowed_sentences = []
         for snt in range(len(sentences)):
-            windowed_sentences.append(" ".join(sentences[snt : snt + 8]))
+            windowed_sentences.append(" ".join(sentences[snt : snt + self.sw]))
 
         # print(f"Reformatted {len(windowed_sentences)} sentences from {book_path}.")
 
@@ -56,28 +59,37 @@ class BookReformatter:
             buffer.append(sentence)
 
             if len(buffer) >= BUFFER_SIZE:
-                with open(
-                    f"reformatted_book_{file_count}.txt", "wt", encoding="utf-8"
-                ) as file:
+                with open(f"book_{file_count}.txt", "wt", encoding="utf-8") as file:
                     file.write("\n".join(buffer))
                     buffer.clear()
                     print(
-                        f"Written to file: reformatted_book_{file_count}.txt with {i} sentences",
+                        f"Written to file: book_{file_count}.txt with {i} sentences",
                         end="\r",
                     )
                 file_count += 1
 
         # Write any remaining sentences that haven't reached the 10k threshold
         if buffer:
-            with open(
-                f"reformatted_book_{file_count}.txt", "wt", encoding="utf-8"
-            ) as file:
+            with open(f"book_{file_count}.txt", "wt", encoding="utf-8") as file:
                 file.write("\n".join(buffer))
-                print(
-                    f"Written remaining sentences to: reformatted_book_{file_count}.txt"
-                )
+                print(f"Written remaining sentences to: book_{file_count}.txt")
+
+
+@dataclass
+class ScriptArguments:
+    sliding_window_size: int = field(
+        default=8, metadata={"help": "Size of the sliding window for processing data."}
+    )
+
+
+def main():
+    # Parse arguments
+    parser = HfArgumentParser(ScriptArguments)
+    script_args = parser.parse_args_into_dataclasses()[0]
+
+    reformatter = BookReformatter(script_args.sliding_window_size)
+    reformatter.reformat_all_books()
 
 
 if __name__ == "__main__":
-    reformatter = BookReformatter()
-    reformatter.reformat_all_books()
+    main()
