@@ -36,7 +36,6 @@ def push_tokenizer(
     huggingface_token: str,
     huggingface_repo_name: str,
 ) -> None:
-    print("Pushing tokenizer to the hub...")
     hub_login(huggingface_token, do_login_first_time)
 
     # Push tokenizer to HuggingFace Hub

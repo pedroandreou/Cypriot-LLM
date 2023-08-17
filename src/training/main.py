@@ -138,13 +138,15 @@ def main():
         )
 
     else:
-        print("Skipping the training of a tokenizer from scratch...")
+        print("Skipping the training of a tokenizer...")
 
     print("Loading the saved tokenizer...")
     loaded_tokenizer = AutoTokenizer.from_pretrained(script_args.tokenizer_dir_path)
 
     # Push tokenizer to Hub
     if script_args.do_push_tokenizer_to_hub:
+        print("Pushing tokenizer to the hub...")
+
         push_tokenizer(
             tokenizer=loaded_tokenizer,
             do_login_first_time=script_args.do_login_first_time,

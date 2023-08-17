@@ -86,6 +86,13 @@ python export_csv_docs_to_txt_files.py
 ```
 
 
+## :runner: Reformat all data for being able to train both tokenizer and model
+```
+cd ./src/data_reformatting
+python reformatter.py
+```
+
+
 ## :runner: Training
 ```
 cd ./src/training
