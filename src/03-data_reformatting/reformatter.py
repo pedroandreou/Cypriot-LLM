@@ -19,10 +19,9 @@ class BookReformatter:
     https://gist.github.com/marrrcin/bcc115fbadf79eba9d9c8ca711da9e20
     """
 
-    def __init__(self, sliding_window_size):
+    def __init__(self, all_files_path, sliding_window_size):
+        self.book_paths = list(glob(os.path.join(all_files_path, "*.txt")))
         self.sw = sliding_window_size
-        directory_path = os.getenv("CLEANED_FILES_DIR_PATH")
-        self.book_paths = list(glob(os.path.join(directory_path, "*.txt")))
 
     @staticmethod
     def flatten(iterable):
@@ -75,6 +74,11 @@ class BookReformatter:
 
 @dataclass
 class ScriptArguments:
+    cleaned_files_dir_path: str = field(
+        os.getenv("CLEANED_FILES_DIR_PATH"),
+        metadata={"help": "The path where all the cleaned files are stored."},
+    )
+
     sliding_window_size: int = field(
         default=8, metadata={"help": "Size of the sliding window for processing data."}
     )
@@ -85,7 +89,9 @@ def main():
     parser = HfArgumentParser(ScriptArguments)
     script_args = parser.parse_args_into_dataclasses()[0]
 
-    reformatter = BookReformatter(script_args.sliding_window_size)
+    reformatter = BookReformatter(
+        script_args.cleaned_files_dir_path, script_args.sliding_window_size
+    )
     reformatter.reformat_all_books()
 
 

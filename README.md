@@ -51,7 +51,7 @@ cmd.exe /C setup_new_environment.bat
 # :crossed_flags: Source Code
 ## :hammer: Preprocessing
 ```
-cd ./src/01-preprocessing
+cd ./src/01-data_preprocessing
 ```
 
 #### Create a CSV containing all the docs
@@ -75,42 +75,48 @@ python main.py \
 
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer needs the paths to the files
 ```
-cd ./src/01-preprocessing
+cd ./src/01-data_preprocessing
 
 python export_csv_docs_to_txt_files.py
 ```
 
 
-## :books: Reformat all data (using 4 or 8 sliding window) for being able to train both tokenizer and model
-```
-cd ./src/02-data_reformatting
-
-python reformatter.py
-```
-
-
 ## :runner: Training Tokenizer
 ```
-cd ./src/03-tokenizer_training
+cd ./src/02-tokenizer_training
 
 python main.py \
     --model_type="bert" \
-    --do_split_paths \
     --do_train_tokenizer \
-    --do_push_tokenizer_to_hub
+    --do_push_tokenizer_to_hub False
+```
+
+
+## :books: Reformat all data (using 4 or 8 sliding window) for being able to train the model
+```
+cd ./src/03-data_reformatting
+
+python reformatter.py
 ```
 
 If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
 
 
-## :runner: Training Model
+## :books: Split data
 ```
-cd ./src/03-training
+cd ./src/04-path_splitting
 
 python main.py \
-    --do_split_paths \
+    --do_split_paths
+```
+
+
+## :runner: Training Model
+```
+cd ./src/05-training
+
+python main.py \
     --do_train_tokenizer \
-    --do_create_masked_encodings \
     --do_push_tokenizer_to_hub \
     --do_train_model
 ```
