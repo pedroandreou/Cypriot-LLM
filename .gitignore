@@ -17,6 +17,12 @@
 # Filepaths
 **/*.txt
 
+# Content of tokenizers and models
+**/cybert/**
+!cybert/**/.gitkeep
+**/cyroberta/**
+!cyroberta/**/.gitkeep
+
 # Dataset saved encodings
 **/*.pkl
 

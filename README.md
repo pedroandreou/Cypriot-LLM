@@ -100,6 +100,8 @@ python main.py \
     --do_push_tokenizer_to_hub
 ```
 
+If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
+
 
 ## :runner: Training Model
 ```

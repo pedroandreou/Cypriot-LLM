@@ -23,12 +23,16 @@ class ScriptArguments:
 
     do_train_tokenizer: bool = field(default=False)
     tokenizer_dir_path: Optional[str] = field(
-        default="./trained_tokenizer_bundle",
+        default=None,
         metadata={"help": "Path to where the tokenizer should be exported."},
     )
     do_push_tokenizer_to_hub: bool = field(
         default=False, metadata={"help": "Enable or disable pushing tokenizer to hub."}
     )
+
+    def __post_init__(self):
+        if self.tokenizer_dir_path is None:
+            self.tokenizer_dir_path = f"./trained_tokenizer_bundle/cy{self.model_type}"
 
 
 def main():
