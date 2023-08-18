@@ -92,6 +92,8 @@ def main():
 
     # Push the preprocessed data to the hub
     if script_args.do_push_to_hub:
+        print("Pushing dataset to the hub...")
+
         push_dataset(
             do_login_first_time=script_args.do_login_first_time,
             huggingface_token=script_args.huggingface_token,

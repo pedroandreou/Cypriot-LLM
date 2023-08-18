@@ -18,7 +18,6 @@ def push_dataset(
     output_file_name: str,
     custom_key: str,
 ) -> None:
-    print("Pushing dataset to the hub...")
     hub_login(huggingface_token, do_login_first_time)
 
     # Load the dataset and convert DataFrame to a Dataset

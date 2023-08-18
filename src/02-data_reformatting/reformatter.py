@@ -22,9 +22,7 @@ class BookReformatter:
     def __init__(self, sliding_window_size):
         self.sw = sliding_window_size
         directory_path = os.getenv("CLEANED_FILES_DIR_PATH")
-        self.book_paths = list(glob(os.path.join(directory_path, "*.txt")))[
-            :20
-        ]  # Get first 10 for demonstration
+        self.book_paths = list(glob(os.path.join(directory_path, "*.txt")))
 
     @staticmethod
     def flatten(iterable):

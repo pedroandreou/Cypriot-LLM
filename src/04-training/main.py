@@ -7,8 +7,6 @@ from typing import Optional
 from dotenv import find_dotenv, load_dotenv
 from mlm_components.dataset import TestTextDataset, TrainTextDataset
 from model_components.model import ModelWrapper
-from tokenizer_components.path_splitter import PathSplitter
-from tokenizer_components.tokenizer import TokenizerWrapper
 from transformers import (
     AutoTokenizer,
     DataCollatorForLanguageModeling,
@@ -51,16 +49,6 @@ class ScriptArguments:
         default=os.getenv("MAIN_DIR_PATH"), metadata={"help": "Main directory path"}
     )
     model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
-
-    do_split_paths: bool = field(default=False)
-
-    do_train_tokenizer: bool = field(default=False)
-    tokenizer_dir_path: Optional[str] = field(default=os.getenv("TOKENIZER_DIR_PATH"))
-    do_push_tokenizer_to_hub: bool = field(
-        default=False, metadata={"help": "Enable or disable pushing tokenizer to hub."}
-    )
-    vocab_size: int = field(default=30522)
-    max_length: int = field(default=512)
 
     do_create_masked_encodings: bool = field(
         default=False, metadata={"help": "Create train and test sets"}
@@ -107,38 +95,6 @@ def main():
 
     # set seed for reproducibility
     set_seed(script_args.seed)
-
-    if script_args.do_split_paths:
-        print("Splitting all paths to train and test path sets...")
-
-        path_splitter = PathSplitter()
-        path_splitter.split_paths()
-        path_splitter.save_paths()
-
-    else:
-        print(
-            "Skipping the split of all paths...\nWill try to load the train and test path sets from the files."
-        )
-
-        path_splitter = PathSplitter()
-        path_splitter.load_paths()
-
-    # Get paths
-    all_paths_list, train_paths_list, test_paths_list = path_splitter.get_paths()
-
-    if script_args.do_train_tokenizer:
-        print("Training a tokenizer from scratch...")
-
-        TokenizerWrapper(
-            filepaths=all_paths_list,
-            tokenizer_path=script_args.tokenizer_dir_path,
-            model_type=script_args.model_type,
-            vocab_size=script_args.vocab_size,
-            max_length=script_args.max_length,
-        )
-
-    else:
-        print("Skipping the training of a tokenizer...")
 
     print("Loading the saved tokenizer...")
     loaded_tokenizer = AutoTokenizer.from_pretrained(script_args.tokenizer_dir_path)

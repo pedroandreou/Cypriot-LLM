@@ -51,12 +51,13 @@ cmd.exe /C setup_new_environment.bat
 # :crossed_flags: Source Code
 ## :hammer: Preprocessing
 ```
-cd ./src/preprocessing
+cd ./src/01-preprocessing
 ```
 
 #### Create a CSV containing all the docs
 ```
 cd ./doc_merge_to_csv
+
 python docs_to_csv.py \
     --merge_data
 ```
@@ -64,54 +65,51 @@ python docs_to_csv.py \
 #### Preprocess the docs of the CSV
 ```
 cd ./data_cleaner
-```
 
-If you want to clean the data and push it to the hub for the first time
-```
 python main.py \
     --do_clean_data \
     --do_push_to_hub \
     --do_login_first_time
 ```
 
-If the data is already cleaned, you are already logged in to the huggingface-cli and you just want to push it to the hub
-```
-python main.py \
-    --do_push_to_hub
-```
 
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer needs the paths to the files
 ```
+cd ./src/01-preprocessing
+
 python export_csv_docs_to_txt_files.py
 ```
 
 
 ## :books: Reformat all data (using 4 or 8 sliding window) for being able to train both tokenizer and model
 ```
-cd ./src/data_reformatting
+cd ./src/02-data_reformatting
+
 python reformatter.py
 ```
 
 
-## :runner: Training
+## :runner: Training Tokenizer
 ```
-cd ./src/training
+cd ./src/03-tokenizer_training
+
+python main.py \
+    --model_type="bert" \
+    --do_split_paths \
+    --do_train_tokenizer \
+    --do_push_tokenizer_to_hub
 ```
-#### First time: Split Paths to 80% for training and 20% for testing, Train tokenizer, Create dataset masked encodings
+
+
+## :runner: Training Model
 ```
+cd ./src/03-training
+
 python main.py \
     --do_split_paths \
     --do_train_tokenizer \
-    --do_create_masked_encodings
-```
-#### Second time: Just push tokenizer to the HuggingFace Hub
-```
-python main.py \
-    --do_push_tokenizer_to_hub
-```
-#### Third time: Just focus on Training the Model
-```
-python main.py \
+    --do_create_masked_encodings \
+    --do_push_tokenizer_to_hub \
     --do_train_model
 ```
 

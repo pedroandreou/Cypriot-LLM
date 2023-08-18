@@ -143,6 +143,8 @@ def main():
     # More than one dataset in the same dataset repo is supported but you will find it difficult
     # to load the right dataset (preprocessed) when you want to export the csv docs to txt files
     if script_args.do_push_to_hub:
+        print("Pushing dataset to the hub...")
+
         push_dataset(
             do_login_first_time=script_args.do_login_first_time,
             huggingface_token=script_args.huggingface_token,
