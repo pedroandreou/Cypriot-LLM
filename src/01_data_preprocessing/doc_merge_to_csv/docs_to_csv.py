@@ -97,7 +97,7 @@ class ScriptArguments:
         metadata={"help": "Path to the dataset directory."},
     )
     output_file_name: Optional[str] = field(
-        default=os.getenv("COMPILED_DOCS_FILE_NAME"),
+        default="all_documents.csv",
         metadata={"help": "Name of the compiled output file."},
     )
     do_login_first_time: bool = field(

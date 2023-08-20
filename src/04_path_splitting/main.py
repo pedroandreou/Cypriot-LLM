@@ -70,7 +70,7 @@ class PathSplitter:
 
         except FileNotFoundError:
             print(
-                f"The file paths were not found.\nYou should run the script with --should-split-train-test flag first."
+                f"The file paths were not found.\nYou should run the script with --do_split_paths flag first."
             )
 
             sys.exit(1)
@@ -81,7 +81,7 @@ class ScriptArguments:
     do_split_paths: bool = field(default=False)
 
     reformatted_files_dir_path: str = field(
-        default=os.path.join("..", "03-data_reformatting")
+        default=os.path.join("..", "03_data_reformatting")
     )
 
     allpaths_file_path: str = field(default="./file_paths/all_paths.txt")

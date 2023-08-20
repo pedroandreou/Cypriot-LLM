@@ -58,9 +58,9 @@ class HuggingFaceTrainer:
         trainer = Trainer(
             model=self.model,
             args=training_args,
-            data_collator=self.data_collator,
+            # data_collator=self.data_collator, # do I need to pass the data collator too?
             train_dataset=self.train_set,
-            eval_dataset=self.test_set,
+            # eval_dataset=self.test_set,
             # tokenizer=tokenizer, # do I need to pass the tokenizer too?
         )
 

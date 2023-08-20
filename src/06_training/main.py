@@ -99,19 +99,6 @@ def main():
     print("Loading the saved tokenizer...")
     loaded_tokenizer = AutoTokenizer.from_pretrained(script_args.tokenizer_dir_path)
 
-    # Push tokenizer to Hub
-    if script_args.do_push_tokenizer_to_hub:
-        print("Pushing tokenizer to the hub...")
-
-        push_tokenizer(
-            tokenizer=loaded_tokenizer,
-            do_login_first_time=script_args.do_login_first_time,
-            huggingface_token=script_args.huggingface_token,
-            huggingface_repo_name=script_args.huggingface_dataset_repo_name,
-        )
-    else:
-        print("Skipping the push of the tokenizer to the hub...")
-
     if script_args.do_create_masked_encodings:
 
         print("Creating masked encodings of the train set...")

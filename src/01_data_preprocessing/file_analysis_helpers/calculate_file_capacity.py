@@ -14,7 +14,7 @@ console = Console()
 @dataclass
 class ScriptArguments:
     input_file_name: str = field(
-        default=f"../data_cleaner/{os.getenv('PREPROCESSED_DOCS_FILE_NAME')}",
+        default=f"../data_cleaner/preprocessed_docs.csv",
         metadata={"help": "Path to the input file"},
     )
 

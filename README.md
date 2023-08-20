@@ -51,7 +51,7 @@ cmd.exe /C setup_new_environment.bat
 # :crossed_flags: Source Code
 ## :hammer: Preprocessing
 ```
-cd ./src/01-data_preprocessing
+cd ./src/01_data_preprocessing
 ```
 
 #### Create a CSV containing all the docs
@@ -75,7 +75,7 @@ python main.py \
 
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer needs the paths to the files
 ```
-cd ./src/01-data_preprocessing
+cd ./src/01_data_preprocessing
 
 python export_csv_docs_to_txt_files.py
 ```
@@ -83,7 +83,7 @@ python export_csv_docs_to_txt_files.py
 
 ## :runner: Training Tokenizer
 ```
-cd ./src/02-tokenizer_training
+cd ./src/02_tokenizer_training
 
 python main.py \
     --model_type="bert" \
@@ -94,7 +94,7 @@ python main.py \
 
 ## :books: Reformat all data (using 4 or 8 sliding window) for being able to train the model
 ```
-cd ./src/03-data_reformatting
+cd ./src/03_data_reformatting
 
 python reformatter.py
 ```
@@ -104,7 +104,7 @@ If you want to add different arguments for training the tokenizer, just go to th
 
 ## :books: Split Data
 ```
-cd ./src/04-path_splitting
+cd ./src/04_path_splitting
 
 python main.py \
     --do_split_paths
@@ -113,17 +113,21 @@ python main.py \
 
 ## :runner: Tokenize Data
 ```
-cd ./src/05-data_tokenizing
+cd ./src/05_data_tokenizing
 
-python tokenize_data.py \
+python main.py \
     --model_type=bert \
-    --paths=train
+    --do_tokenize_data=False \
+    --paths=train_test \
+    --do_create_masked_encodings \
+    --mlm_type=manual \
+    --mlm_probability=0.15
 ```
 
 
 ## :runner: Training Model
 ```
-cd ./src/06-training
+cd ./src/06_training
 
 python main.py \
     --do_train_tokenizer \
@@ -134,7 +138,7 @@ python main.py \
 
 ## :trophy: Inference
 ```
-cd ./src/07-inference
+cd ./src/07_inference
 ```
 
 

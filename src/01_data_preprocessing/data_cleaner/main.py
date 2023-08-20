@@ -20,11 +20,11 @@ class ScriptArguments:
         default=False, metadata={"help": "Enable or disable data cleaning."}
     )
     input_file_name: Optional[str] = field(
-        default=f"../doc_merge_to_csv/{os.getenv('COMPILED_DOCS_FILE_NAME')}",
+        default="../doc_merge_to_csv/all_documents.csv",
         metadata={"help": "Path to the compiled documents CSV file."},
     )
     output_file_name: Optional[str] = field(
-        default=os.getenv("PREPROCESSED_DOCS_FILE_NAME"),
+        default="preprocessed_docs.csv",
         metadata={
             "help": "Name of the file to save the preprocessed documents CSV file."
         },
