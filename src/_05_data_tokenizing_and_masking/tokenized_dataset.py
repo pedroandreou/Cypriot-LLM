@@ -2,10 +2,10 @@ import json
 import os
 
 import torch
+from joblib import load
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
 from torch.utils.data import Dataset
-from joblib import load
 
 
 class LineByLineTextDataset(Dataset):

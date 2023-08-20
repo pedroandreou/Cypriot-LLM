@@ -1,18 +1,14 @@
 import os
 from dataclasses import dataclass, field
 from typing import Optional
+
 import torch
-
-from transformers import AutoConfig, AutoModelForMaskedLM
 from dotenv import find_dotenv, load_dotenv
-from transformers import (
-    HfArgumentParser,
-    set_seed,
-)
-from src._05_data_tokenizing_and_masking.masked_dataset import MaskedDataset
-
 from training_methods.huggingface_model_trainer import HuggingFaceTrainer
 from training_methods.pytorch_model_trainer import PyTorchModelTrainer
+from transformers import AutoConfig, AutoModelForMaskedLM, HfArgumentParser, set_seed
+
+from src._05_data_tokenizing_and_masking.masked_dataset import MaskedDataset
 
 load_dotenv(find_dotenv())
 

@@ -1,8 +1,9 @@
+import os
+
 import torch
+from joblib import load
 from torch.utils.data import Dataset
 from transformers import DataCollatorForLanguageModeling
-from joblib import load
-import os
 
 
 class MaskedDataset(Dataset):

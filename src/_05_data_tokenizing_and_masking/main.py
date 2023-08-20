@@ -5,7 +5,6 @@ from typing import Optional
 from joblib import dump
 from masked_dataset import MaskedDataset
 from tokenized_dataset import LineByLineTextDataset
-from masked_dataset import MaskedDataset
 from transformers import HfArgumentParser
 
 
