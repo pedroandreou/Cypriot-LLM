@@ -102,7 +102,7 @@ python reformatter.py
 If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
 
 
-## :books: Split data
+## :books: Split Data
 ```
 cd ./src/04-path_splitting
 
@@ -111,9 +111,19 @@ python main.py \
 ```
 
 
+## :runner: Tokenize Data
+```
+cd ./src/05-data_tokenizing
+
+python tokenize_data.py \
+    --model_type=bert \
+    --paths=train
+```
+
+
 ## :runner: Training Model
 ```
-cd ./src/05-training
+cd ./src/06-training
 
 python main.py \
     --do_train_tokenizer \
@@ -124,7 +134,7 @@ python main.py \
 
 ## :trophy: Inference
 ```
-cd ./src/inference
+cd ./src/07-inference
 ```
 
 

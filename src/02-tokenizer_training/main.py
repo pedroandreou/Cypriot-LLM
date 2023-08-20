@@ -1,7 +1,7 @@
-import glob
 import json
 import os
 from dataclasses import dataclass, field
+from glob import glob
 from typing import Optional
 
 from dotenv import find_dotenv, load_dotenv
@@ -58,7 +58,8 @@ class TokenizerWrapper:
             # including special tokens, whether to lower case and the maximum sequence length
             with open(os.path.join(tokenizer_path, "config.json"), "w") as f:
                 tokenizer_cfg = {
-                    "model_type": "bert",
+                    # "model_type": "bert", # For AutoTokenizer.from_pretrained
+                    "handle_chinese_chars": False,
                     "do_lower_case": True,
                     "unk_token": "[UNK]",
                     "sep_token": "[SEP]",
