@@ -14,7 +14,7 @@ def hub_login(token: str, do_login_first_time: bool) -> None:
 def push_dataset(
     do_login_first_time: bool,
     huggingface_token: str,
-    huggingface_dataset_repo_name: str,
+    huggingface_repo_name: str,
     output_file_name: str,
     custom_key: str,
 ) -> None:
@@ -24,9 +24,7 @@ def push_dataset(
     dataset = Dataset.from_pandas(pd.read_csv(output_file_name))
 
     # Create a DatasetDict with a custom key and push to HuggingFace Hub
-    DatasetDict({custom_key: dataset}).push_to_hub(
-        huggingface_dataset_repo_name, private=True
-    )
+    DatasetDict({custom_key: dataset}).push_to_hub(huggingface_repo_name, private=True)
 
 
 def push_tokenizer(

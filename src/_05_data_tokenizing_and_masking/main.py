@@ -2,16 +2,16 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
-from joblib import dump, load
+from joblib import dump
 from masked_dataset import MaskedDataset
 from tokenized_dataset import LineByLineTextDataset
+from masked_dataset import MaskedDataset
 from transformers import HfArgumentParser
 
 
 def fetch_txt_files(paths_type):
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    paths_directory = os.path.join(
-        current_directory, "..", "04_path_splitting", "file_paths"
+    paths_directory = os.path.normpath(
+        os.path.join(curr_dir, "..", "_04_path_splitting", "file_paths")
     )
 
     file_mapping = {
@@ -42,20 +42,14 @@ def fetch_txt_files(paths_type):
     return txt_files_dict
 
 
-def load_tokenized_datasets():
-    train_dataset_path = f"saved_data/encodings/tokenized_train_dataset.pkl"
-    test_dataset_path = f"saved_data/encodings/tokenized_test_dataset.pkl"
-
-    # Load the datasets using joblib
-    train_dataset = load(train_dataset_path)
-    test_dataset = load(test_dataset_path)
-
-    return train_dataset, test_dataset
-
-
 def save_dataset(dataset, base_path, sub_dir, key):
-    filename = f"saved_data/{base_path}/{sub_dir}_{key}_dataset.pkl"
+    filename = os.path.join(
+        curr_dir, "saved_data", base_path, f"{sub_dir}_{key}_dataset.pkl"
+    )
     dump(dataset, filename)
+
+
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 @dataclass
@@ -76,9 +70,7 @@ class ScriptArguments:
 
     def __post_init__(self):
         if self.tokenizer_dir_path is None:
-            self.tokenizer_dir_path = (
-                f"../02_tokenizer_training/trained_tokenizer_bundle/cy{self.model_type}"
-            )
+            self.tokenizer_dir_path = f"../_02_tokenizer_training/trained_tokenizer_bundle/cy{self.model_type}"
 
     block_size: str = field(default=512)
 
@@ -123,7 +115,7 @@ def main():
 
     if script_args.do_create_masked_encodings:
         print("Loading the tokenized datasets...")
-        train_dataset, test_dataset = load_tokenized_datasets()
+        train_dataset, test_dataset = MaskedDataset().load_masked_encodings()
 
         print("Creating masked datasets...")
         masked_train_dataset = MaskedDataset(

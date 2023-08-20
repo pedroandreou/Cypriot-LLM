@@ -24,8 +24,8 @@ class ScriptArguments:
         },
     )
     huggingface_token: Optional[str] = field(default=os.getenv("HUGGINGFACE_TOKEN"))
-    huggingface_dataset_repo_name: Optional[str] = field(
-        default=os.getenv("HUGGINGFACE_DATASET_REPO_NAME")
+    huggingface_repo_name: Optional[str] = field(
+        default=os.getenv("HUGGINGFACE_REPO_NAME")
     )
     custom_key: str = field(
         default="preprocessed_data",
@@ -41,7 +41,7 @@ def main():
     hub_login(script_args.huggingface_token, script_args.do_login_first_time)
 
     # Load the dataset
-    dataset = load_dataset(script_args.huggingface_dataset_repo_name)
+    dataset = load_dataset(script_args.huggingface_repo_name)
 
     # Access the dataset
     dataset = dataset[script_args.custom_key]

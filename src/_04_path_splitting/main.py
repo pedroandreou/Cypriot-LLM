@@ -76,17 +76,26 @@ class PathSplitter:
             sys.exit(1)
 
 
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+
+
 @dataclass
 class ScriptArguments:
     do_split_paths: bool = field(default=False)
 
     reformatted_files_dir_path: str = field(
-        default=os.path.join("..", "03_data_reformatting")
+        default=os.path.normpath(os.path.join(curr_dir, "..", "_03_data_reformatting"))
     )
 
-    allpaths_file_path: str = field(default="./file_paths/all_paths.txt")
-    trainpaths_file_path: str = field(default="./file_paths/train_paths.txt")
-    testpaths_file_path: str = field(default="./file_paths/test_paths.txt")
+    allpaths_file_path: str = field(
+        default=os.path.join(curr_dir, "file_paths", "all_paths.txt")
+    )
+    trainpaths_file_path: str = field(
+        default=os.path.join(curr_dir, "file_paths", "train_paths.txt")
+    )
+    testpaths_file_path: str = field(
+        default=os.path.join(curr_dir, "file_paths", "test_paths.txt")
+    )
 
 
 def main():

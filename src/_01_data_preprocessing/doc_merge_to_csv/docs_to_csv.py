@@ -113,8 +113,8 @@ class ScriptArguments:
         default=os.getenv("HUGGINGFACE_TOKEN"),
         metadata={"help": "Hugging Face token for authentication."},
     )
-    huggingface_dataset_repo_name: Optional[str] = field(
-        default=os.getenv("HUGGINGFACE_DATASET_REPO_NAME"),
+    huggingface_repo_name: Optional[str] = field(
+        default=os.getenv("HUGGINGFACE_REPO_NAME"),
         metadata={"help": "Name of the Hugging Face dataset repository."},
     )
 
@@ -148,7 +148,7 @@ def main():
         push_dataset(
             do_login_first_time=script_args.do_login_first_time,
             huggingface_token=script_args.huggingface_token,
-            huggingface_dataset_repo_name=script_args.huggingface_dataset_repo_name,
+            huggingface_repo_name=script_args.huggingface_repo_name,
             output_file_name=script_args.output_file_name,
             custom_key="all_data",
         )

@@ -5,20 +5,44 @@ import torch
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
 from torch.utils.data import Dataset
+from joblib import load
 
 
 class LineByLineTextDataset(Dataset):
     def __init__(
         self,
-        model_type: str,
-        tokenizer_dir_path: str,
-        files_list: list,
-        block_size: str,
+        model_type: str = None,
+        tokenizer_dir_path: str = None,
+        files_list: list = None,
+        block_size: str = None,
+    ):
+        if (
+            model_type is None
+            and tokenizer_dir_path is None
+            and files_list is None
+            and block_size is None
+        ):
+            self.default_constructor()
+        else:
+            self.parameterized_constructor(
+                model_type, tokenizer_dir_path, files_list, block_size
+            )
+
+    def default_constructor(self):
+        print(
+            "Using default constructor. This instance is meant for loading data only."
+        )
+        self.examples = []
+        self.model_type = None
+
+    def parameterized_constructor(
+        self, model_type, tokenizer_dir_path, files_list, block_size
     ):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
         """
+
         self.model_type = model_type
         self.examples = []
 
@@ -70,7 +94,27 @@ class LineByLineTextDataset(Dataset):
         return f"<LineByLineTextDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.examples)}>"
 
     def __len__(self):
+        if not self.examples:
+            print("Warning: Dataset not initialized. Returning length 0.")
+            return 0
         return len(self.examples)
 
     def __getitem__(self, i):
+        if not self.examples:
+            print("Warning: Dataset not initialized. Returning empty item.")
+            return {}
         return torch.tensor(self.examples[i].ids, dtype=torch.long)
+
+    def load_encodings(self):
+        curr_dir = os.path.dirname(os.path.realpath(__file__))
+        train_dataset_path = os.path.join(
+            curr_dir, "saved_data", "encodings", "tokenized_train_dataset.pkl"
+        )
+        test_dataset_path = os.path.join(
+            curr_dir, "saved_data", "encodings", "tokenized_test_dataset.pkl"
+        )
+
+        train_dataset = load(train_dataset_path)
+        test_dataset = load(test_dataset_path)
+
+        return train_dataset, test_dataset

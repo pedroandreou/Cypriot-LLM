@@ -1,21 +1,45 @@
 import torch
 from torch.utils.data import Dataset
 from transformers import DataCollatorForLanguageModeling
+from joblib import load
+import os
 
 
 class MaskedDataset(Dataset):
     def __init__(
         self,
-        tokenized_dataset,
-        model_type: str = "bert",
-        mlm_type: str = "manual",
-        mlm_probability: float = 0.15,
+        tokenized_dataset=None,
+        model_type: str = None,
+        mlm_type: str = None,
+        mlm_probability: float = None,
+    ):
+        self.masked_encodings = None
+
+        if (
+            tokenized_dataset is None
+            and model_type is None
+            and mlm_type is None
+            and mlm_probability is None
+        ):
+            self.default_constructor()
+        else:
+            self.parameterized_constructor(
+                tokenized_dataset, model_type, mlm_type, mlm_probability
+            )
+
+    def default_constructor(self):
+        print(
+            "Using default constructor. This instance is meant for loading data only."
+        )
+        pass
+
+    def parameterized_constructor(
+        self, tokenized_dataset, model_type, mlm_type, mlm_probability
     ):
         self.encodings = tokenized_dataset
         self.model_type = model_type
         self.mlm_type = mlm_type
         self.mlm_probability = mlm_probability
-
         self.masked_encodings = self._create_masked_dataset()
 
     def _create_masked_dataset(self):
@@ -98,9 +122,28 @@ class MaskedDataset(Dataset):
         # return self.data_collator(data)
 
     def __len__(self):
+        if self.masked_encodings is None:
+            print("Warning: Dataset not initialized. Returning length 0.")
+            return 0
         return len(self.masked_encodings["input_ids"])
 
     def __getitem__(self, index):
-        """Get item from the Dataset"""
+        if self.masked_encodings is None:
+            print("Warning: Dataset not initialized. Returning empty item.")
+            return {}
         item = {key: val[index] for key, val in self.masked_encodings.items()}
         return item
+
+    def load_masked_encodings(self):
+        curr_dir = os.path.dirname(os.path.realpath(__file__))
+        train_dataset_path = os.path.join(
+            curr_dir, "saved_data", "masked_encodings", "masked_train_dataset.pkl"
+        )
+        test_dataset_path = os.path.join(
+            curr_dir, "saved_data", "masked_encodings", "masked_test_dataset.pkl"
+        )
+
+        train_dataset = load(train_dataset_path)
+        test_dataset = load(test_dataset_path)
+
+        return train_dataset, test_dataset

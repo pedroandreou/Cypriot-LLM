@@ -51,7 +51,7 @@ cmd.exe /C setup_new_environment.bat
 # :crossed_flags: Source Code
 ## :hammer: Preprocessing
 ```
-cd ./src/01_data_preprocessing
+cd ./src/_01_data_preprocessing
 ```
 
 #### Create a CSV containing all the docs
@@ -75,7 +75,7 @@ python main.py \
 
 #### Export all docs to separate txt files as this would make our life easier when the tokenizer needs the paths to the files
 ```
-cd ./src/01_data_preprocessing
+cd ./src/_01_data_preprocessing
 
 python export_csv_docs_to_txt_files.py
 ```
@@ -83,7 +83,7 @@ python export_csv_docs_to_txt_files.py
 
 ## :runner: Training Tokenizer
 ```
-cd ./src/02_tokenizer_training
+cd ./src/_02_tokenizer_training
 
 python main.py \
     --model_type="bert" \
@@ -94,7 +94,7 @@ python main.py \
 
 ## :books: Reformat all data (using 4 or 8 sliding window) for being able to train the model
 ```
-cd ./src/03_data_reformatting
+cd ./src/_03_data_reformatting
 
 python reformatter.py
 ```
@@ -104,7 +104,7 @@ If you want to add different arguments for training the tokenizer, just go to th
 
 ## :books: Split Data
 ```
-cd ./src/04_path_splitting
+cd ./src/_04_path_splitting
 
 python main.py \
     --do_split_paths
@@ -113,11 +113,11 @@ python main.py \
 
 ## :runner: Tokenize Data
 ```
-cd ./src/05_data_tokenizing
+cd ./src/_05_data_tokenizing
 
 python main.py \
     --model_type=bert \
-    --do_tokenize_data=False \
+    --do_tokenize_data=True \
     --paths=train_test \
     --do_create_masked_encodings \
     --mlm_type=manual \
@@ -127,18 +127,25 @@ python main.py \
 
 ## :runner: Training Model
 ```
-cd ./src/06_training
+cd ./src/_06_model_training
 
 python main.py \
-    --do_train_tokenizer \
-    --do_push_tokenizer_to_hub \
-    --do_train_model
+    --model_type=bert \
+    --do_train_model=True \
+    --trainer_type=pytorch \
+    --seed=42 \
+    --vocab_size=30522 \
+    --block_size=512 \
+    --hidden_size=768 \
+    --num_attention_heads=12 \
+    --num_hidden_layers=6 \
+    --type_vocab_size=1
 ```
 
 
 ## :trophy: Inference
 ```
-cd ./src/07_inference
+cd ./src/_07_inference
 ```
 
 
