@@ -2,10 +2,10 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
-from joblib import dump
 from masked_dataset import MaskedDataset
 from tokenized_dataset import LineByLineTextDataset
 from transformers import HfArgumentParser
+import torch
 
 
 def fetch_txt_files(paths_type):
@@ -43,9 +43,9 @@ def fetch_txt_files(paths_type):
 
 def save_dataset(dataset, base_path, sub_dir, key):
     filename = os.path.join(
-        curr_dir, "saved_data", base_path, f"{sub_dir}_{key}_dataset.pkl"
+        curr_dir, "saved_data", base_path, f"{sub_dir}_{key}_dataset.pth"
     )
-    dump(dataset, filename)
+    torch.save(dataset, filename)
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))

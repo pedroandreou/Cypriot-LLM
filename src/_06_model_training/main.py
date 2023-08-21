@@ -50,6 +50,9 @@ class ScriptArguments:
     )
 
 
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+
+
 def main():
     # Parse arguments
     parser = HfArgumentParser(ScriptArguments)
@@ -63,50 +66,56 @@ def main():
         print("Loading the masked encodings of the train and test sets...")
         masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings()
 
-    #     model_path = f"trained_model_bundle/cy{script_args.model_type}"
-    #     device = (
-    #         torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    #     )
+        model_path = os.path.join(
+            curr_dir, "trained_model_bundle", f"cy{script_args.model_type}"
+        )
+        device = (
+            torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        )
 
-    #     # As we are training from scratch, we initialize from a config
-    #     # not from an existing pretrained model or checkpoint
-    #     config = AutoConfig(
-    #         vocab_size=script_args.vocab_size,  # tutorial example was 7015
-    #         max_position_embeddings=script_args.block_size,  # tutorial example was 514
-    #         hidden_size=script_args.hidden_size,
-    #         num_attention_heads=script_args.num_attention_heads,
-    #         num_hidden_layers=script_args.num_hidden_layers,
-    #         type_vocab_size=script_args.type_vocab_size,
-    #     )
-    #     model = AutoModelForMaskedLM(config=config).to(device)
+        # As we are training from scratch, we initialize from a config
+        config = AutoConfig(
+            vocab_size=script_args.vocab_size,  # tutorial example was 7015
+            max_position_embeddings=script_args.block_size,  # tutorial example was 514
+            hidden_size=script_args.hidden_size,
+            num_attention_heads=script_args.num_attention_heads,
+            num_hidden_layers=script_args.num_hidden_layers,
+            type_vocab_size=script_args.type_vocab_size,
+        )
+        model = AutoModelForMaskedLM(config=config).to(device)
 
-    #     # Print the model parameters
-    #     print(model.num_parameters())
+        # Print the model parameters
+        print(model.num_parameters())
 
-    #     print(f"Training model from scratch using the {script_args.trainer_type}.capitalize() as the trainer type")
-    #     if script_args.trainer_type == "pytorch":
-    #         PyTorchModelTrainer(
-    #             device=device,
-    #             model=model,
-    #             model_path=model_path,
-    #             train_set=masked_train_set,
-    #             test_set=masked_test_dataset,
-    #         )
+        print(
+            f"Training model from scratch using the {script_args.trainer_type}.capitalize() as the trainer type"
+        )
+        if script_args.trainer_type == "pytorch":
+            PyTorchModelTrainer(
+                device=device,
+                model=model,
+                model_path=model_path,
+                train_set=masked_train_set,
+                test_set=masked_test_dataset,
+            )
 
-    #     else: # huggingface
-    #         # should load the data collator here
+        else:  # huggingface
+            # should load the data collator here
 
-    #         HuggingFaceTrainer(
-    #             device=device,
-    #             model=model,
-    #             model_path=model_path,
-    #             train_set=masked_train_set,
-    #             test_set=masked_test_dataset,
-    #             # data_collator=self.data_collator,
-    #         )
+            HuggingFaceTrainer(
+                device=device,
+                model=model,
+                model_path=model_path,
+                train_set=masked_train_set,
+                test_set=masked_test_dataset,
+                # data_collator=self.data_collator,
+            )
 
-    # else:
-    #     print("Skipping the training of a model from scratch...")
+    else:
+        print("Skipping the training of a model from scratch...")
+        # Load model here
+
+    # Should allow pushing the model to the hub here
 
 
 if __name__ == "__main__":

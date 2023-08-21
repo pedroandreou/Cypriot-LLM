@@ -25,6 +25,8 @@
 
 # Dataset saved encodings
 **/*.pkl
+**/*.pth
+**/test.py
 
 # Inference directory
 inference/

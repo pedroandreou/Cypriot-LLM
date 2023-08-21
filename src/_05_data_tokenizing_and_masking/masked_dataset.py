@@ -1,7 +1,6 @@
 import os
 
 import torch
-from joblib import load
 from torch.utils.data import Dataset
 from tqdm import tqdm
 from transformers import DataCollatorForLanguageModeling
@@ -140,15 +139,17 @@ class MaskedDataset(Dataset):
         return item
 
     def load_masked_encodings(self):
-        curr_dir = os.path.dirname(os.path.realpath(__file__))
-        train_dataset_path = os.path.join(
-            curr_dir, "saved_data", "masked_encodings", "masked_train_dataset.pkl"
-        )
-        test_dataset_path = os.path.join(
-            curr_dir, "saved_data", "masked_encodings", "masked_test_dataset.pkl"
-        )
+        def get_dataset_path(set_type):
+            curr_dir = os.path.dirname(os.path.realpath(__file__))
+            folder_name = "masked_encodings"
+            filename = f"masked_{set_type}_dataset.pth"
 
-        train_dataset = load(train_dataset_path)
-        test_dataset = load(test_dataset_path)
+            return os.path.join(curr_dir, "saved_data", folder_name, filename)
+
+        train_dataset_path = get_dataset_path("train")
+        train_dataset = torch.load(train_dataset_path)
+
+        test_dataset_path = get_dataset_path("test")
+        test_dataset = torch.load(test_dataset_path)
 
         return train_dataset, test_dataset

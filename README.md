@@ -90,6 +90,7 @@ python main.py \
     --do_train_tokenizer \
     --do_push_tokenizer_to_hub False
 ```
+If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
 
 
 ## :books: Reformat all data (using 4 or 8 sliding window) for being able to train the model
@@ -98,8 +99,6 @@ cd ./src/_03_data_reformatting
 
 python reformatter.py
 ```
-
-If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
 
 
 ## :books: Split Data

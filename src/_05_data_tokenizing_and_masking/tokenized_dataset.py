@@ -2,7 +2,6 @@ import json
 import os
 
 import torch
-from joblib import load
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
 from torch.utils.data import Dataset
@@ -72,7 +71,7 @@ class LineByLineTextDataset(Dataset):
         tokenizer.enable_padding(length=block_size)
 
         # Wrapping files_list with tqdm to display the progress bar
-        for file_path in tqdm(files_list, desc="Tokenizing files"):
+        for file_path in tqdm(files_list, desc=f"Tokenizing file: {file_path}"):
             if not os.path.isfile(file_path):
                 print(f"Problem with path: {file_path}")
 
@@ -82,13 +81,7 @@ class LineByLineTextDataset(Dataset):
                     for line in f.read().splitlines()
                     if (len(line) > 0 and not line.isspace())
                 ]
-
-            # Instead of print, we can use set_postfix to show the current action
-            tqdm.write(
-                f"Reading file: {file_path}"
-            )  # tqdm.write prevents breaking the progress bar
             self.examples.extend(tokenizer.encode_batch(lines))
-            tqdm.write("Running tokenization")
 
     def __repr__(self):
         tokenizer_type = (
@@ -111,15 +104,17 @@ class LineByLineTextDataset(Dataset):
         return torch.tensor(self.examples[i].ids, dtype=torch.long)
 
     def load_encodings(self):
-        curr_dir = os.path.dirname(os.path.realpath(__file__))
-        train_dataset_path = os.path.join(
-            curr_dir, "saved_data", "encodings", "tokenized_train_dataset.pkl"
-        )
-        test_dataset_path = os.path.join(
-            curr_dir, "saved_data", "encodings", "tokenized_test_dataset.pkl"
-        )
+        def get_dataset_path(set_type):
+            curr_dir = os.path.dirname(os.path.realpath(__file__))
+            folder_name = "encodings"
+            filename = f"tokenized_{set_type}_dataset.pth"
 
-        train_dataset = load(train_dataset_path)
-        test_dataset = load(test_dataset_path)
+            return os.path.join(curr_dir, "saved_data", folder_name, filename)
+
+        train_dataset_path = get_dataset_path("train")
+        train_dataset = torch.load(train_dataset_path)
+
+        test_dataset_path = get_dataset_path("test")
+        test_dataset = torch.load(test_dataset_path)
 
         return train_dataset, test_dataset
