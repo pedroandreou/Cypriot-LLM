@@ -103,24 +103,25 @@ def main():
             curr_dir, "trained_model_bundle", f"cy{script_args.model_type}"
         )
         if script_args.trainer_type == "pytorch":
-            PyTorchModelTrainer(
+            pytorch_trainer = PyTorchModelTrainer(
                 train_set=masked_train_set,
                 test_set=masked_test_dataset,
                 device=device,
                 model=model,
                 model_path=model_path,
             )
+            pytorch_trainer.train()
 
         else:
             # should load the data collator here
-            HuggingFaceTrainer(
-                device=device,
-                model=model,
-                model_path=model_path,
+            huggingface_trainer = HuggingFaceTrainer(
                 train_set=masked_train_set,
                 test_set=masked_test_dataset,
+                model=model,
+                model_path=model_path,
                 # data_collator=self.data_collator,
             )
+            huggingface_trainer.train()
 
         print(model.num_parameters())
 
