@@ -69,7 +69,15 @@ class ScriptArguments:
 
     def __post_init__(self):
         if self.tokenizer_dir_path is None:
-            self.tokenizer_dir_path = f"../_02_tokenizer_training/trained_tokenizer_bundle/cy{self.model_type}"
+            self.tokenizer_dir_path = os.path.normpath(
+                os.path.join(
+                    curr_dir,
+                    "..",
+                    "_02_tokenizer_training",
+                    "trained_tokenizer_bundle",
+                    f"cy{self.model_type}",
+                )
+            )
 
     block_size: str = field(default=512)
 
@@ -114,7 +122,7 @@ def main():
 
     if script_args.do_create_masked_encodings:
         print("Loading the tokenized datasets...")
-        train_dataset, test_dataset = MaskedDataset().load_masked_encodings()
+        train_dataset, test_dataset = LineByLineTextDataset().load_encodings()
 
         print("Creating masked datasets...")
         masked_train_dataset = MaskedDataset(

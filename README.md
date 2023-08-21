@@ -86,7 +86,7 @@ python export_csv_docs_to_txt_files.py
 cd ./src/_02_tokenizer_training
 
 python main.py \
-    --model_type="bert" \
+    --model_type bert \
     --do_train_tokenizer \
     --do_push_tokenizer_to_hub False
 ```
@@ -116,12 +116,12 @@ python main.py \
 cd ./src/_05_data_tokenizing
 
 python main.py \
-    --model_type=bert \
-    --do_tokenize_data=True \
+    --model_type bert \
+    --do_tokenize_data True \
     --paths=train_test \
     --do_create_masked_encodings \
     --mlm_type=manual \
-    --mlm_probability=0.15
+    --mlm_probability 0.15
 ```
 
 
@@ -130,16 +130,16 @@ python main.py \
 cd ./src/_06_model_training
 
 python main.py \
-    --model_type=bert \
-    --do_train_model=True \
-    --trainer_type=pytorch \
-    --seed=42 \
-    --vocab_size=30522 \
-    --block_size=512 \
-    --hidden_size=768 \
-    --num_attention_heads=12 \
-    --num_hidden_layers=6 \
-    --type_vocab_size=1
+    --model_type bert \
+    --do_train_model True \
+    --trainer_type pytorch \
+    --seed 42 \
+    --vocab_size 30522 \
+    --block_size 512 \
+    --hidden_size 768 \
+    --num_attention_heads 12 \
+    --num_hidden_layers 6 \
+    --type_vocab_size 1
 ```
 
 

@@ -20,7 +20,10 @@ class TokenizerWrapper:
     ):
 
         print("Loading configurations from the JSON file...")
-        with open(f"initial_configs/{model_type}_config.json", "r") as f:
+        config_path = os.path.join(
+            curr_dir, "initial_configs", f"{model_type}_config.json"
+        )
+        with open(config_path, "r") as f:
             config_dict = json.load(f)
 
         print(f"Initializing the {model_type}'s tokenizer...")
@@ -72,6 +75,9 @@ class TokenizerWrapper:
                 json.dump(tokenizer_cfg, f)
 
 
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+
+
 @dataclass
 class ScriptArguments:
     model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
@@ -86,7 +92,9 @@ class ScriptArguments:
 
     def __post_init__(self):
         if self.tokenizer_dir_path is None:
-            self.tokenizer_dir_path = f"./trained_tokenizer_bundle/cy{self.model_type}"
+            self.tokenizer_dir_path = os.path.join(
+                curr_dir, "trained_tokenizer_bundle", f"cy{self.model_type}"
+            )
 
     do_push_tokenizer_to_hub: bool = field(
         default=False, metadata={"help": "Enable or disable pushing tokenizer to hub."}

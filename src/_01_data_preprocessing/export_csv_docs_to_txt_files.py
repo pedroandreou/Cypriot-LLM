@@ -52,10 +52,9 @@ def main():
     for num in range(len(df)):
         value = df.iloc[num, 1]
 
-        with open(
-            f"{script_args.output_dir_path}\\text_file{num}.txt", "w", encoding="utf-8"
-        ) as f:
-            f.write(str(value))
+    file_path = os.path.join(script_args.output_dir_path, f"text_file{num}.txt")
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(str(value))
 
 
 if __name__ == "__main__":

@@ -56,7 +56,8 @@ class BookReformatter:
             buffer.append(sentence)
 
             if len(buffer) >= BUFFER_SIZE:
-                with open(f"book_{file_count}.txt", "wt", encoding="utf-8") as file:
+                file_path = os.path.join(curr_dir, f"book_{file_count}.txt")
+                with open(file_path, "wt", encoding="utf-8") as file:
                     file.write("\n".join(buffer))
                     buffer.clear()
                     print(
@@ -67,9 +68,13 @@ class BookReformatter:
 
         # Write any remaining sentences that haven't reached the 10k threshold
         if buffer:
-            with open(f"book_{file_count}.txt", "wt", encoding="utf-8") as file:
+            file_path = os.path.join(curr_dir, f"book_{file_count}.txt")
+            with open(file_path, "wt", encoding="utf-8") as file:
                 file.write("\n".join(buffer))
                 print(f"Written remaining sentences to: book_{file_count}.txt")
+
+
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 @dataclass

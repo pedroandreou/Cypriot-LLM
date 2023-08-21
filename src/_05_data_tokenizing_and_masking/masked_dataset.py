@@ -3,6 +3,7 @@ import os
 import torch
 from joblib import load
 from torch.utils.data import Dataset
+from tqdm import tqdm
 from transformers import DataCollatorForLanguageModeling
 
 
@@ -46,7 +47,10 @@ class MaskedDataset(Dataset):
     def _create_masked_dataset(self):
         masked_encodings_list = {"input_ids": [], "attention_mask": [], "labels": []}
 
-        for i in range(len(self.encodings)):  # Loop over each tensor in the dataset
+        # Add tqdm around the loop iterable to display the progress bar
+        for i in tqdm(
+            range(len(self.encodings)), desc="Masking encodings"
+        ):  # Loop over each tensor in the dataset
             input_ids = self.encodings[i]
             attention_mask = (input_ids != 0).long()
             labels = input_ids.detach().clone()

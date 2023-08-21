@@ -14,7 +14,9 @@ console = Console()
 @dataclass
 class ScriptArguments:
     input_file_name: str = field(
-        default=f"../data_cleaner/preprocessed_docs.csv",
+        default=os.path.normpath(
+            os.path.join("..", "data_cleaner", "preprocessed_docs.csv")
+        ),
         metadata={"help": "Path to the input file"},
     )
 

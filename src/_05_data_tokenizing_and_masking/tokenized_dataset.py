@@ -6,6 +6,7 @@ from joblib import load
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 class LineByLineTextDataset(Dataset):
@@ -70,11 +71,11 @@ class LineByLineTextDataset(Dataset):
         tokenizer.enable_truncation(max_length=block_size)
         tokenizer.enable_padding(length=block_size)
 
-        for file_path in files_list:
+        # Wrapping files_list with tqdm to display the progress bar
+        for file_path in tqdm(files_list, desc="Tokenizing files"):
             if not os.path.isfile(file_path):
                 print(f"Problem with path: {file_path}")
 
-            print("Reading file: ", file_path)
             with open(file_path, encoding="utf-8") as f:
                 lines = [
                     line
@@ -82,8 +83,12 @@ class LineByLineTextDataset(Dataset):
                     if (len(line) > 0 and not line.isspace())
                 ]
 
-            print("Running tokenization")
+            # Instead of print, we can use set_postfix to show the current action
+            tqdm.write(
+                f"Reading file: {file_path}"
+            )  # tqdm.write prevents breaking the progress bar
             self.examples.extend(tokenizer.encode_batch(lines))
+            tqdm.write("Running tokenization")
 
     def __repr__(self):
         tokenizer_type = (
