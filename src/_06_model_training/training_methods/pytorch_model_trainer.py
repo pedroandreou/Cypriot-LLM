@@ -1,18 +1,21 @@
+import numpy as np
 import torch
 from tqdm import tqdm
 from transformers import AdamW
-import numpy as np
 
 
 class PyTorchModelTrainer:
-    def __init__(self, model, train_set, device, model_path):
-        self.model = model
-        self.train_set = train_set
-        self.device = device
-        self.model_path = model_path
+    def __init__(self, train_set, test_set, device, model, model_path):
+        self.train_loader = torch.utils.data.DataLoader(
+            train_set, batch_size=16, shuffle=True
+        )
+        self.test_loader = torch.utils.data.DataLoader(
+            test_set, batch_size=16, shuffle=True
+        )
 
-        # Train model
-        self.train()
+        self.device = device
+        self.model = model
+        self.model_path = model_path
 
     def train(self):
         """
@@ -21,16 +24,13 @@ class PyTorchModelTrainer:
         """
         self.model.train()  # Activate training mode
         optim = AdamW(self.model.parameters(), lr=1e-4)  # Initialize optimizer
-        loader = torch.utils.data.DataLoader(
-            self.train_set, batch_size=16, shuffle=True
-        )  # Build a DataLoader using PyTorch
 
         epochs = 2
         for epoch in range(epochs):
             losses = []
 
             # setup loop with TQDM and dataloader
-            loop = tqdm(loader, leave=True)
+            loop = tqdm(self.train_loader, leave=True)
             for batch in loop:
                 print(batch)
                 # initialize calculated gradients (from prev step)
@@ -59,19 +59,14 @@ class PyTorchModelTrainer:
         # Save model
         self.model.save_pretrained(self.model_path)
 
-    def test(self):
-        test_loader = torch.utils.data.DataLoader(
-            self.test_set, batch_size=16, shuffle=True
-        )
-
+    def eval(self):
+        # set model to evaluation mode
+        self.model.eval()
         losses = []
 
         epochs = 10
         for epoch in range(epochs):
-            loop = tqdm(test_loader, leave=True)
-
-            # set model to evaluation mode
-            self.model.eval()
+            loop = tqdm(self.test_loader, leave=True)
 
             # iterate over dataset
             for batch in loop:
@@ -85,7 +80,7 @@ class PyTorchModelTrainer:
                     input_ids, attention_mask=attention_mask, labels=labels
                 )
 
-                # update weights
+                # extract loss
                 loss = outputs.loss
 
                 # output current loss

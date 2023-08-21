@@ -2,10 +2,10 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
+import torch
 from masked_dataset import MaskedDataset
 from tokenized_dataset import LineByLineTextDataset
 from transformers import HfArgumentParser
-import torch
 
 
 def fetch_txt_files(paths_type):

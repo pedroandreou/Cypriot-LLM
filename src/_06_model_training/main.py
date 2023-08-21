@@ -6,7 +6,14 @@ import torch
 from dotenv import find_dotenv, load_dotenv
 from training_methods.huggingface_model_trainer import HuggingFaceTrainer
 from training_methods.pytorch_model_trainer import PyTorchModelTrainer
-from transformers import AutoConfig, AutoModelForMaskedLM, HfArgumentParser, set_seed
+from transformers import (
+    BertConfig,
+    BertForMaskedLM,
+    HfArgumentParser,
+    RobertaConfig,
+    RobertaForMaskedLM,
+    set_seed,
+)
 
 from src._05_data_tokenizing_and_masking.masked_dataset import MaskedDataset
 
@@ -66,42 +73,46 @@ def main():
         print("Loading the masked encodings of the train and test sets...")
         masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings()
 
-        model_path = os.path.join(
-            curr_dir, "trained_model_bundle", f"cy{script_args.model_type}"
-        )
+        print("Detect device...")
         device = (
             torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         )
 
+        print("Initialize model...")
+        # Dynamically choose the correct configuration and model based on script_args.model_type
+        ConfigClass = BertConfig if script_args.model_type == "bert" else RobertaConfig
+        ModelClass = (
+            BertForMaskedLM if script_args.model_type == "bert" else RobertaForMaskedLM
+        )
+
         # As we are training from scratch, we initialize from a config
-        config = AutoConfig(
-            vocab_size=script_args.vocab_size,  # tutorial example was 7015
-            max_position_embeddings=script_args.block_size,  # tutorial example was 514
+        config = ConfigClass(
+            vocab_size=script_args.vocab_size,
+            max_position_embeddings=script_args.block_size,
             hidden_size=script_args.hidden_size,
             num_attention_heads=script_args.num_attention_heads,
             num_hidden_layers=script_args.num_hidden_layers,
             type_vocab_size=script_args.type_vocab_size,
         )
-        model = AutoModelForMaskedLM(config=config).to(device)
-
-        # Print the model parameters
-        print(model.num_parameters())
+        model = ModelClass(config=config).to(device)
 
         print(
-            f"Training model from scratch using the {script_args.trainer_type}.capitalize() as the trainer type"
+            f"Training model from scratch using {script_args.trainer_type}.capitalize() as our trainer type"
+        )
+        model_path = os.path.join(
+            curr_dir, "trained_model_bundle", f"cy{script_args.model_type}"
         )
         if script_args.trainer_type == "pytorch":
             PyTorchModelTrainer(
+                train_set=masked_train_set,
+                test_set=masked_test_dataset,
                 device=device,
                 model=model,
                 model_path=model_path,
-                train_set=masked_train_set,
-                test_set=masked_test_dataset,
             )
 
-        else:  # huggingface
+        else:
             # should load the data collator here
-
             HuggingFaceTrainer(
                 device=device,
                 model=model,
@@ -111,9 +122,11 @@ def main():
                 # data_collator=self.data_collator,
             )
 
+        print(model.num_parameters())
+
     else:
         print("Skipping the training of a model from scratch...")
-        # Load model here
+        # Load saved model here
 
     # Should allow pushing the model to the hub here
 
