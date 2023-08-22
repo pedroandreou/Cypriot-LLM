@@ -2,6 +2,7 @@ import argparse
 import os
 
 from datasets import load_dataset
+from tqdm import tqdm
 
 from src.hub_pusher import hub_login
 
@@ -25,12 +26,12 @@ def main(
     # Convert to Pandas DataFrame
     df = dataset.to_pandas()
 
-    for num in range(len(df)):
+    for num in tqdm(range(len(df)), desc="Exporting CSV docs to TXT files"):
         value = df.iloc[num, 1]
 
-    file_path = os.path.join(output_dir_path, f"text_file{num}.txt")
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(str(value))
+        file_path = os.path.join(output_dir_path, f"text_file{num}.txt")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(str(value))
 
 
 if __name__ == "__main__":

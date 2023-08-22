@@ -10,3 +10,4 @@ typer
 rich
 # huggingface_hub
 # datasets
+# tqdm
