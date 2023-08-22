@@ -4,13 +4,8 @@ import os
 import docx
 import pandas as pd
 import textract
-from dotenv import find_dotenv, load_dotenv
 from pdfminer.high_level import extract_text
 from rich import print
-
-load_dotenv(find_dotenv())
-import argparse
-
 from tqdm import tqdm
 
 """
@@ -118,6 +113,12 @@ def main(data_path):
 
 
 if __name__ == "__main__":
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
     parser = argparse.ArgumentParser(description="Process some arguments.")
 
     parser.add_argument(

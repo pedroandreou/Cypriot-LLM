@@ -2,11 +2,8 @@ import argparse
 import os
 
 from datasets import load_dataset
-from dotenv import find_dotenv, load_dotenv
 
 from src.hub_pusher import hub_login
-
-load_dotenv(find_dotenv())
 
 
 def main(
@@ -37,6 +34,12 @@ def main(
 
 
 if __name__ == "__main__":
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
     parser = argparse.ArgumentParser(description="Process some arguments.")
 
     parser.add_argument(

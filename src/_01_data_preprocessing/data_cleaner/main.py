@@ -1,17 +1,12 @@
-import argparse
 import os
 
 import pandas as pd
-from dotenv import find_dotenv, load_dotenv
 
 from src.hub_pusher import push_dataset
 
 from .diacritic_remover import DiacriticRemover
 from .greek_letter_joiner import GreekLetterJoiner
 from .pattern_remover import PatternRemover
-
-load_dotenv(find_dotenv())
-
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -78,6 +73,12 @@ def main(
 
 
 if __name__ == "__main__":
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
     parser = argparse.ArgumentParser(description="Process some arguments.")
 
     parser.add_argument(

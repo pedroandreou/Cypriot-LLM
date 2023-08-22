@@ -104,6 +104,8 @@ def main():
     if script_args.do_file_analysis:
         calculate_file_capacities()
         compare_token_counts()
+    else:
+        print("Skipping file analysis...")
 
 
 if __name__ == "__main__":
