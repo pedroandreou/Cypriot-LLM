@@ -56,10 +56,10 @@ cd ./src
 python main.py \
     --do_merge_docs \
     --do_clean_data \
-    --do_push_to_hub \
-    --do_login_first_time \
     --do_export_csv_to_txt_files \
-    --do_file_analysis
+    --do_file_analysis \
+    --do_push_to_hub \
+    --do_login_first_time
 ```
 
 

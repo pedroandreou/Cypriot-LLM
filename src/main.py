@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
+import typer
 from dotenv import find_dotenv, load_dotenv
 from transformers import HfArgumentParser
 
@@ -74,14 +75,23 @@ def main():
 
     ### MERGING DATA ###
     if script_args.do_merge_docs:
-        print("Compiling the data into a single CSV file...")
+        typer.echo(
+            typer.style(
+                "Compiling the data into a single CSV file...", fg=typer.colors.YELLOW
+            )
+        )
         merge_docs(script_args.data_path)
     else:
-        print("Skipping the data compilation into a single CSV file...")
+        typer.echo(
+            typer.style(
+                "Skipping the data compilation into a single CSV file...",
+                fg=typer.colors.YELLOW,
+            )
+        )
 
     ### CLEANING DATA ###
     if script_args.do_clean_data:
-        print("Cleaning the data...")
+        typer.echo(typer.style("Cleaning the data...", fg=typer.colors.RED))
 
         clean_data(
             script_args.do_push_to_hub,
@@ -90,22 +100,29 @@ def main():
             script_args.huggingface_repo_name,
         )
     else:
-        print("Skipping data cleaning.")
+        typer.echo(typer.style("Skipping data cleaning.", fg=typer.colors.RED))
 
     if script_args.do_export_csv_to_txt_files:
+        typer.echo(typer.style("Exporting CSV to txt files...", fg=typer.colors.BLUE))
+
         export_csv_to_txt_files(
             script_args.output_dir_path,
             script_args.do_login_first_time,
             script_args.huggingface_token,
             script_args.huggingface_repo_name,
         )
+    else:
+        typer.echo(
+            typer.style("Skipping export of CSV to txt files...", fg=typer.colors.BLUE)
+        )
 
     ### FILE ANALYSIS ###
     if script_args.do_file_analysis:
+        typer.echo(typer.style("Performing file analysis...", fg=typer.colors.GREEN))
         calculate_file_capacities()
         compare_token_counts()
     else:
-        print("Skipping file analysis...")
+        typer.echo(typer.style("Skipping file analysis...", fg=typer.colors.GREEN))
 
 
 if __name__ == "__main__":

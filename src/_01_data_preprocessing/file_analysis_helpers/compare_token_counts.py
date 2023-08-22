@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 from nltk.tokenize import word_tokenize
+from rich import print
 from rich.console import Console
 from rich.table import Table
 
@@ -9,9 +10,6 @@ from rich.table import Table
     Compares the token counts of the initial and the preprocessed files.
     A comparison is then made between the token counts of the files, and the results are returned in a table.
 """
-
-
-console = Console()
 
 
 def count_tokens(df):
@@ -25,26 +23,32 @@ def count_tokens(df):
     return token_count
 
 
+console = Console()
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+
 def main():
     initial_doc_file_path = os.path.normpath(
-        os.path.join("..", "doc_merge_to_csv", "all_documents.csv")
+        os.path.join(script_directory, "..", "doc_merge_to_csv", "all_documents.csv")
     )
     preprocessed_doc_file_path = os.path.normpath(
-        os.path.join("..", "data_cleaner", "preprocessed_docs.csv")
+        os.path.join(script_directory, "..", "data_cleaner", "preprocessed_docs.csv")
     )
     files = [initial_doc_file_path, preprocessed_doc_file_path]
 
     if len(files) < 2:
-        print("At least two file paths must be provided for comparison.")
+        print(
+            f"[bold red]At least two file paths must be provided for comparison.[/bold red]"
+        )
         exit()
 
     table = Table("Filename", "Token count")
     for file in files:
-        df = pd.read_csv(f"{file}.csv")
+        df = pd.read_csv(file)
         # Calculate token count for df
         token_count_df = count_tokens(df)
 
-        table.add_row(file, str(token_count_df))
+        table.add_row(os.path.basename(file), str(token_count_df))
 
     console.print(table)
 

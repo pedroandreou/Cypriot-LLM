@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import typer
 
 from src.hub_pusher import push_dataset
 
@@ -21,7 +22,13 @@ def main(
     input_file_name = os.path.normpath(
         os.path.join(script_directory, "..", "doc_merge_to_csv", "all_documents.csv")
     )
-    df = pd.read_csv(input_file_name)
+
+    try:
+        df = pd.read_csv(input_file_name)
+    except FileNotFoundError:
+        raise Exception(
+            "The compiled CSV file of all docs does not exist. You should run the doc_merge_to_csv script first."
+        )
 
     # Apply the remove_caron_generic function on the content column
     df["content"] = df["content"].apply(
@@ -59,7 +66,7 @@ def main(
 
     # Push the preprocessed data to the hub
     if do_push_to_hub:
-        print("Pushing dataset to the hub...")
+        typer.echo(typer.style("Pushing dataset to the hub...", fg=typer.colors.RED))
 
         push_dataset(
             do_login_first_time=do_login_first_time,
@@ -69,7 +76,7 @@ def main(
             custom_key="preprocessed_data",
         )
     else:
-        print("Skipping push to the hub...")
+        typer.echo(typer.style("Skipping push to the hub...", fg=typer.colors.RED))
 
 
 if __name__ == "__main__":
