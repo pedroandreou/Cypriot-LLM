@@ -6,11 +6,20 @@ from transformers import AdamW
 
 class PyTorchModelTrainer:
     def __init__(self, train_set, test_set, device, model, model_path):
+        batch_size = 16
         self.train_loader = torch.utils.data.DataLoader(
-            train_set, batch_size=16, shuffle=True
+            train_set,
+            batch_size=batch_size,
+            shuffle=True,
+            pin_memory=True,
+            num_workers=2,
         )
         self.test_loader = torch.utils.data.DataLoader(
-            test_set, batch_size=16, shuffle=True
+            test_set,
+            batch_size=2 * batch_size,
+            shuffle=False,
+            pin_memory=True,
+            num_workers=2,
         )
 
         self.device = device
@@ -22,6 +31,7 @@ class PyTorchModelTrainer:
         PyTorch is considered as the manual way to train since it is used in combination with the manual implementation of the MLM task
         This is because the automatic implementation of the MLM task uses a data collator which is only used with the HuggingFace API below
         """
+
         self.model.train()  # Activate training mode
         optim = AdamW(self.model.parameters(), lr=1e-4)  # Initialize optimizer
 

@@ -51,33 +51,15 @@ cmd.exe /C setup_new_environment.bat
 # :crossed_flags: Source Code
 ## :hammer: Preprocessing
 ```
-cd ./src/_01_data_preprocessing
-```
-
-#### Create a CSV containing all the docs
-```
-cd ./doc_merge_to_csv
-
-python docs_to_csv.py \
-    --merge_data
-```
-
-#### Preprocess the docs of the CSV
-```
-cd ./data_cleaner
+cd ./src
 
 python main.py \
+    --do_merge_docs \
     --do_clean_data \
     --do_push_to_hub \
-    --do_login_first_time
-```
-
-
-#### Export all docs to separate txt files as this would make our life easier when the tokenizer needs the paths to the files
-```
-cd ./src/_01_data_preprocessing
-
-python export_csv_docs_to_txt_files.py
+    --do_login_first_time \
+    --do_export_csv_to_txt_files \
+    --do_file_analysis
 ```
 
 

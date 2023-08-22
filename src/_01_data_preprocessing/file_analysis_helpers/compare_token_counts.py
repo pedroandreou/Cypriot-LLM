@@ -1,17 +1,13 @@
-from dataclasses import dataclass, field
-from typing import List
+import os
 
 import pandas as pd
 from nltk.tokenize import word_tokenize
 from rich.console import Console
 from rich.table import Table
-from transformers import HfArgumentParser
 
 """
-    Compares the token counts of multiple file paths provided as arguments.
-
-    At least two file paths should be provided and it calculates the token counts for each file.
-    A comparison is then made between the token counts of the files, and the results are returned.
+    Compares the token counts of the initial and the preprocessed files.
+    A comparison is then made between the token counts of the files, and the results are returned in a table.
 """
 
 
@@ -29,24 +25,21 @@ def count_tokens(df):
     return token_count
 
 
-@dataclass
-class ScriptArguments:
-    files: List[str] = field(
-        default_factory=list, metadata={"help": "List of file paths"}
-    )
-
-
 def main():
-    # Parse arguments
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
+    initial_doc_file_path = os.path.normpath(
+        os.path.join("..", "doc_merge_to_csv", "all_documents.csv")
+    )
+    preprocessed_doc_file_path = os.path.normpath(
+        os.path.join("..", "data_cleaner", "preprocessed_docs.csv")
+    )
+    files = [initial_doc_file_path, preprocessed_doc_file_path]
 
-    if len(script_args.files) < 2:
+    if len(files) < 2:
         print("At least two file paths must be provided for comparison.")
         exit()
 
     table = Table("Filename", "Token count")
-    for file in script_args.files:
+    for file in files:
         df = pd.read_csv(f"{file}.csv")
         # Calculate token count for df
         token_count_df = count_tokens(df)

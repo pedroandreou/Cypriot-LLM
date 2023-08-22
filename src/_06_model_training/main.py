@@ -74,9 +74,7 @@ def main():
         masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings()
 
         print("Detect device...")
-        device = (
-            torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-        )
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
         print("Initialize model...")
         # Dynamically choose the correct configuration and model based on script_args.model_type
@@ -86,6 +84,10 @@ def main():
         )
 
         # As we are training from scratch, we initialize from a config
+        """
+        Following Intro_to_Weights_&_Biases Google Colab notebook
+        at https://colab.research.google.com/github/wandb/examples/blob/master/colabs/intro/Intro_to_Weights_%26_Biases.ipynb#scrollTo=xShwrFZeXPsL
+        """
         config = ConfigClass(
             vocab_size=script_args.vocab_size,
             max_position_embeddings=script_args.block_size,

@@ -1,7 +1,5 @@
 import glob
 import os
-from dataclasses import dataclass, field
-from typing import Optional
 
 import docx
 import pandas as pd
@@ -9,11 +7,11 @@ import textract
 from dotenv import find_dotenv, load_dotenv
 from pdfminer.high_level import extract_text
 from rich import print
-from transformers import HfArgumentParser
-
-from src.hub_pusher import push_dataset
 
 load_dotenv(find_dotenv())
+import argparse
+
+from tqdm import tqdm
 
 """
 This script reads different document formats (PDF, Docx, ODT), extracts their text content, and creates a DataFrame from it.
@@ -55,7 +53,19 @@ class DocumentReader:
     def create_dataframe(self):
         data = []
 
-        for ext in ["pdf", "docx", "odt"]:
+        extensions = ["pdf", "docx", "odt"]
+        total_files = sum(
+            1
+            for ext in extensions
+            for _ in glob.glob(
+                os.path.join(self.data_path, "**", f"*.{ext}"), recursive=True
+            )
+        )
+
+        # Initialize the tqdm progress bar with the total number of files
+        pbar = tqdm(total=total_files, desc="Processing files")
+
+        for ext in extensions:
             for path in glob.glob(
                 os.path.join(self.data_path, "**", f"*.{ext}"), recursive=True
             ):
@@ -78,83 +88,45 @@ class DocumentReader:
                             f"[bold red]{path} was processed but no content was extracted[/bold red]"
                         )
 
+                    # Update the progress bar by 1 for each file processed
+                    pbar.update(1)
+
                 except Exception as e:
                     print(f"[bold red]Could not process {path}: {e}[/bold red]")
+
+        pbar.pandas(desc="Saving dataframe to CSV")
+        pbar.close()
 
         df = pd.DataFrame(data, columns=["filename", "content"])
 
         return df
 
 
-@dataclass
-class ScriptArguments:
-    merge_data: bool = field(
-        default=False,
-        metadata={"help": "Enable or disable data merging into a single CSV file."},
-    )
-    data_path: Optional[str] = field(
-        default=os.getenv("DATASET_DIR_PATH"),
-        metadata={"help": "Path to the dataset directory."},
-    )
-    output_file_name: Optional[str] = field(
-        default="all_documents.csv",
-        metadata={"help": "Name of the compiled output file."},
-    )
-    do_login_first_time: bool = field(
-        default=False,
-        metadata={
-            "help": "Toggle first-time login. Credentials will be cached after the initial login to the hub."
-        },
-    )
-    do_push_to_hub: bool = field(
-        default=False, metadata={"help": "Enable or disable push to hub."}
-    )
-    huggingface_token: Optional[str] = field(
-        default=os.getenv("HUGGINGFACE_TOKEN"),
-        metadata={"help": "Hugging Face token for authentication."},
-    )
-    huggingface_repo_name: Optional[str] = field(
-        default=os.getenv("HUGGINGFACE_REPO_NAME"),
-        metadata={"help": "Name of the Hugging Face dataset repository."},
-    )
+script_directory = os.path.dirname(os.path.abspath(__file__))
 
 
-def main():
-    # Parse arguments
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
+def main(data_path):
+    reader = DocumentReader(data_path)
 
-    if script_args.merge_data:
-        print("Compiling the data into a single CSV file...")
+    # Create the dataframe
+    df = reader.create_dataframe()
+    print(df.head())
 
-        reader = DocumentReader(script_args.data_path)
-
-        # Create the dataframe
-        df = reader.create_dataframe()
-        print(df.head())
-
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-        output_file = os.path.join(script_directory, script_args.output_file_name)
-        df.to_csv(output_file, index=False)
-    else:
-        print("Skipping the data compilation into a single CSV file...")
-
-    # Do not push this dataset to the Hub - leave the preprocessed to be pushed
-    # More than one dataset in the same dataset repo is supported but you will find it difficult
-    # to load the right dataset (preprocessed) when you want to export the csv docs to txt files
-    if script_args.do_push_to_hub:
-        print("Pushing dataset to the hub...")
-
-        push_dataset(
-            do_login_first_time=script_args.do_login_first_time,
-            huggingface_token=script_args.huggingface_token,
-            huggingface_repo_name=script_args.huggingface_repo_name,
-            output_file_name=script_args.output_file_name,
-            custom_key="all_data",
-        )
-    else:
-        print("Skipping push to the hub...")
+    output_file_name = "all_documents.csv"
+    output_file = os.path.join(script_directory, output_file_name)
+    df.to_csv(output_file, index=False)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Process some arguments.")
+
+    parser.add_argument(
+        "--data_path",
+        type=str,
+        default=os.getenv("DATASET_DIR_PATH"),
+        help="Path to the dataset directory.",
+    )
+
+    args = parser.parse_args()
+
+    main(args.data_path)
