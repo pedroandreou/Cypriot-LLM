@@ -4,7 +4,7 @@ import os
 from datasets import load_dataset
 from tqdm import tqdm
 
-from src.hub_pusher import hub_login
+from utils.hub_pusher import hub_login
 
 
 def main(

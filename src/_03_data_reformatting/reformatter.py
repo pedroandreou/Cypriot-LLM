@@ -3,9 +3,10 @@ from glob import glob
 from itertools import chain
 
 import nltk
-import typer
 from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
+
+from src.utils.common_utils import echo_with_color
 
 nltk.download("punkt")
 
@@ -70,11 +71,9 @@ class BookReformatter:
                     file.write("\n".join(buffer))
                     buffer.clear()
 
-                    typer.echo(
-                        typer.style(
-                            f"\nWritten to file: book_{file_count}.txt with {i} sentences",
-                            fg=typer.colors.MAGENTA,
-                        )
+                    echo_with_color(
+                        f"\nWritten to file: book_{file_count}.txt with {i} sentences",
+                        color="magenta",
                     )
                 file_count += 1
 
@@ -84,11 +83,9 @@ class BookReformatter:
             with open(file_path, "wt", encoding="utf-8") as file:
                 file.write("\n".join(buffer))
 
-                typer.echo(
-                    typer.style(
-                        f"Written remaining sentences to: book_{file_count}.txt",
-                        fg=typer.colors.MAGENTA,
-                    )
+                echo_with_color(
+                    f"Written remaining sentences to: book_{file_count}.txt",
+                    color="magenta",
                 )
 
 

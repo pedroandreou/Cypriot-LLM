@@ -4,6 +4,8 @@ from pathlib import Path
 import typer
 from sklearn.model_selection import train_test_split
 
+from src.utils.common_utils import echo_with_color
+
 
 def save_list_to_file(file_path, items_list):
     with open(file_path, "w") as f:
@@ -50,9 +52,7 @@ class PathSplitter:
         )
 
     def save_paths(self):
-        typer.echo(
-            typer.style("Saving the lists of file paths...", fg=typer.colors.WHITE)
-        )
+        echo_with_color("Saving the lists of file paths...", color="white")
 
         save_list_to_file(self.allpaths_file_path, self.all_paths_list)
         save_list_to_file(self.trainpaths_file_path, self.train_paths_list)
@@ -60,7 +60,7 @@ class PathSplitter:
 
     def load_paths(self):
         try:
-            typer.echo(typer.style("Loading the file paths...", fg=typer.colors.WHITE))
+            echo_with_color("Loading the lists of file paths...", color="white")
 
             self.all_paths_list = load_list_from_file(self.allpaths_file_path)
             self.train_paths_list = load_list_from_file(self.trainpaths_file_path)
@@ -69,11 +69,9 @@ class PathSplitter:
             return self.all_paths_list, self.train_paths_list, self.test_paths_list
 
         except FileNotFoundError:
-            typer.echo(
-                typer.style(
-                    f"The file paths were not found.\nYou should run the script with --do_split_paths flag first.",
-                    fg=typer.colors.WHITE,
-                )
+            echo_with_color(
+                "The file paths were not found.\nYou should run the script with --do_split_paths flag first.",
+                color="white",
             )
 
             raise typer.Exit(code=1)  # Exits the script with exit code 1

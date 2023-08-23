@@ -1,30 +1,18 @@
 import os
 
-import torch
-import typer
-
 from src._05_data_tokenizing.tokenized_dataset import LineByLineTextDataset
 from src._06_data_masking.masked_dataset import MaskedDataset
-
-
-def save_dataset(dataset, base_path, sub_dir, key):
-    filename = os.path.join(curr_dir, base_path, f"{sub_dir}_{key}_dataset.pth")
-    torch.save(dataset, filename)
-
+from src.utils.common_utils import echo_with_color, save_dataset
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main(model_type, mlm_type, mlm_probability):
 
-    typer.echo(
-        typer.style("Loading the tokenized datasets...", fg=typer.colors.BRIGHT_MAGENTA)
-    )
+    echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
     train_dataset, test_dataset = LineByLineTextDataset().load_encodings()
 
-    typer.echo(
-        typer.style("Creating masked datasets...", fg=typer.colors.BRIGHT_MAGENTA)
-    )
+    echo_with_color("Creating masked datasets...", color="bright_magenta")
     masked_train_dataset = MaskedDataset(
         train_dataset,
         model_type,
@@ -38,9 +26,9 @@ def main(model_type, mlm_type, mlm_probability):
         mlm_probability,
     )
 
-    typer.echo(typer.style("Saving masked datasets...", fg=typer.colors.BRIGHT_MAGENTA))
-    save_dataset(masked_train_dataset, "masked_encodings", "masked", "train")
-    save_dataset(masked_test_dataset, "masked_encodings", "masked", "test")
+    echo_with_color("Saving masked datasets...", color="bright_magenta")
+    save_dataset(curr_dir, masked_train_dataset, "masked_encodings", "masked", "train")
+    save_dataset(curr_dir, masked_test_dataset, "masked_encodings", "masked", "test")
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
 import os
 
 import torch
-import typer
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
 from src._02_tokenizer_training.main import TokenizerWrapper
+from src.utils.common_utils import echo_with_color
 
 
 class LineByLineTextDataset(Dataset):
@@ -46,11 +46,7 @@ class LineByLineTextDataset(Dataset):
         self.model_type = model_type
         self.examples = []
 
-        typer.echo(
-            typer.style(
-                f"Loading {self.model_type} tokenizer", fg=typer.colors.BRIGHT_YELLOW
-            )
-        )
+        echo_with_color(f"Loading {self.model_type} tokenizer", color="bright_yellow")
         tokenizer = TokenizerWrapper(
             self.model_type,
             tokenizer_dir_path,

@@ -2,7 +2,6 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
-import typer
 from dotenv import find_dotenv, load_dotenv
 from transformers import HfArgumentParser
 
@@ -23,13 +22,9 @@ from src._04_path_splitting.main import main as split_paths
 from src._05_data_tokenizing.main import main as tokenize_files
 from src._06_data_masking.main import main as create_masked_encodings
 from src._07_model_training.main import main as train_model
+from src.utils.common_utils import echo_with_color
 
 load_dotenv(find_dotenv())
-
-
-def echo_with_color(text: str, color: typer.colors = typer.colors.BRIGHT_CYAN):
-    """Echos a text message with the specified color."""
-    typer.echo(typer.style(text, fg=color))
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -144,21 +139,18 @@ def main():
 
     ### MERGING DATA ###
     if script_args.do_merge_docs:
-        echo_with_color(
-            "Compiling the data into a single CSV file...",
-            color=typer.colors.YELLOW,
-        )
+        echo_with_color("Compiling the data into a single CSV file...", color="yellow")
 
         merge_docs(script_args.data_path)
     else:
         echo_with_color(
             "Skipping the data compilation into a single CSV file...",
-            color=typer.colors.YELLOW,
+            color="yellow",
         )
 
     ### CLEANING DATA ###
     if script_args.do_clean_data:
-        echo_with_color("Cleaning the data...", color=typer.colors.RED)
+        echo_with_color("Cleaning the data...", color="red")
 
         clean_data(
             script_args.do_push_dataset_to_hub,
@@ -167,11 +159,11 @@ def main():
             script_args.huggingface_repo_name,
         )
     else:
-        echo_with_color("Skipping data cleaning.", color=typer.colors.RED)
+        echo_with_color("Skipping data cleaning.", color="red")
 
     ### EXPORTING CSV TO TXT FILES ###
     if script_args.do_export_csv_to_txt_files:
-        echo_with_color("Exporting CSV to txt files...", color=typer.colors.BLUE)
+        echo_with_color("Exporting CSV to txt files...", color="blue")
 
         export_csv_to_txt_files(
             script_args.cleaned_files_dir_path,
@@ -180,25 +172,21 @@ def main():
             script_args.huggingface_repo_name,
         )
     else:
-        echo_with_color(
-            "Skipping export of CSV to txt files...", color=typer.colors.BLUE
-        )
+        echo_with_color("Skipping export of CSV to txt files...", color="blue")
 
     ### FILE ANALYSIS ###
     if script_args.do_file_analysis:
-        echo_with_color("Calculating file capacities...", color=typer.colors.GREEN)
+        echo_with_color("Calculating file capacities...", color="green")
         calculate_file_capacities()
 
-        echo_with_color("Comparing token counts...", color=typer.colors.GREEN)
+        echo_with_color("Comparing token counts...", color="green")
         compare_token_counts()
     else:
-        echo_with_color("Skipping file analysis...", color=typer.colors.GREEN)
+        echo_with_color("Skipping file analysis...", color="green")
 
     ### TOKENIZER TRAINING ###
     if script_args.do_train_tokenizer:
-        echo_with_color(
-            "Training a tokenizer from scratch...", color=typer.colors.BLACK
-        )
+        echo_with_color("Training a tokenizer from scratch...", color="black")
 
         train_tokenizer(
             script_args.model_type,
@@ -210,41 +198,37 @@ def main():
             script_args.huggingface_repo_name,
         )
     else:
-        echo_with_color(
-            "Skipping the training of a tokenizer...", color=typer.colors.BLACK
-        )
+        echo_with_color("Skipping the training of a tokenizer...", color="black")
 
     ### REFORMAT FILES ###
     if script_args.do_reformat_files:
-        echo_with_color("Reformatting the files...", color=typer.colors.MAGENTA)
+        echo_with_color("Reformatting the files...", color="magenta")
 
         reformat_files(
             script_args.cleaned_files_dir_path,
             script_args.sliding_window_size,
         )
     else:
-        echo_with_color(
-            "Skipping the reformatting of the files...", color=typer.colors.MAGENTA
-        )
+        echo_with_color("Skipping the reformatting of the files...", color="magenta")
 
     ### SPLIT PATHS ###
     if script_args.do_split_paths:
         echo_with_color(
             "Splitting the paths to train and test path sets...",
-            color=typer.colors.WHITE,
+            color="white",
         )
 
         split_paths()
     else:
         echo_with_color(
             "Skipping the split of all paths to train and test path sets......",
-            color=typer.colors.WHITE,
+            color="white",
         )
 
     ### TOKENIZE FILES ###
     if script_args.do_tokenize_files:
         echo_with_color(
-            "Tokenizing the files and saving them...", color=typer.colors.BRIGHT_YELLOW
+            "Tokenizing the files and saving them...", color="bright_yellow"
         )
 
         tokenize_files(
@@ -255,14 +239,14 @@ def main():
     else:
         echo_with_color(
             "Skipping the tokenization of the files...",
-            color=typer.colors.BRIGHT_YELLOW,
+            color="bright_yellow",
         )
 
     ### MASK TOKENS ###
     if script_args.do_create_masked_encodings:
         echo_with_color(
             "Creating masked encodings for the files...",
-            color=typer.colors.BRIGHT_MAGENTA,
+            color="bright_magenta",
         )
 
         create_masked_encodings(
@@ -274,12 +258,12 @@ def main():
     else:
         echo_with_color(
             "Skipping the creation of masked encodings...",
-            color=typer.colors.BRIGHT_MAGENTA,
+            color="bright_magenta",
         )
 
     ### TRAIN MODEL ###
     if script_args.do_train_model:
-        echo_with_color("Training the model...", color=typer.colors.BRIGHT_CYAN)
+        echo_with_color("Training the model...", color="bright_cyan")
 
         train_model(
             model_type=script_args.model_type,
@@ -299,9 +283,7 @@ def main():
         )
 
     else:
-        echo_with_color(
-            "Skipping the training of the model...", color=typer.colors.BRIGHT_CYAN
-        )
+        echo_with_color("Skipping the training of the model...", color="bright_cyan")
 
 
 if __name__ == "__main__":

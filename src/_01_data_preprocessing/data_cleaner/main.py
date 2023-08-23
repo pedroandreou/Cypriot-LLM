@@ -1,9 +1,9 @@
 import os
 
 import pandas as pd
-import typer
 
-from src.hub_pusher import push_dataset
+from src.utils.common_utils import echo_with_color
+from utils.hub_pusher import push_dataset
 
 from .diacritic_remover import DiacriticRemover
 from .greek_letter_joiner import GreekLetterJoiner
@@ -67,7 +67,11 @@ def main(
 
     # Push the preprocessed data to the hub
     if do_push_dataset_to_hub:
-        typer.echo(typer.style("Pushing dataset to the hub...", fg=typer.colors.RED))
+
+        echo_with_color(
+            "Pushing dataset to the hub...",
+            color="red",
+        )
 
         push_dataset(
             do_login_first_time=do_login_first_time,
@@ -77,7 +81,10 @@ def main(
             custom_key="preprocessed_data",
         )
     else:
-        typer.echo(typer.style("Skipping push to the hub...", fg=typer.colors.RED))
+        echo_with_color(
+            "Skipping push to the hub...",
+            color="red",
+        )
 
 
 if __name__ == "__main__":

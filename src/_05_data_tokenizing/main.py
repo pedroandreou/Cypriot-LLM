@@ -1,10 +1,7 @@
 import os
 
-import torch
-import typer
-
-# from masked_dataset import MaskedDataset
 from src._05_data_tokenizing.tokenized_dataset import LineByLineTextDataset
+from src.utils.common_utils import echo_with_color, save_dataset
 
 
 def fetch_txt_files(paths_type):
@@ -40,11 +37,6 @@ def fetch_txt_files(paths_type):
     return txt_files_dict
 
 
-def save_dataset(dataset, base_path, sub_dir, key):
-    filename = os.path.join(curr_dir, base_path, f"{sub_dir}_{key}_dataset.pth")
-    torch.save(dataset, filename)
-
-
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -64,9 +56,7 @@ def main(model_type, paths, block_size):
     # value is a list of paths
     files_list_dict = fetch_txt_files(paths)
     for key, files_list in files_list_dict.items():
-        typer.echo(
-            typer.style(f"Tokenizing {key} files", fg=typer.colors.BRIGHT_YELLOW)
-        )
+        echo_with_color("Tokenizing {key} files", color="bright_yellow")
 
         tokenized_dataset = LineByLineTextDataset(
             model_type=model_type,
@@ -75,12 +65,8 @@ def main(model_type, paths, block_size):
             block_size=block_size,
         )
 
-        typer.echo(
-            typer.style(
-                f"Saving the tokenized {key} dataset...", fg=typer.colors.BRIGHT_YELLOW
-            )
-        )
-        save_dataset(tokenized_dataset, "encodings", "tokenized", key)
+        echo_with_color(f"Saving the tokenized {key} dataset...", color="bright_yellow")
+        save_dataset(curr_dir, tokenized_dataset, "encodings", "tokenized", key)
 
 
 if __name__ == "__main__":
@@ -101,21 +87,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--block_size", type=int, default=512, help="Block size.")
-
-    # parser.add_argument(
-    #     "--mlm_type",
-    #     type=str,
-    #     choices=["manual", "automatic"],
-    #     default="manual",
-    #     help="Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'"
-    # )
-
-    # parser.add_argument(
-    #     "--mlm_probability",
-    #     type=float,
-    #     default=0.15,
-    #     help="Ratio of tokens to mask for masked language modeling loss"
-    # )
 
     args = parser.parse_args()
 

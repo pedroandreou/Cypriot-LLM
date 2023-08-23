@@ -3,6 +3,8 @@ import json
 import typer
 from transformers import BertForMaskedLM, RobertaForMaskedLM, pipeline
 
+from src.utils.common_utils import echo_with_color
+
 
 class PipelineWrapper:
     def __init__(self, model, tokenizer):

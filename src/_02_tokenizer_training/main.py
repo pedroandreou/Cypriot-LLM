@@ -2,9 +2,10 @@ import json
 import os
 from glob import glob
 
-import typer
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
+
+from src.utils.common_utils import echo_with_color
 
 
 class TokenizerWrapper:
@@ -21,22 +22,16 @@ class TokenizerWrapper:
         self.block_size = block_size
 
     def train_tokenizer(self):
-        typer.echo(
-            typer.style(
-                "Loading configurations from the JSON file...", fg=typer.colors.BLACK
-            )
-        )
+
+        echo_with_color("Loading configurations from the JSON file...", color="black")
         config_path = os.path.join(
             curr_dir, "initial_configs", f"{self.model_type}_config.json"
         )
         with open(config_path, "r") as f:
             config_dict = json.load(f)
 
-        typer.echo(
-            typer.style(
-                f"Initializing the {self.model_type}'s tokenizer...",
-                fg=typer.colors.BLACK,
-            )
+        echo_with_color(
+            f"Initalizing the {self.model_type}'s tokenizer...", color="black"
         )
         if self.model_type == "bert":
             tokenizer = BertWordPieceTokenizer(
@@ -49,11 +44,8 @@ class TokenizerWrapper:
             tokenizer = ByteLevelBPETokenizer()
 
         filepaths = list(glob(os.path.join(self.filepaths_dir, "*.txt")))
-        typer.echo(
-            typer.style(
-                f"Training the {self.model_type}'s tokenizer...", fg=typer.colors.BLACK
-            )
-        )
+        echo_with_color(f"Training the {self.model_type}'s tokenizer...", color="black")
+
         if self.model_type == "bert":
             tokenizer.train(
                 files=filepaths,
@@ -68,11 +60,7 @@ class TokenizerWrapper:
                 min_frequency=config_dict["min_frequency"],
             )
 
-        typer.echo(
-            typer.style(
-                f"Saving the {self.model_type}'s tokenizer...", fg=typer.colors.BLACK
-            )
-        )
+        echo_with_color(f"Saving the {self.model_type}'s tokenizer...", color="black")
         tokenizer.save_model(self.tokenizer_dir_path)
 
         if self.model_type == "bert":
@@ -169,7 +157,7 @@ def main(
     ).train_tokenizer()
 
     if do_push_tokenizer_to_hub:
-        from src.hub_pusher import push_tokenizer
+        from utils.hub_pusher import push_tokenizer
 
         tokenizer_paths = TokenizerWrapper(
             model_type=model_type,
@@ -187,7 +175,10 @@ def main(
         )
 
     else:
-        typer.echo(typer.style("Skipping push to hub.", fg=typer.colors.BLACK))
+        echo_with_color(
+            "Skipping push to the hub.",
+            color="black",
+        )
 
 
 if __name__ == "__main__":
