@@ -77,8 +77,20 @@ python main.py \
     --do_tokenize_files \
     --paths train_test \
 
+    --do_create_masked_encodings \
     --mlm_type manual \
     --mlm_probability 0.15 \
+
+    --do_train_model
+    --trainer_type pytorch \
+    --seed 42 \
+    --vocab_size 30522 \
+    --hidden_size 768 \
+    --num_attention_heads 12 \
+    --num_hidden_layers 6  \
+    --type_vocab_size 1 \
+    --learning_rate 0.01 \
+    --max_steps 1_000_000 \
 
     --do_login_first_time
 ```

@@ -1,8 +1,6 @@
 import os
 
 import torch
-from training_methods.huggingface_model_trainer import HuggingFaceTrainer
-from training_methods.pytorch_model_trainer import PyTorchModelTrainer
 from transformers import (
     BertConfig,
     BertForMaskedLM,
@@ -12,6 +10,12 @@ from transformers import (
 )
 
 from src._06_data_masking.masked_dataset import MaskedDataset
+from src._07_model_training.training_methods.huggingface_model_trainer import (
+    HuggingFaceTrainer,
+)
+from src._07_model_training.training_methods.pytorch_model_trainer import (
+    PyTorchModelTrainer,
+)
 
 """
 Following Intro_to_Weights_&_Biases Google Colab notebook
