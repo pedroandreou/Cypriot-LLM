@@ -72,7 +72,7 @@ class BookReformatter:
 
                     typer.echo(
                         typer.style(
-                            f"Written to file: book_{file_count}.txt with {i} sentences",
+                            f"\nWritten to file: book_{file_count}.txt with {i} sentences",
                             fg=typer.colors.MAGENTA,
                         )
                     )

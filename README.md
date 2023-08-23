@@ -72,6 +72,8 @@ python main.py \
     --do_reformat_files \
     --sliding_window_size 8 \
 
+    --do_split_paths \
+
     --do_login_first_time
 ```
 

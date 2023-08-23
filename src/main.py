@@ -19,6 +19,7 @@ from src._01_data_preprocessing.file_analysis_helpers.compare_token_counts impor
 )
 from src._02_tokenizer_training.main import main as train_tokenizer
 from src._03_data_reformatting.reformatter import main as reformat_files
+from src._04_path_splitting.main import main as split_paths
 
 load_dotenv(find_dotenv())
 
@@ -77,6 +78,9 @@ class ScriptArguments:
     sliding_window_size: int = field(
         default=8, metadata={"help": "Size of the sliding window for processing data."}
     )
+
+    ### SPLIT PATHS ###
+    do_split_paths: bool = field(default=False)
 
     ### PUSHING DATA TO HUB ###
     do_login_first_time: bool = field(
@@ -179,6 +183,20 @@ def main():
     else:
         typer.echo(
             typer.style("Skipping file reformatting...", fg=typer.colors.MAGENTA)
+        )
+
+    if script_args.do_split_paths:
+        typer.echo(
+            typer.style(
+                "Splitting all paths to train and test path sets...",
+                fg=typer.colors.WHITE,
+            )
+        )
+
+        split_paths()
+    else:
+        typer.echo(
+            typer.style("Skipping the split of all paths......", fg=typer.colors.WHITE)
         )
 
 
