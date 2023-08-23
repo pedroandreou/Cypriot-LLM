@@ -1,16 +1,13 @@
 import os
-from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 
 import nltk
-from dotenv import find_dotenv, load_dotenv
+import typer
 from nltk.tokenize import sent_tokenize
-from transformers import HfArgumentParser
+from tqdm import tqdm
 
 nltk.download("punkt")
-
-load_dotenv(find_dotenv())
 
 
 class BookReformatter:
@@ -50,8 +47,20 @@ class BookReformatter:
         BUFFER_SIZE = 10000  # Adjusted to 10,000
         file_count = 0
 
+        # Calculate the total for tqdm (optional, but provides better user feedback)
+        total = sum(
+            1
+            for _ in self.flatten(
+                self.reformat_book(bpath) for bpath in self.book_paths
+            )
+        )
+
         for i, sentence in enumerate(
-            self.flatten(self.reformat_book(bpath) for bpath in self.book_paths)
+            tqdm(
+                self.flatten(self.reformat_book(bpath) for bpath in self.book_paths),
+                total=total,  # provide the total count of sentences for accurate progress bar
+                desc=f"Reformatting sentences using a sliding window of {self.sw}",
+            )
         ):
             buffer.append(sentence)
 
@@ -60,9 +69,12 @@ class BookReformatter:
                 with open(file_path, "wt", encoding="utf-8") as file:
                     file.write("\n".join(buffer))
                     buffer.clear()
-                    print(
-                        f"Written to file: book_{file_count}.txt with {i} sentences",
-                        end="\r",
+
+                    typer.echo(
+                        typer.style(
+                            f"Written to file: book_{file_count}.txt with {i} sentences",
+                            fg=typer.colors.MAGENTA,
+                        )
                     )
                 file_count += 1
 
@@ -71,34 +83,45 @@ class BookReformatter:
             file_path = os.path.join(curr_dir, f"book_{file_count}.txt")
             with open(file_path, "wt", encoding="utf-8") as file:
                 file.write("\n".join(buffer))
-                print(f"Written remaining sentences to: book_{file_count}.txt")
+
+                typer.echo(
+                    typer.style(
+                        f"Written remaining sentences to: book_{file_count}.txt",
+                        fg=typer.colors.MAGENTA,
+                    )
+                )
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-@dataclass
-class ScriptArguments:
-    cleaned_files_dir_path: str = field(
-        os.getenv("CLEANED_FILES_DIR_PATH"),
-        metadata={"help": "The path where all the cleaned files are stored."},
-    )
-
-    sliding_window_size: int = field(
-        default=8, metadata={"help": "Size of the sliding window for processing data."}
-    )
-
-
-def main():
-    # Parse arguments
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
-
-    reformatter = BookReformatter(
-        script_args.cleaned_files_dir_path, script_args.sliding_window_size
-    )
+def main(cleaned_files_dir_path, sliding_window_size):
+    reformatter = BookReformatter(cleaned_files_dir_path, sliding_window_size)
     reformatter.reformat_all_books()
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
+    parser = argparse.ArgumentParser(description="Script to process data")
+
+    parser.add_argument(
+        "--cleaned_files_dir_path",
+        default=os.getenv("CLEANED_FILES_DIR_PATH"),
+        help="The path where all the cleaned files are stored.",
+    )
+
+    parser.add_argument(
+        "--sliding_window_size",
+        type=int,
+        default=8,
+        help="Size of the sliding window for processing data.",
+    )
+
+    args = parser.parse_args()
+
+    main(args.cleaned_files_dir_path, args.sliding_window_size)

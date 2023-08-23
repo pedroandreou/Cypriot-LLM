@@ -18,6 +18,7 @@ from src._01_data_preprocessing.file_analysis_helpers.compare_token_counts impor
     main as compare_token_counts,
 )
 from src._02_tokenizer_training.main import main as train_tokenizer
+from src._03_data_reformatting.reformatter import main as reformat_files
 
 load_dotenv(find_dotenv())
 
@@ -40,6 +41,9 @@ class ScriptArguments:
     ### CLEANING DATA ###
     do_clean_data: bool = field(
         default=False, metadata={"help": "Enable or disable data cleaning."}
+    )
+    do_push_dataset_to_hub: bool = field(
+        default=False, metadata={"help": "Enable or disable push to hub."}
     )
 
     ### EXPORTING CSV TO TXT FILES ###
@@ -66,10 +70,15 @@ class ScriptArguments:
         default=False, metadata={"help": "Enable or disable pushing tokenizer to hub."}
     )
 
-    ### PUSHING DATA TO HUB ###
-    do_push_to_hub: bool = field(
-        default=False, metadata={"help": "Enable or disable push to hub."}
+    ### REFORMAT FILES ###
+    do_reformat_files: bool = field(
+        default=False, metadata={"help": "Enable or disable file reformatting."}
     )
+    sliding_window_size: int = field(
+        default=8, metadata={"help": "Size of the sliding window for processing data."}
+    )
+
+    ### PUSHING DATA TO HUB ###
     do_login_first_time: bool = field(
         default=False,
         metadata={
@@ -107,7 +116,7 @@ def main():
         typer.echo(typer.style("Cleaning the data...", fg=typer.colors.RED))
 
         clean_data(
-            script_args.do_push_to_hub,
+            script_args.do_push_dataset_to_hub,
             script_args.do_login_first_time,
             script_args.huggingface_token,
             script_args.huggingface_repo_name,
@@ -157,6 +166,19 @@ def main():
             typer.style(
                 "Skipping the training of a tokenizer...", fg=typer.colors.BLACK
             )
+        )
+
+    ### REFORMAT FILES ###
+    if script_args.do_reformat_files:
+        typer.echo(typer.style("Reformatting the files...", fg=typer.colors.MAGENTA))
+
+        reformat_files(
+            script_args.cleaned_files_dir_path,
+            script_args.sliding_window_size,
+        )
+    else:
+        typer.echo(
+            typer.style("Skipping file reformatting...", fg=typer.colors.MAGENTA)
         )
 
 

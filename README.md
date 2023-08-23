@@ -55,10 +55,23 @@ cd ./src
 
 python main.py \
     --do_merge_docs \
+
     --do_clean_data \
+    --do_push_dataset_to_hub \
+
+
     --do_export_csv_to_txt_files \
+
     --do_file_analysis \
-    --do_push_to_hub \
+
+    --do_train_tokenizer \
+    --model_type bert \
+    --block_size 512 \
+    --do_push_tokenizer_to_hub \
+
+    --do_reformat_files \
+    --sliding_window_size 8 \
+
     --do_login_first_time
 ```
 

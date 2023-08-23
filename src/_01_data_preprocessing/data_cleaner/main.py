@@ -13,7 +13,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main(
-    do_push_to_hub,
+    do_push_dataset_to_hub,
     do_login_first_time,
     huggingface_token,
     huggingface_repo_name,
@@ -66,7 +66,7 @@ def main(
     df.to_csv(output_file, index=False)
 
     # Push the preprocessed data to the hub
-    if do_push_to_hub:
+    if do_push_dataset_to_hub:
         typer.echo(typer.style("Pushing dataset to the hub...", fg=typer.colors.RED))
 
         push_dataset(
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process some arguments.")
 
     parser.add_argument(
-        "--do_push_to_hub",
+        "--do_push_dataset_to_hub",
         type=bool,
         default=False,
         help="Enable or disable push to hub.",
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(
-        args.do_push_to_hub,
+        args.do_push_dataset_to_hub,
         args.do_login_first_time,
         args.huggingface_token,
         args.huggingface_repo_name,
