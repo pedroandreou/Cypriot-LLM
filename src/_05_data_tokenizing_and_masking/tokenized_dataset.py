@@ -100,7 +100,7 @@ class LineByLineTextDataset(Dataset):
             folder_name = "encodings"
             filename = f"tokenized_{set_type}_dataset.pth"
 
-            return os.path.join(curr_dir, "saved_data", folder_name, filename)
+            return os.path.join(curr_dir, folder_name, filename)
 
         train_dataset_path = get_dataset_path("train")
         train_dataset = torch.load(train_dataset_path)

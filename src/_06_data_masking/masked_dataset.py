@@ -144,7 +144,7 @@ class MaskedDataset(Dataset):
             folder_name = "masked_encodings"
             filename = f"masked_{set_type}_dataset.pth"
 
-            return os.path.join(curr_dir, "saved_data", folder_name, filename)
+            return os.path.join(curr_dir, folder_name, filename)
 
         train_dataset_path = get_dataset_path("train")
         train_dataset = torch.load(train_dataset_path)

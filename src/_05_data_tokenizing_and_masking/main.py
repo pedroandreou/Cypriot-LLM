@@ -41,9 +41,7 @@ def fetch_txt_files(paths_type):
 
 
 def save_dataset(dataset, base_path, sub_dir, key):
-    filename = os.path.join(
-        curr_dir, "saved_data", base_path, f"{sub_dir}_{key}_dataset.pth"
-    )
+    filename = os.path.join(curr_dir, base_path, f"{sub_dir}_{key}_dataset.pth")
     torch.save(dataset, filename)
 
 
@@ -83,30 +81,6 @@ def main(model_type, paths, block_size):
             )
         )
         save_dataset(tokenized_dataset, "encodings", "tokenized", key)
-
-    # if script_args.do_create_masked_encodings:
-    #     print("Loading the tokenized datasets...")
-    #     train_dataset, test_dataset = LineByLineTextDataset().load_encodings()
-
-    #     print("Creating masked datasets...")
-    #     masked_train_dataset = MaskedDataset(
-    #         train_dataset,
-    #         script_args.model_type,
-    #         script_args.mlm_type,
-    #         script_args.mlm_probability,
-    #     )
-    #     masked_test_dataset = MaskedDataset(
-    #         test_dataset,
-    #         script_args.model_type,
-    #         script_args.mlm_type,
-    #         script_args.mlm_probability,
-    #     )
-
-    #     print("Saved masked datasets...")
-    #     save_dataset(masked_train_dataset, "masked_encodings", "masked", "train")
-    #     save_dataset(masked_test_dataset, "masked_encodings", "masked", "test")
-    # else:
-    #     print("Skipping masked dataset creation...")
 
 
 if __name__ == "__main__":

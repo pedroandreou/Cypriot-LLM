@@ -21,6 +21,7 @@ from src._02_tokenizer_training.main import main as train_tokenizer
 from src._03_data_reformatting.reformatter import main as reformat_files
 from src._04_path_splitting.main import main as split_paths
 from src._05_data_tokenizing_and_masking.main import main as tokenize_files
+from src._06_data_masking.main import main as create_masked_encodings
 
 load_dotenv(find_dotenv())
 
@@ -91,7 +92,17 @@ class ScriptArguments:
     )
 
     ### MASK TOKENS ###
-    do_mask_tokens: bool = field(default=False)
+    do_create_masked_encodings: bool = field(default=False)
+    mlm_type = field(
+        default="manual",
+        metadata={
+            "help": "Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'"
+        },
+    )
+    mlm_probability = field(
+        default=0.15,
+        metadata={"help": "Ratio of tokens to mask for masked language modeling loss"},
+    )
 
     ### PUSHING DATA TO HUB ###
     do_login_first_time: bool = field(
@@ -196,6 +207,7 @@ def main():
             typer.style("Skipping file reformatting...", fg=typer.colors.MAGENTA)
         )
 
+    ### SPLIT PATHS ###
     if script_args.do_split_paths:
         typer.echo(
             typer.style(
@@ -210,6 +222,7 @@ def main():
             typer.style("Skipping the split of all paths......", fg=typer.colors.WHITE)
         )
 
+    ### TOKENIZE FILES ###
     if script_args.do_tokenize_files:
         typer.echo(
             typer.style(
@@ -228,6 +241,29 @@ def main():
             typer.style(
                 "Skipping the tokenization of the files...",
                 fg=typer.colors.BRIGHT_YELLOW,
+            )
+        )
+
+    ### MASK TOKENS ###
+    if script_args.do_create_masked_encodings:
+        typer.echo(
+            typer.style(
+                "Creating masked encodings for the files...",
+                fg=typer.colors.BRIGHT_MAGENTA,
+            )
+        )
+
+        create_masked_encodings(
+            script_args.model_type,
+            script_args.mlm_type,
+            script_args.mlm_probability,
+        )
+
+    else:
+        typer.echo(
+            typer.style(
+                "Skipping the creation of masked encodings...",
+                fg=typer.colors.BRIGHT_MAGENTA,
             )
         )
 

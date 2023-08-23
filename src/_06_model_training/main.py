@@ -15,7 +15,7 @@ from transformers import (
     set_seed,
 )
 
-from src._05_data_tokenizing_and_masking.masked_dataset import MaskedDataset
+from _06_data_masking.masked_dataset import MaskedDataset
 
 load_dotenv(find_dotenv())
 
