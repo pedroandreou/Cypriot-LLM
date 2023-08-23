@@ -42,16 +42,6 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def main(model_type, paths, block_size):
 
-    tokenizer_dir_path = os.path.normpath(
-        os.path.join(
-            curr_dir,
-            "..",
-            "_02_tokenizer_training",
-            "trained_tokenizer_bundle",
-            f"cy{model_type}",
-        )
-    )
-
     # key is train or test
     # value is a list of paths
     files_list_dict = fetch_txt_files(paths)
@@ -60,7 +50,6 @@ def main(model_type, paths, block_size):
 
         tokenized_dataset = LineByLineTextDataset(
             model_type=model_type,
-            tokenizer_dir_path=tokenizer_dir_path,
             files_list=files_list,
             block_size=block_size,
         )
@@ -72,7 +61,7 @@ def main(model_type, paths, block_size):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Your script's description")
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--model_type", type=str, default="bert", help="Type of model to use"

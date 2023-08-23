@@ -1,6 +1,7 @@
 import json
 import os
 from glob import glob
+from typing import Optional
 
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
@@ -12,14 +13,16 @@ class TokenizerWrapper:
     def __init__(
         self,
         model_type: str,
-        tokenizer_dir_path: str,
-        filepaths_dir: str,
         block_size: int,
+        filepaths_dir: Optional[str] = None,
     ):
         self.model_type = model_type
-        self.tokenizer_dir_path = tokenizer_dir_path
         self.filepaths_dir = filepaths_dir
         self.block_size = block_size
+
+        self.tokenizer_dir_path = os.path.join(
+            curr_dir, "trained_tokenizer_bundle", f"cy{model_type}"
+        )
 
     def train_tokenizer(self):
 
@@ -145,15 +148,11 @@ def main(
     huggingface_repo_name,
 ):
 
-    tokenizer_dir_path = os.path.join(
-        curr_dir, "trained_tokenizer_bundle", f"cy{model_type}"
-    )
-
     TokenizerWrapper(
         model_type=model_type,
         tokenizer_dir_path=tokenizer_dir_path,
-        filepaths_dir=cleaned_files_dir_path,
         block_size=block_size,
+        filepaths_dir=cleaned_files_dir_path,
     ).train_tokenizer()
 
     if do_push_tokenizer_to_hub:
@@ -162,7 +161,6 @@ def main(
         tokenizer_paths = TokenizerWrapper(
             model_type=model_type,
             tokenizer_dir_path=tokenizer_dir_path,
-            filepaths_dir=cleaned_files_dir_path,
             block_size=block_size,
         ).get_tokenizer_paths()
 

@@ -34,7 +34,7 @@ def main(model_type, mlm_type, mlm_probability):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Your script's description")
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--model_type", type=str, default="bert", help="Type of model to use"

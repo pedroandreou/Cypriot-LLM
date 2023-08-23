@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     load_dotenv(find_dotenv())
 
-    parser = argparse.ArgumentParser(description="Process some arguments.")
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--output_dir_path",

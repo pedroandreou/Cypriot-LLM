@@ -12,21 +12,13 @@ class LineByLineTextDataset(Dataset):
     def __init__(
         self,
         model_type: str = None,
-        tokenizer_dir_path: str = None,
         files_list: list = None,
         block_size: str = None,
     ):
-        if (
-            model_type is None
-            and tokenizer_dir_path is None
-            and files_list is None
-            and block_size is None
-        ):
+        if model_type is None and files_list is None and block_size is None:
             self.default_constructor()
         else:
-            self.parameterized_constructor(
-                model_type, tokenizer_dir_path, files_list, block_size
-            )
+            self.parameterized_constructor(model_type, files_list, block_size)
 
     def default_constructor(self):
         print(
@@ -35,9 +27,7 @@ class LineByLineTextDataset(Dataset):
         self.examples = []
         self.model_type = None
 
-    def parameterized_constructor(
-        self, model_type, tokenizer_dir_path, files_list, block_size
-    ):
+    def parameterized_constructor(self, model_type, files_list, block_size):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
@@ -49,8 +39,6 @@ class LineByLineTextDataset(Dataset):
         echo_with_color(f"Loading {self.model_type} tokenizer", color="bright_yellow")
         tokenizer = TokenizerWrapper(
             self.model_type,
-            tokenizer_dir_path,
-            files_list,
             block_size,
         ).load_tokenizer()
 

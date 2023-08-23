@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     load_dotenv(find_dotenv())
 
-    parser = argparse.ArgumentParser(description="Script to process data")
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--cleaned_files_dir_path",

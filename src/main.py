@@ -22,6 +22,7 @@ from src._04_path_splitting.main import main as split_paths
 from src._05_data_tokenizing.main import main as tokenize_files
 from src._06_data_masking.main import main as create_masked_encodings
 from src._07_model_training.main import main as train_model
+from src._08_inference.pipeline import main as infer
 from src.utils.common_utils import echo_with_color
 
 load_dotenv(find_dotenv())
@@ -119,6 +120,9 @@ class ScriptArguments:
     type_vocab_size: int = field(default=2)
     learning_rate: float = field(default=0.01)
     max_steps: int = field(default=1000, metadata={"help": "Max steps to train for."})
+
+    ### INFERENCING ###
+    do_inference: bool = field(default=False)
 
     ### PUSHING DATA TO HUB ###
     do_login_first_time: bool = field(
@@ -284,6 +288,19 @@ def main():
 
     else:
         echo_with_color("Skipping the training of the model...", color="bright_cyan")
+
+    ### INFERENCING ###
+    if script_args.do_inference:
+        echo_with_color("Inferencing...", color="bright_white")
+
+        infer(
+            model_type=script_args.model_type,
+            model_path=None,
+            block_size=script_args.block_size,
+        )
+
+    else:
+        echo_with_color("Skipping inferencing...", color="bright_white")
 
 
 if __name__ == "__main__":
