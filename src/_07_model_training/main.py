@@ -115,9 +115,7 @@ if __name__ == "__main__":
 
     # Model Configurations
     parser.add_argument("--vocab_size", type=int, default=30522)
-    parser.add_argument(
-        "--block_size", type=int, default=512
-    )  # Assuming block_size should be int. If not, replace with type=str.
+    parser.add_argument("--block_size", type=int, default=512)
     parser.add_argument("--hidden_size", type=int, default=768)
     parser.add_argument("--num_attention_heads", type=int, default=12)
     parser.add_argument("--num_hidden_layers", type=int, default=6)
