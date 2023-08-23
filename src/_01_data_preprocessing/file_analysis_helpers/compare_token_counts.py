@@ -24,15 +24,15 @@ def count_tokens(df):
 
 
 console = Console()
-script_directory = os.path.dirname(os.path.abspath(__file__))
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main():
     initial_doc_file_path = os.path.normpath(
-        os.path.join(script_directory, "..", "doc_merge_to_csv", "all_documents.csv")
+        os.path.join(curr_dir, "..", "doc_merge_to_csv", "all_documents.csv")
     )
     preprocessed_doc_file_path = os.path.normpath(
-        os.path.join(script_directory, "..", "data_cleaner", "preprocessed_docs.csv")
+        os.path.join(curr_dir, "..", "data_cleaner", "preprocessed_docs.csv")
     )
     files = [initial_doc_file_path, preprocessed_doc_file_path]
 

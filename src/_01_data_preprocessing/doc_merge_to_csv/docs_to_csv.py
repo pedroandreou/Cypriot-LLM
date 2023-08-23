@@ -97,7 +97,7 @@ class DocumentReader:
         return df
 
 
-script_directory = os.path.dirname(os.path.abspath(__file__))
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main(data_path):
@@ -108,7 +108,7 @@ def main(data_path):
     print(df.head())
 
     output_file_name = "all_documents.csv"
-    output_file = os.path.join(script_directory, output_file_name)
+    output_file = os.path.join(curr_dir, output_file_name)
     df.to_csv(output_file, index=False)
 
 

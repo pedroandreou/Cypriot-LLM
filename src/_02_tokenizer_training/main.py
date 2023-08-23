@@ -1,33 +1,44 @@
 import json
 import os
-from dataclasses import dataclass, field
 from glob import glob
-from typing import Optional
 
-from dotenv import find_dotenv, load_dotenv
+import typer
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
-from transformers import HfArgumentParser
-
-load_dotenv(find_dotenv())
+from tokenizers.processors import BertProcessing
 
 
 class TokenizerWrapper:
     def __init__(
         self,
         model_type: str,
-        tokenizer_path: str,
+        tokenizer_dir_path: str,
         filepaths_dir: str,
+        block_size: int,
     ):
+        self.model_type = model_type
+        self.tokenizer_dir_path = tokenizer_dir_path
+        self.filepaths_dir = filepaths_dir
+        self.block_size = block_size
 
-        print("Loading configurations from the JSON file...")
+    def train_tokenizer(self):
+        typer.echo(
+            typer.style(
+                "Loading configurations from the JSON file...", fg=typer.colors.BLACK
+            )
+        )
         config_path = os.path.join(
-            curr_dir, "initial_configs", f"{model_type}_config.json"
+            curr_dir, "initial_configs", f"{self.model_type}_config.json"
         )
         with open(config_path, "r") as f:
             config_dict = json.load(f)
 
-        print(f"Initializing the {model_type}'s tokenizer...")
-        if model_type == "bert":
+        typer.echo(
+            typer.style(
+                f"Initializing the {self.model_type}'s tokenizer...",
+                fg=typer.colors.BLACK,
+            )
+        )
+        if self.model_type == "bert":
             tokenizer = BertWordPieceTokenizer(
                 clean_text=config_dict["clean_text"],
                 handle_chinese_chars=config_dict["handle_chinese_chars"],
@@ -37,9 +48,13 @@ class TokenizerWrapper:
         else:
             tokenizer = ByteLevelBPETokenizer()
 
-        filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
-        print(f"Training the {model_type}'s tokenizer...")
-        if model_type == "bert":
+        filepaths = list(glob(os.path.join(self.filepaths_dir, "*.txt")))
+        typer.echo(
+            typer.style(
+                f"Training the {self.model_type}'s tokenizer...", fg=typer.colors.BLACK
+            )
+        )
+        if self.model_type == "bert":
             tokenizer.train(
                 files=filepaths,
                 vocab_size=config_dict["vocab_size"],
@@ -53,13 +68,17 @@ class TokenizerWrapper:
                 min_frequency=config_dict["min_frequency"],
             )
 
-        print(f"Saving the {model_type}'s tokenizer...")
-        tokenizer.save_model(tokenizer_path)
+        typer.echo(
+            typer.style(
+                f"Saving the {self.model_type}'s tokenizer...", fg=typer.colors.BLACK
+            )
+        )
+        tokenizer.save_model(self.tokenizer_dir_path)
 
-        if model_type == "bert":
-            # dumping some of the tokenizer config to config file,
-            # including special tokens, whether to lower case and the maximum sequence length
-            with open(os.path.join(tokenizer_path, "config.json"), "w") as f:
+        if self.model_type == "bert":
+
+            config_path = os.path.join(self.tokenizer_dir_path, "config.json")
+            with open(config_path, "w") as f:
                 tokenizer_cfg = {
                     # "model_type": "bert", # For AutoTokenizer.from_pretrained
                     "handle_chinese_chars": False,
@@ -69,55 +88,162 @@ class TokenizerWrapper:
                     "pad_token": "[PAD]",
                     "cls_token": "[CLS]",
                     "mask_token": "[MASK]",
-                    "model_max_length": 512,
-                    "max_len": 512,
+                    "model_max_length": self.block_size,
+                    "max_len": self.model_type,
                 }
                 json.dump(tokenizer_cfg, f)
+
+    def load_tokenizer(self):
+        paths = []
+
+        if self.model_type == "bert":
+
+            config_path = os.path.join(self.tokenizer_dir_path, "config.json")
+            vocab_path = os.path.join(self.tokenizer_dir_path, "vocab.txt")
+
+            # Load configurations
+            with open(config_path, "r") as file:
+                config = json.load(file)
+
+            # Load tokenizer
+            tokenizer = BertWordPieceTokenizer(
+                vocab_path,
+                handle_chinese_chars=config["handle_chinese_chars"],
+                lowercase=config["do_lower_case"],
+            )
+
+            paths.append(config_path)
+            paths.append(vocab_path)
+        else:  # roberta
+
+            vocab_path = os.path.join(self.tokenizer_dir_path, "vocab.json")
+            merges_path = (os.path.join(self.tokenizer_dir_path, "merges.txt"),)
+
+            # Load configurations
+            tokenizer = ByteLevelBPETokenizer(
+                vocab_path,
+                merges_path,
+            )
+
+            # Load tokenizer
+            tokenizer._tokenizer.post_processor = BertProcessing(
+                ("</s>", tokenizer.token_to_id("</s>")),
+                ("<s>", tokenizer.token_to_id("<s>")),
+            )
+
+            paths.append(vocab_path)
+            paths.append(merges_path)
+
+        tokenizer.enable_truncation(max_length=self.block_size)
+        tokenizer.enable_padding(length=self.block_size)
+
+        return paths
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-@dataclass
-class ScriptArguments:
-    model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
+def main(
+    model_type,
+    cleaned_files_dir_path,
+    block_size,
+    do_push_tokenizer_to_hub,
+    do_login_first_time,
+    huggingface_token,
+    huggingface_repo_name,
+):
 
-    cleaned_files_dir_path: str = field(default=os.getenv("CLEANED_FILES_DIR_PATH"))
-
-    do_train_tokenizer: bool = field(default=False)
-    tokenizer_dir_path: Optional[str] = field(
-        default=None,
-        metadata={"help": "Path to where the tokenizer should be exported."},
+    tokenizer_dir_path = os.path.join(
+        curr_dir, "trained_tokenizer_bundle", f"cy{model_type}"
     )
 
-    def __post_init__(self):
-        if self.tokenizer_dir_path is None:
-            self.tokenizer_dir_path = os.path.join(
-                curr_dir, "trained_tokenizer_bundle", f"cy{self.model_type}"
-            )
+    TokenizerWrapper(
+        model_type=model_type,
+        tokenizer_dir_path=tokenizer_dir_path,
+        filepaths_dir=cleaned_files_dir_path,
+        block_size=block_size,
+    ).train_tokenizer()
 
-    do_push_tokenizer_to_hub: bool = field(
-        default=False, metadata={"help": "Enable or disable pushing tokenizer to hub."}
-    )
+    if do_push_tokenizer_to_hub:
+        from src.hub_pusher import push_tokenizer
 
+        tokenizer_paths = TokenizerWrapper(
+            model_type=model_type,
+            tokenizer_dir_path=tokenizer_dir_path,
+            filepaths_dir=cleaned_files_dir_path,
+            block_size=block_size,
+        ).load_tokenizer()
 
-def main():
-    # Parse arguments
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
-
-    if script_args.do_train_tokenizer:
-        print("Training a tokenizer from scratch...")
-
-        TokenizerWrapper(
-            model_type=script_args.model_type,
-            tokenizer_path=script_args.tokenizer_dir_path,
-            filepaths_dir=script_args.cleaned_files_dir_path,
+        push_tokenizer(
+            curr_dir,
+            tokenizer_paths,
+            do_login_first_time,
+            huggingface_token,
+            huggingface_repo_name,
         )
 
     else:
-        print("Skipping the training of a tokenizer...")
+        typer.echo(typer.style("Skipping push to hub.", fg=typer.colors.BLACK))
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--model_type", type=str, default="bert", help="Type of model to use"
+    )
+
+    default_cleaned_files_path = os.getenv("CLEANED_FILES_DIR_PATH")
+    parser.add_argument(
+        "--cleaned_files_dir_path", type=str, default=default_cleaned_files_path
+    )
+
+    parser.add_argument(
+        "--block_size", type=int, default=512, help="Define the block size."
+    )
+
+    parser.add_argument(
+        "--do_push_tokenizer_to_hub",
+        action="store_true",
+        help="Enable or disable pushing tokenizer to hub.",
+    )
+
+    parser.add_argument(
+        "--do_login_first_time",
+        action="store_true",
+        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
+    )
+
+    default_huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
+    parser.add_argument(
+        "--huggingface_token",
+        type=str,
+        default=default_huggingface_token,
+        help="Token for HuggingFace.",
+    )
+
+    default_huggingface_repo_name = os.getenv("HUGGINGFACE_REPO_NAME")
+    parser.add_argument(
+        "--huggingface_repo_name",
+        type=str,
+        default=default_huggingface_repo_name,
+        help="Name of the HuggingFace repo.",
+    )
+
+    args = parser.parse_args()
+
+    main(
+        args.model_type,
+        args.cleaned_files_dir_path,
+        args.block_size,
+        args.do_push_tokenizer_to_hub,
+        args.do_login_first_time,
+        args.huggingface_token,
+        args.huggingface_repo_name,
+    )

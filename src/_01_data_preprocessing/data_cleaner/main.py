@@ -9,7 +9,7 @@ from .diacritic_remover import DiacriticRemover
 from .greek_letter_joiner import GreekLetterJoiner
 from .pattern_remover import PatternRemover
 
-script_directory = os.path.dirname(os.path.abspath(__file__))
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main(
@@ -20,7 +20,7 @@ def main(
 ):
 
     input_file_name = os.path.normpath(
-        os.path.join(script_directory, "..", "doc_merge_to_csv", "all_documents.csv")
+        os.path.join(curr_dir, "..", "doc_merge_to_csv", "all_documents.csv")
     )
 
     try:
@@ -62,7 +62,8 @@ def main(
 
     # Save preprocessed dataframe as a new csv file
     output_file_name = "preprocessed_docs.csv"
-    df.to_csv(output_file_name, index=False)
+    output_file = os.path.join(curr_dir, output_file_name)
+    df.to_csv(output_file, index=False)
 
     # Push the preprocessed data to the hub
     if do_push_to_hub:

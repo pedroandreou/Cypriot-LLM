@@ -1,9 +1,10 @@
-import json
+# import json
 import os
 
 import torch
-from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
-from tokenizers.processors import BertProcessing
+
+# from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
+# from tokenizers.processors import BertProcessing
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
@@ -47,28 +48,28 @@ class LineByLineTextDataset(Dataset):
         self.examples = []
 
         print(f"Loading {self.model_type} tokenizer")
-        if self.model_type == "bert":
-            # Load configurations from config.json
-            with open(os.path.join(tokenizer_dir_path, "config.json"), "r") as file:
-                config = json.load(file)
+        # if self.model_type == "bert":
+        #     # Load configurations from config.json
+        #     with open(os.path.join(tokenizer_dir_path, "config.json"), "r") as file:
+        #         config = json.load(file)
 
-            tokenizer = BertWordPieceTokenizer(
-                os.path.join(tokenizer_dir_path, "vocab.txt"),
-                handle_chinese_chars=config["handle_chinese_chars"],
-                lowercase=config["do_lower_case"],
-            )
-        else:  # roberta
-            tokenizer = ByteLevelBPETokenizer(
-                os.path.join(tokenizer_dir_path, "vocab.json"),
-                os.path.join(tokenizer_dir_path, "merges.txt"),
-            )
-            tokenizer._tokenizer.post_processor = BertProcessing(
-                ("</s>", tokenizer.token_to_id("</s>")),
-                ("<s>", tokenizer.token_to_id("<s>")),
-            )
+        #     tokenizer = BertWordPieceTokenizer(
+        #         os.path.join(tokenizer_dir_path, "vocab.txt"),
+        #         handle_chinese_chars=config["handle_chinese_chars"],
+        #         lowercase=config["do_lower_case"],
+        #     )
+        # else:  # roberta
+        #     tokenizer = ByteLevelBPETokenizer(
+        #         os.path.join(tokenizer_dir_path, "vocab.json"),
+        #         os.path.join(tokenizer_dir_path, "merges.txt"),
+        #     )
+        #     tokenizer._tokenizer.post_processor = BertProcessing(
+        #         ("</s>", tokenizer.token_to_id("</s>")),
+        #         ("<s>", tokenizer.token_to_id("<s>")),
+        #     )
 
-        tokenizer.enable_truncation(max_length=block_size)
-        tokenizer.enable_padding(length=block_size)
+        # tokenizer.enable_truncation(max_length=block_size)
+        # tokenizer.enable_padding(length=block_size)
 
         # Wrapping files_list with tqdm to display the progress bar
         for file_path in tqdm(files_list, desc=f"Tokenizing file: {file_path}"):

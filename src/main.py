@@ -17,8 +17,12 @@ from src._01_data_preprocessing.file_analysis_helpers.calculate_file_capacities 
 from src._01_data_preprocessing.file_analysis_helpers.compare_token_counts import (
     main as compare_token_counts,
 )
+from src._02_tokenizer_training.main import main as train_tokenizer
 
 load_dotenv(find_dotenv())
+
+
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 @dataclass
@@ -43,7 +47,7 @@ class ScriptArguments:
         default=False,
         metadata={"help": "Enable or disable export of CSV to txt files."},
     )
-    output_dir_path: Optional[str] = field(
+    cleaned_files_dir_path: Optional[str] = field(
         default=os.getenv("CLEANED_FILES_DIR_PATH"),
         metadata={"help": "Path to the directory for cleaned files"},
     )
@@ -51,6 +55,15 @@ class ScriptArguments:
     ### DO FILE ANALYSIS ###
     do_file_analysis: bool = field(
         default=False, metadata={"help": "Enable or disable file analysis."}
+    )
+
+    ### DO TOKENIZER TRAINING ###
+    do_train_tokenizer: bool = field(default=False)
+    model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
+    block_size: int = field(default=512, metadata={"help": "Define the block size."})
+
+    do_push_tokenizer_to_hub: bool = field(
+        default=False, metadata={"help": "Enable or disable pushing tokenizer to hub."}
     )
 
     ### PUSHING DATA TO HUB ###
@@ -106,7 +119,7 @@ def main():
         typer.echo(typer.style("Exporting CSV to txt files...", fg=typer.colors.BLUE))
 
         export_csv_to_txt_files(
-            script_args.output_dir_path,
+            script_args.cleaned_files_dir_path,
             script_args.do_login_first_time,
             script_args.huggingface_token,
             script_args.huggingface_repo_name,
@@ -123,6 +136,28 @@ def main():
         compare_token_counts()
     else:
         typer.echo(typer.style("Skipping file analysis...", fg=typer.colors.GREEN))
+
+    ### TOKENIZER TRAINING ###
+    if script_args.do_train_tokenizer:
+        typer.echo(
+            typer.style("Training a tokenizer from scratch...", fg=typer.colors.BLACK)
+        )
+
+        train_tokenizer(
+            script_args.model_type,
+            script_args.cleaned_files_dir_path,
+            script_args.block_size,
+            script_args.do_push_tokenizer_to_hub,
+            script_args.do_login_first_time,
+            script_args.huggingface_token,
+            script_args.huggingface_repo_name,
+        )
+    else:
+        typer.echo(
+            typer.style(
+                "Skipping the training of a tokenizer...", fg=typer.colors.BLACK
+            )
+        )
 
 
 if __name__ == "__main__":
