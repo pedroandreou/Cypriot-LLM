@@ -47,11 +47,12 @@ cmd.exe /C setup_new_environment.bat
 ```
 
 
-# :crossed_flags: Source Code
-## :hammer: Preprocessing
+# :runner: How to run the code
 ```
 cd ./src
+```
 
+```
 python main.py \
     --do_merge_docs \
 

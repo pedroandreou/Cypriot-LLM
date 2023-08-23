@@ -56,6 +56,7 @@ def main(
     ModelClass = BertForMaskedLM if model_type == "bert" else RobertaForMaskedLM
 
     # As we are training from scratch, we initialize from a config
+    print("Initialize config...")
     config = ConfigClass(
         vocab_size=vocab_size,
         max_position_embeddings=block_size,
