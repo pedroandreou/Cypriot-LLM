@@ -20,10 +20,15 @@ from src._01_data_preprocessing.file_analysis_helpers.compare_token_counts impor
 from src._02_tokenizer_training.main import main as train_tokenizer
 from src._03_data_reformatting.reformatter import main as reformat_files
 from src._04_path_splitting.main import main as split_paths
-from src._05_data_tokenizing_and_masking.main import main as tokenize_files
+from src._05_data_tokenizing.main import main as tokenize_files
 from src._06_data_masking.main import main as create_masked_encodings
 
 load_dotenv(find_dotenv())
+
+
+def echo_with_color(text: str, color: typer.colors = typer.colors.BRIGHT_CYAN):
+    """Echos a text message with the specified color."""
+    typer.echo(typer.style(text, fg=color))
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -93,13 +98,13 @@ class ScriptArguments:
 
     ### MASK TOKENS ###
     do_create_masked_encodings: bool = field(default=False)
-    mlm_type = field(
+    mlm_type: str = field(
         default="manual",
         metadata={
             "help": "Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'"
         },
     )
-    mlm_probability = field(
+    mlm_probability: float = field(
         default=0.15,
         metadata={"help": "Ratio of tokens to mask for masked language modeling loss"},
     )
@@ -123,23 +128,21 @@ def main():
 
     ### MERGING DATA ###
     if script_args.do_merge_docs:
-        typer.echo(
-            typer.style(
-                "Compiling the data into a single CSV file...", fg=typer.colors.YELLOW
-            )
+        echo_with_color(
+            "Compiling the data into a single CSV file...",
+            fg=typer.colors.YELLOW,
         )
+
         merge_docs(script_args.data_path)
     else:
-        typer.echo(
-            typer.style(
-                "Skipping the data compilation into a single CSV file...",
-                fg=typer.colors.YELLOW,
-            )
+        echo_with_color(
+            "Skipping the data compilation into a single CSV file...",
+            fg=typer.colors.YELLOW,
         )
 
     ### CLEANING DATA ###
     if script_args.do_clean_data:
-        typer.echo(typer.style("Cleaning the data...", fg=typer.colors.RED))
+        echo_with_color("Cleaning the data...", fg=typer.colors.RED)
 
         clean_data(
             script_args.do_push_dataset_to_hub,
@@ -148,10 +151,11 @@ def main():
             script_args.huggingface_repo_name,
         )
     else:
-        typer.echo(typer.style("Skipping data cleaning.", fg=typer.colors.RED))
+        echo_with_color("Skipping data cleaning.", fg=typer.colors.RED)
 
+    ### EXPORTING CSV TO TXT FILES ###
     if script_args.do_export_csv_to_txt_files:
-        typer.echo(typer.style("Exporting CSV to txt files...", fg=typer.colors.BLUE))
+        echo_with_color("Exporting CSV to txt files...", fg=typer.colors.BLUE)
 
         export_csv_to_txt_files(
             script_args.cleaned_files_dir_path,
@@ -160,23 +164,21 @@ def main():
             script_args.huggingface_repo_name,
         )
     else:
-        typer.echo(
-            typer.style("Skipping export of CSV to txt files...", fg=typer.colors.BLUE)
-        )
+        echo_with_color("Skipping export of CSV to txt files...", fg=typer.colors.BLUE)
 
     ### FILE ANALYSIS ###
     if script_args.do_file_analysis:
-        typer.echo(typer.style("Performing file analysis...", fg=typer.colors.GREEN))
+        echo_with_color("Calculating file capacities...", fg=typer.colors.GREEN)
         calculate_file_capacities()
+
+        echo_with_color("Comparing token counts...", fg=typer.colors.GREEN)
         compare_token_counts()
     else:
-        typer.echo(typer.style("Skipping file analysis...", fg=typer.colors.GREEN))
+        echo_with_color("Skipping file analysis...", fg=typer.colors.GREEN)
 
     ### TOKENIZER TRAINING ###
     if script_args.do_train_tokenizer:
-        typer.echo(
-            typer.style("Training a tokenizer from scratch...", fg=typer.colors.BLACK)
-        )
+        echo_with_color("Training a tokenizer from scratch...", fg=typer.colors.BLACK)
 
         train_tokenizer(
             script_args.model_type,
@@ -188,47 +190,40 @@ def main():
             script_args.huggingface_repo_name,
         )
     else:
-        typer.echo(
-            typer.style(
-                "Skipping the training of a tokenizer...", fg=typer.colors.BLACK
-            )
+        echo_with_color(
+            "Skipping the training of a tokenizer...", fg=typer.colors.BLACK
         )
 
     ### REFORMAT FILES ###
     if script_args.do_reformat_files:
-        typer.echo(typer.style("Reformatting the files...", fg=typer.colors.MAGENTA))
+        echo_with_color("Reformatting the files...", fg=typer.colors.MAGENTA)
 
         reformat_files(
             script_args.cleaned_files_dir_path,
             script_args.sliding_window_size,
         )
     else:
-        typer.echo(
-            typer.style("Skipping file reformatting...", fg=typer.colors.MAGENTA)
+        echo_with_color(
+            "Skipping the reformatting of the files...", fg=typer.colors.MAGENTA
         )
 
     ### SPLIT PATHS ###
     if script_args.do_split_paths:
-        typer.echo(
-            typer.style(
-                "Splitting all paths to train and test path sets...",
-                fg=typer.colors.WHITE,
-            )
+        echo_with_color(
+            "Splitting the paths to train and test path sets...", fg=typer.colors.WHITE
         )
 
         split_paths()
     else:
-        typer.echo(
-            typer.style("Skipping the split of all paths......", fg=typer.colors.WHITE)
+        echo_with_color(
+            "Skipping the split of all paths to train and test path sets......",
+            fg=typer.colors.WHITE,
         )
 
     ### TOKENIZE FILES ###
     if script_args.do_tokenize_files:
-        typer.echo(
-            typer.style(
-                "Tokenizing the files and saving them as TFRecords...",
-                fg=typer.colors.BRIGHT_YELLOW,
-            )
+        echo_with_color(
+            "Tokenizing the files and saving them...", fg=typer.colors.BRIGHT_YELLOW
         )
 
         tokenize_files(
@@ -237,20 +232,14 @@ def main():
             script_args.block_size,
         )
     else:
-        typer.echo(
-            typer.style(
-                "Skipping the tokenization of the files...",
-                fg=typer.colors.BRIGHT_YELLOW,
-            )
+        echo_with_color(
+            "Skipping the tokenization of the files...", fg=typer.colors.BRIGHT_YELLOW
         )
 
     ### MASK TOKENS ###
     if script_args.do_create_masked_encodings:
-        typer.echo(
-            typer.style(
-                "Creating masked encodings for the files...",
-                fg=typer.colors.BRIGHT_MAGENTA,
-            )
+        echo_with_color(
+            "Creating masked encodings for the files...", fg=typer.colors.BRIGHT_MAGENTA
         )
 
         create_masked_encodings(
@@ -260,11 +249,18 @@ def main():
         )
 
     else:
-        typer.echo(
-            typer.style(
-                "Skipping the creation of masked encodings...",
-                fg=typer.colors.BRIGHT_MAGENTA,
-            )
+        echo_with_color(
+            "Skipping the creation of masked encodings...",
+            fg=typer.colors.BRIGHT_MAGENTA,
+        )
+
+    ### TRAIN MODEL ###
+    if script_args.do_train_model:
+        echo_with_color("Training the model...", fg=typer.colors.BRIGHT_CYAN)
+
+    else:
+        echo_with_color(
+            "Skipping the training of the model...", fg=typer.colors.BRIGHT_CYAN
         )
 
 

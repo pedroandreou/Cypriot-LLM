@@ -77,26 +77,15 @@ python main.py \
     --do_tokenize_files \
     --paths train_test \
 
+    --mlm_type manual \
+    --mlm_probability 0.15 \
+
     --do_login_first_time
 ```
 
 If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
 
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
-
-
-## :runner: Tokenize Data
-```
-cd ./src/_05_data_tokenizing
-
-python main.py \
-    --model_type bert \
-    --do_tokenize_data True \
-    --paths=train_test \
-    --do_create_masked_encodings \
-    --mlm_type=manual \
-    --mlm_probability 0.15
-```
 
 
 ## :runner: Training Model

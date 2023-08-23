@@ -3,7 +3,7 @@ import os
 import torch
 import typer
 
-from src._05_data_tokenizing_and_masking.tokenized_dataset import LineByLineTextDataset
+from src._05_data_tokenizing.tokenized_dataset import LineByLineTextDataset
 from src._06_data_masking.masked_dataset import MaskedDataset
 
 

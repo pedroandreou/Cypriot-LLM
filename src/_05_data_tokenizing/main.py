@@ -4,7 +4,7 @@ import torch
 import typer
 
 # from masked_dataset import MaskedDataset
-from src._05_data_tokenizing_and_masking.tokenized_dataset import LineByLineTextDataset
+from src._05_data_tokenizing.tokenized_dataset import LineByLineTextDataset
 
 
 def fetch_txt_files(paths_type):
