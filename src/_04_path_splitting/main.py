@@ -1,7 +1,7 @@
 import os
-import typer
 from pathlib import Path
 
+import typer
 from sklearn.model_selection import train_test_split
 
 

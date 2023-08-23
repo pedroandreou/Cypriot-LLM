@@ -1,12 +1,11 @@
-# import json
 import os
 
 import torch
-
-# from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
-# from tokenizers.processors import BertProcessing
+import typer
 from torch.utils.data import Dataset
 from tqdm import tqdm
+
+from src._02_tokenizer_training.main import TokenizerWrapper
 
 
 class LineByLineTextDataset(Dataset):
@@ -47,32 +46,23 @@ class LineByLineTextDataset(Dataset):
         self.model_type = model_type
         self.examples = []
 
-        print(f"Loading {self.model_type} tokenizer")
-        # if self.model_type == "bert":
-        #     # Load configurations from config.json
-        #     with open(os.path.join(tokenizer_dir_path, "config.json"), "r") as file:
-        #         config = json.load(file)
-
-        #     tokenizer = BertWordPieceTokenizer(
-        #         os.path.join(tokenizer_dir_path, "vocab.txt"),
-        #         handle_chinese_chars=config["handle_chinese_chars"],
-        #         lowercase=config["do_lower_case"],
-        #     )
-        # else:  # roberta
-        #     tokenizer = ByteLevelBPETokenizer(
-        #         os.path.join(tokenizer_dir_path, "vocab.json"),
-        #         os.path.join(tokenizer_dir_path, "merges.txt"),
-        #     )
-        #     tokenizer._tokenizer.post_processor = BertProcessing(
-        #         ("</s>", tokenizer.token_to_id("</s>")),
-        #         ("<s>", tokenizer.token_to_id("<s>")),
-        #     )
-
-        # tokenizer.enable_truncation(max_length=block_size)
-        # tokenizer.enable_padding(length=block_size)
+        typer.echo(
+            typer.style(
+                f"Loading {self.model_type} tokenizer", fg=typer.colors.BRIGHT_YELLOW
+            )
+        )
+        tokenizer = TokenizerWrapper(
+            self.model_type,
+            tokenizer_dir_path,
+            files_list,
+            block_size,
+        ).load_tokenizer()
 
         # Wrapping files_list with tqdm to display the progress bar
-        for file_path in tqdm(files_list, desc=f"Tokenizing file: {file_path}"):
+        tqdm_iterator = tqdm(files_list, desc="Tokenizing files")
+        for file_path in tqdm_iterator:
+            tqdm_iterator.set_description(f"Tokenizing file: {file_path}")
+
             if not os.path.isfile(file_path):
                 print(f"Problem with path: {file_path}")
 

@@ -93,13 +93,29 @@ class TokenizerWrapper:
                 }
                 json.dump(tokenizer_cfg, f)
 
-    def load_tokenizer(self):
+    def get_tokenizer_paths(self):
         paths = []
-
         if self.model_type == "bert":
-
             config_path = os.path.join(self.tokenizer_dir_path, "config.json")
             vocab_path = os.path.join(self.tokenizer_dir_path, "vocab.txt")
+            paths.append(config_path)
+            paths.append(vocab_path)
+
+        else:  # roberta
+            vocab_path = os.path.join(self.tokenizer_dir_path, "vocab.json")
+            merges_path = os.path.join(self.tokenizer_dir_path, "merges.txt")
+            paths.append(vocab_path)
+            paths.append(merges_path)
+
+        return paths
+
+    def load_tokenizer(self):
+        """
+        Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
+        but modified
+        """
+        if self.model_type == "bert":
+            config_path, vocab_path = self.get_tokenizer_paths()
 
             # Load configurations
             with open(config_path, "r") as file:
@@ -112,32 +128,20 @@ class TokenizerWrapper:
                 lowercase=config["do_lower_case"],
             )
 
-            paths.append(config_path)
-            paths.append(vocab_path)
         else:  # roberta
-
-            vocab_path = os.path.join(self.tokenizer_dir_path, "vocab.json")
-            merges_path = (os.path.join(self.tokenizer_dir_path, "merges.txt"),)
-
-            # Load configurations
-            tokenizer = ByteLevelBPETokenizer(
-                vocab_path,
-                merges_path,
-            )
+            vocab_path, merges_path = self.get_tokenizer_paths()
 
             # Load tokenizer
+            tokenizer = ByteLevelBPETokenizer(vocab_path, merges_path)
             tokenizer._tokenizer.post_processor = BertProcessing(
                 ("</s>", tokenizer.token_to_id("</s>")),
                 ("<s>", tokenizer.token_to_id("<s>")),
             )
 
-            paths.append(vocab_path)
-            paths.append(merges_path)
-
         tokenizer.enable_truncation(max_length=self.block_size)
         tokenizer.enable_padding(length=self.block_size)
 
-        return paths
+        return tokenizer
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -172,7 +176,7 @@ def main(
             tokenizer_dir_path=tokenizer_dir_path,
             filepaths_dir=cleaned_files_dir_path,
             block_size=block_size,
-        ).load_tokenizer()
+        ).get_tokenizer_paths()
 
         push_tokenizer(
             curr_dir,

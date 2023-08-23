@@ -20,6 +20,7 @@ from src._01_data_preprocessing.file_analysis_helpers.compare_token_counts impor
 from src._02_tokenizer_training.main import main as train_tokenizer
 from src._03_data_reformatting.reformatter import main as reformat_files
 from src._04_path_splitting.main import main as split_paths
+from src._05_data_tokenizing_and_masking.main import main as tokenize_files
 
 load_dotenv(find_dotenv())
 
@@ -81,6 +82,16 @@ class ScriptArguments:
 
     ### SPLIT PATHS ###
     do_split_paths: bool = field(default=False)
+
+    ### TOKENIZE FILES ###
+    do_tokenize_files: bool = field(default=False)
+    paths: str = field(
+        default="train_test",
+        metadata={"help": "Which file paths to use: all, train, test, or train_test."},
+    )
+
+    ### MASK TOKENS ###
+    do_mask_tokens: bool = field(default=False)
 
     ### PUSHING DATA TO HUB ###
     do_login_first_time: bool = field(
@@ -197,6 +208,27 @@ def main():
     else:
         typer.echo(
             typer.style("Skipping the split of all paths......", fg=typer.colors.WHITE)
+        )
+
+    if script_args.do_tokenize_files:
+        typer.echo(
+            typer.style(
+                "Tokenizing the files and saving them as TFRecords...",
+                fg=typer.colors.BRIGHT_YELLOW,
+            )
+        )
+
+        tokenize_files(
+            script_args.model_type,
+            script_args.paths,
+            script_args.block_size,
+        )
+    else:
+        typer.echo(
+            typer.style(
+                "Skipping the tokenization of the files...",
+                fg=typer.colors.BRIGHT_YELLOW,
+            )
         )
 
 

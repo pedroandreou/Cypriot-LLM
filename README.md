@@ -74,39 +74,15 @@ python main.py \
 
     --do_split_paths \
 
+    --do_tokenize_files \
+    --paths train_test \
+
     --do_login_first_time
 ```
 
-
-## :runner: Training Tokenizer
-```
-cd ./src/_02_tokenizer_training
-
-python main.py \
-    --model_type bert \
-    --do_train_tokenizer \
-    --do_push_tokenizer_to_hub False
-```
 If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
 
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
-
-
-## :books: Reformat all data (using 4 or 8 sliding window) for being able to train the model
-```
-cd ./src/_03_data_reformatting
-
-python reformatter.py
-```
-
-
-## :books: Split Data
-```
-cd ./src/_04_path_splitting
-
-python main.py \
-    --do_split_paths
-```
 
 
 ## :runner: Tokenize Data

@@ -1,11 +1,10 @@
 import os
-from dataclasses import dataclass, field
-from typing import Optional
 
 import torch
-from masked_dataset import MaskedDataset
-from tokenized_dataset import LineByLineTextDataset
-from transformers import HfArgumentParser
+import typer
+
+# from masked_dataset import MaskedDataset
+from src._05_data_tokenizing_and_masking.tokenized_dataset import LineByLineTextDataset
 
 
 def fetch_txt_files(paths_type):
@@ -51,99 +50,103 @@ def save_dataset(dataset, base_path, sub_dir, key):
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-@dataclass
-class ScriptArguments:
-    model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
+def main(model_type, paths, block_size):
 
-    do_tokenize_dataset: bool = field(
-        default=False, metadata={"help": "Tokenize the dataset"}
-    )
-    paths: str = field(
-        default="train_test",
-        metadata={"help": "Which file paths to use: all, train, test, or train_test."},
-    )
-    tokenizer_dir_path: Optional[str] = field(
-        default=None,
-        metadata={"help": "Path to where the tokenizer should be exported."},
-    )
-
-    def __post_init__(self):
-        if self.tokenizer_dir_path is None:
-            self.tokenizer_dir_path = os.path.normpath(
-                os.path.join(
-                    curr_dir,
-                    "..",
-                    "_02_tokenizer_training",
-                    "trained_tokenizer_bundle",
-                    f"cy{self.model_type}",
-                )
-            )
-
-    block_size: str = field(default=512)
-
-    do_create_masked_encodings: bool = field(
-        default=False, metadata={"help": "Create train and test sets"}
-    )
-    mlm_type: str = field(
-        default="manual",
-        metadata={
-            "help": "Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'"
-        },
-    )
-    mlm_probability: float = field(
-        default=0.15,
-        metadata={"help": "Ratio of tokens to mask for masked language modeling loss"},
-    )
-
-
-def main():
-    # Parse arguments
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
-
-    if script_args.do_tokenize_dataset:
-        # key is train or test
-        # value is a list of paths
-        files_list_dict = fetch_txt_files(script_args.paths)
-        for key, files_list in files_list_dict.items():
-            print(f"Tokezining {key} files")
-
-            tokenized_dataset = LineByLineTextDataset(
-                model_type=script_args.model_type,
-                tokenizer_dir_path=script_args.tokenizer_dir_path,
-                files_list=files_list,
-                block_size=script_args.block_size,
-            )
-
-            print(f"Saving the tokenized {key} dataset...")
-            save_dataset(tokenized_dataset, "encodings", "tokenized", key)
-    else:
-        print("Skipping dataset tokenization...")
-
-    if script_args.do_create_masked_encodings:
-        print("Loading the tokenized datasets...")
-        train_dataset, test_dataset = LineByLineTextDataset().load_encodings()
-
-        print("Creating masked datasets...")
-        masked_train_dataset = MaskedDataset(
-            train_dataset,
-            script_args.model_type,
-            script_args.mlm_type,
-            script_args.mlm_probability,
+    tokenizer_dir_path = os.path.normpath(
+        os.path.join(
+            curr_dir,
+            "..",
+            "_02_tokenizer_training",
+            "trained_tokenizer_bundle",
+            f"cy{model_type}",
         )
-        masked_test_dataset = MaskedDataset(
-            test_dataset,
-            script_args.model_type,
-            script_args.mlm_type,
-            script_args.mlm_probability,
+    )
+
+    # key is train or test
+    # value is a list of paths
+    files_list_dict = fetch_txt_files(paths)
+    for key, files_list in files_list_dict.items():
+        typer.echo(
+            typer.style(f"Tokenizing {key} files", fg=typer.colors.BRIGHT_YELLOW)
         )
 
-        print("Saved masked datasets...")
-        save_dataset(masked_train_dataset, "masked_encodings", "masked", "train")
-        save_dataset(masked_test_dataset, "masked_encodings", "masked", "test")
-    else:
-        print("Skipping masked dataset creation...")
+        tokenized_dataset = LineByLineTextDataset(
+            model_type=model_type,
+            tokenizer_dir_path=tokenizer_dir_path,
+            files_list=files_list,
+            block_size=block_size,
+        )
+
+        typer.echo(
+            typer.style(
+                f"Saving the tokenized {key} dataset...", fg=typer.colors.BRIGHT_YELLOW
+            )
+        )
+        save_dataset(tokenized_dataset, "encodings", "tokenized", key)
+
+    # if script_args.do_create_masked_encodings:
+    #     print("Loading the tokenized datasets...")
+    #     train_dataset, test_dataset = LineByLineTextDataset().load_encodings()
+
+    #     print("Creating masked datasets...")
+    #     masked_train_dataset = MaskedDataset(
+    #         train_dataset,
+    #         script_args.model_type,
+    #         script_args.mlm_type,
+    #         script_args.mlm_probability,
+    #     )
+    #     masked_test_dataset = MaskedDataset(
+    #         test_dataset,
+    #         script_args.model_type,
+    #         script_args.mlm_type,
+    #         script_args.mlm_probability,
+    #     )
+
+    #     print("Saved masked datasets...")
+    #     save_dataset(masked_train_dataset, "masked_encodings", "masked", "train")
+    #     save_dataset(masked_test_dataset, "masked_encodings", "masked", "test")
+    # else:
+    #     print("Skipping masked dataset creation...")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Your script's description")
+
+    parser.add_argument(
+        "--model_type", type=str, default="bert", help="Type of model to use"
+    )
+
+    parser.add_argument(
+        "--paths",
+        type=str,
+        choices=["all", "train", "test", "train_test"],
+        default="train_test",
+        help="Which file paths to use: all, train, test, or train_test.",
+    )
+
+    parser.add_argument("--block_size", type=int, default=512, help="Block size.")
+
+    # parser.add_argument(
+    #     "--mlm_type",
+    #     type=str,
+    #     choices=["manual", "automatic"],
+    #     default="manual",
+    #     help="Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'"
+    # )
+
+    # parser.add_argument(
+    #     "--mlm_probability",
+    #     type=float,
+    #     default=0.15,
+    #     help="Ratio of tokens to mask for masked language modeling loss"
+    # )
+
+    args = parser.parse_args()
+
+    main(
+        model_type=args.model_type,
+        paths=args.paths,
+        block_size=args.block_size,
+    )
