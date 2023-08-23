@@ -34,9 +34,8 @@ pip install -r requirements.txt
 ```
 
 
-### Make a copy of the example environment variables file (this is not the virtual env; don't get confused; it's just for keeping your HuggingFace token secured)
+### Make a copy of the example environment variables file (this is not the virtual env; don't get confused)
 ```
-cd src
 xcopy .env.example .env
 ```
 
@@ -98,30 +97,6 @@ python main.py \
 If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
 
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
-
-
-## :runner: Training Model
-```
-cd ./src/_06_model_training
-
-python main.py \
-    --model_type bert \
-    --do_train_model True \
-    --trainer_type pytorch \
-    --seed 42 \
-    --vocab_size 30522 \
-    --block_size 512 \
-    --hidden_size 768 \
-    --num_attention_heads 12 \
-    --num_hidden_layers 6 \
-    --type_vocab_size 1
-```
-
-
-## :trophy: Inference
-```
-cd ./src/_07_inference
-```
 
 
 ## 🛠 Initialization & Setup
