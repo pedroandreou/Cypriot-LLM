@@ -22,7 +22,7 @@ from src._04_path_splitting.main import main as split_paths
 from src._05_data_tokenizing.main import main as tokenize_files
 from src._06_data_masking.main import main as create_masked_encodings
 from src._07_model_training.main import main as train_model
-from src._08_inference.pipeline import main as infer
+from src._08_inferencing.pipeline import main as infer
 from src.utils.common_utils import echo_with_color
 
 load_dotenv(find_dotenv())
