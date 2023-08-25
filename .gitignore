@@ -20,6 +20,9 @@
 # Content of tokenizers and models
 **/*.json
 
+# Initial configs
+!**/initial_configs/*
+
 # Dataset saved encodings
 **/*.pkl
 **/*.pth
