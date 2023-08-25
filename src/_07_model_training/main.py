@@ -68,7 +68,7 @@ def main(
     model = ModelClass(config=config).to(device)
 
     print(
-        f"Training model from scratch using {trainer_type}.capitalize() as our trainer type"
+        f"Training model from scratch using {trainer_type.capitalize()} as our trainer type"
     )
     model_path = os.path.join(curr_dir, "trained_model_bundle", f"cy{model_type}")
     if trainer_type == "pytorch":

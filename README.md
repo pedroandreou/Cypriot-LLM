@@ -80,7 +80,7 @@ python main.py \
     --mlm_type manual \
     --mlm_probability 0.15 \
 
-    --do_train_model
+    --do_train_model \
     --trainer_type pytorch \
     --seed 42 \
     --vocab_size 30522 \
