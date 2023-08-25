@@ -180,7 +180,15 @@ Where the job script is:
 
 module load Python/3.9.6-GCCcore-11.2.0
 source .venv/bin/activate
-python cybert/train.py imdb models/ distilbert-base-uncased --max-steps 12
+python src/main.py --do_merge_docs False \
+                   --do_clean_data False \
+                   --do_push_dataset_to_hub False \
+                   --do_export_csv_to_txt_files False \
+                   --do_file_analysis False \
+                   --do_train_tokenizer \
+                   --model_type bert \
+                   --block_size 512 \
+                   --do_push_tokenizer_to_hub False
 ```
 you can see the output of the logs in `train.log` and the error in `error.log`
 

@@ -18,18 +18,12 @@
 **/*.txt
 
 # Content of tokenizers and models
-**/cybert/**
-!cybert/**/.gitkeep
-**/cyroberta/**
-!cyroberta/**/.gitkeep
+**/*.json
 
 # Dataset saved encodings
 **/*.pkl
 **/*.pth
 **/test.py
-
-# Embedded HuggingFace Repo for pushing the tokenizer files
-**/huggingface/**
 
 # Inference directory
 inference/
