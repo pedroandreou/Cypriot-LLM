@@ -150,7 +150,6 @@ def main(
 
     TokenizerWrapper(
         model_type=model_type,
-        tokenizer_dir_path=tokenizer_dir_path,
         block_size=block_size,
         filepaths_dir=cleaned_files_dir_path,
     ).train_tokenizer()
@@ -160,7 +159,6 @@ def main(
 
         tokenizer_paths = TokenizerWrapper(
             model_type=model_type,
-            tokenizer_dir_path=tokenizer_dir_path,
             block_size=block_size,
         ).get_tokenizer_paths()
 

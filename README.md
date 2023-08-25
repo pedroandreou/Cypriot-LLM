@@ -119,60 +119,70 @@ Before cloning the github repo, you need to do:
 5. Try to clone your github repo in the SSH way; for example, `git clone git@github.com:MantisAI/cypriot_bert.git`, it will work.
 
 
-Create a virtual env by running:
+Transfer the dataset from your local machine to the git repo on the HPC system by downloading [WinSCP](https://winscp.net/eng/download.php).
+Follow this [documentation page](https://hpcf.cyi.ac.cy/documentation/data_transfer.html) for doing so.
+
+
+Copy the environment variables as follows and change the paths to the location that uploaded the dataset:
 ```
-module load Python/3.8.6-GCCcore-10.2.0
-make virtualenv
+cp .env.example .env
+vim .env
 ```
 
-You can run your first batch job by running
+For example in the root directory, add the dataset directory containing all the documents and also in the root directory, run `mkdir cleaned_files`
+```
+Cypriot-LLM/
+├── cleaned_files/
+├── dataset/
+├── README.md
+└── ...
+```
+and then in the `.env` file, the paths for dataset and cleaned files should be as follows:
+```
+DATASET_DIR_PATH="/nvme/h/cy22pa1/data_p156/Cypriot-LLM/dataset"
+CLEANED_FILES_DIR_PATH="/nvme/h/cy22pa1/data_p156/Cypriot-LLM/cleaned_files"
+```
+
+To make paths work, go to the root directory and run:
+```
+pip install -e .
+```
+
+Then you need to run your batch script, but for doing so, you need to do this manually on the supercomputer:
+```
+source ./.venv/bin/activate
+pip install -r requirements.xt
+```
+
+And lastly, you also need to login into your HuggingFace account:
+```
+huggingface-cli login
+```
+and enter your huggingface token by creating it with `write` access [here](https://huggingface.co/settings/tokens)
+
+Then you will be able to run your batch job by doing:
 ```
 sbatch job.sub
 ```
-you can see the output of the logs in `train.log`
 
-The super computer has two modes for running jobs
-
-- interactive
-- batch
-
-## Interactive
-
-In the interactive mode, you connect to a node and run a job by invoking a script as you would normally do. You can connect
-to a node using `salloc`, for example
-```
-salloc --nodes=1 --ntasks-per-node=8 --mem=8000
-```
-this command connects you to 1 node with 8 cpu codes and 8GB of memory.
-
-Then you can run a python script for example,
-```
-source .env/bin/activate
-python cybert/train.py imdb models/ distilbert-base-uncased --max-steps 12
-```
-
-You can leave this job running using tmux but this is not recommended for long running jobs. Instead,
-it is advised to use a batch job in those cases
-
-## Batch
-
-In batch mode, you need to write a job script that specifies the parameters we passed to `salloc` before
-invoking a script. Our `job.sub` script for example is
+Where the job script is:
 ```
 #!/bin/bash
 
 #SBATCH --job-name=test-train
+#SBATCH --partition=gpu
+#SBATCH --ntasks-per-node=1
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --account=p105
 #SBATCH --output=train.log
+#SBATCH --error=error.log
+#SBATCH -A p156
 
-module load Python/3.8.6-GCCcore-10.2.0
-source .env/bin/activate
+module load Python/3.9.6-GCCcore-11.2.0
+source .venv/bin/activate
 python cybert/train.py imdb models/ distilbert-base-uncased --max-steps 12
 ```
+you can see the output of the logs in `train.log` and the error in `error.log`
 
-Since when running batch jobs we lose access to stdout to monitor, we can pass an argument with a filepath
-to redirect the output, in this case `train.log`. This script also uses 1 GPU instead of multiple cpus.
 
 More information on how to run jobs here https://hpcf.cyi.ac.cy/documentation/running_jobs.html

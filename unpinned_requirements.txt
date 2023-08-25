@@ -8,6 +8,7 @@ transformers[torch]
 scikit-learn
 typer
 rich
+python-dotenv
+datasets
 # huggingface_hub
-# datasets
 # tqdm
