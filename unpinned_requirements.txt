@@ -1,0 +1,14 @@
+python-docx
+textract
+pdfminer.six
+PyPDF2
+nltk
+pandas
+transformers[torch]
+scikit-learn
+typer
+rich
+python-dotenv
+datasets
+# huggingface_hub
+# tqdm

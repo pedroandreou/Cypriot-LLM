@@ -16,6 +16,8 @@
 
 # Filepaths
 **/*.txt
+!requirements.txt
+!unpinned_requirements.txt
 
 # Content of tokenizers and models
 **/*.json
