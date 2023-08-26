@@ -5,42 +5,56 @@ from transformers import AdamW
 
 
 class PyTorchModelTrainer:
-    def __init__(self, train_set, test_set, device, model, model_path):
-        batch_size = 16
-        self.train_loader = torch.utils.data.DataLoader(
-            train_set,
-            batch_size=batch_size,
-            shuffle=True,
-            pin_memory=True,
-            num_workers=2,
-        )
-        self.test_loader = torch.utils.data.DataLoader(
-            test_set,
-            batch_size=2 * batch_size,
-            shuffle=False,
-            pin_memory=True,
-            num_workers=2,
-        )
+    def __init__(
+        self,
+        train_set,
+        test_set,
+        device,
+        model,
+        model_path,
+        train_batch_size,
+        eval_batch_size,
+        learning_rate,
+        num_train_epochs,
+        num_eval_epochs,
+    ):
+        self.train_set = train_set
+        self.train_set = test_set
 
         self.device = device
         self.model = model
         self.model_path = model_path
 
+        self.train_batch_size = train_batch_size
+        self.eval_batch_size = eval_batch_size
+        self.learning_rate = learning_rate
+        self.num_train_epochs = num_train_epochs
+        self.num_eval_epochs = num_eval_epochs
+
     def train(self):
         """
         PyTorch is considered as the manual way to train since it is used in combination with the manual implementation of the MLM task
-        This is because the automatic implementation of the MLM task uses a data collator which is only used with the HuggingFace API below
+        This is because the automatic implementation of the MLM task uses a data collator which is only used with the HuggingFace API
         """
 
-        self.model.train()  # Activate training mode
-        optim = AdamW(self.model.parameters(), lr=1e-4)  # Initialize optimizer
+        train_loader = torch.utils.data.DataLoader(
+            self.train_set,
+            batch_size=self.train_batch_size,
+            shuffle=True,
+            pin_memory=True,
+            num_workers=2,
+        )
 
-        epochs = 2
-        for epoch in range(epochs):
+        self.model.train()  # Activate training mode
+        optim = AdamW(
+            self.model.parameters(), lr=self.learning_rate
+        )  # Initialize optimizer
+
+        for epoch in range(self.num_train_epochs):
             losses = []
 
             # setup loop with TQDM and dataloader
-            loop = tqdm(self.train_loader, leave=True)
+            loop = tqdm(train_loader, leave=True)
             for batch in loop:
                 print(batch)
                 # initialize calculated gradients (from prev step)
@@ -70,13 +84,19 @@ class PyTorchModelTrainer:
         self.model.save_pretrained(self.model_path)
 
     def eval(self):
-        # set model to evaluation mode
-        self.model.eval()
+        test_loader = torch.utils.data.DataLoader(
+            self.test_set,
+            batch_size=self.eval_batch_size,
+            shuffle=False,
+            pin_memory=True,
+            num_workers=2,
+        )
+
+        self.model.eval()  # set model to evaluation mode
         losses = []
 
-        epochs = 10
-        for epoch in range(epochs):
-            loop = tqdm(self.test_loader, leave=True)
+        for epoch in range(self.num_eval_epochs):
+            loop = tqdm(test_loader, leave=True)
 
             # iterate over dataset
             for batch in loop:

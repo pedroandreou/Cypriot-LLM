@@ -36,11 +36,14 @@ def main(
     num_attention_heads: int,
     num_hidden_layers: int,
     type_vocab_size: int,
-    learning_rate: int,
-    max_steps: int,
-    do_login_first_time: bool,
-    huggingface_token: str,
-    huggingface_repo_name: str,
+    train_batch_size: int,
+    eval_batch_size: int,
+    learning_rate: float,
+    num_train_epochs: int,
+    num_eval_epochs: int,
+    # do_login_first_time: bool,
+    # huggingface_token: str,
+    # huggingface_repo_name: str,
 ):
     set_seed(seed)
 
@@ -78,6 +81,11 @@ def main(
             device=device,
             model=model,
             model_path=model_path,
+            train_batch_size=train_batch_size,
+            eval_batch_size=eval_batch_size,
+            learning_rate=learning_rate,
+            num_train_epochs=num_train_epochs,
+            num_eval_epochs=num_eval_epochs,
         )
         pytorch_trainer.train()
 
@@ -128,30 +136,33 @@ if __name__ == "__main__":
 
     # Training Configurations
     parser.add_argument(
-        "--learning_rate",
-        type=float,
-        default=0.01,
-        help="Learning Rate for the training",
+        "--train_batch_size", default=32, type=int, help="Training batch size."
     )
     parser.add_argument(
-        "--max_steps",
-        type=int,
-        default=1_000_000,
-        help="The Number of Training steps to perform",
+        "--eval_batch_size", default=8, type=int, help="Evaluation batch size."
+    )
+    parser.add_argument(
+        "--learning_rate", default=1e-4, type=float, help="Learning rate for training."
+    )
+    parser.add_argument(
+        "--num_train_epochs", default=3, type=int, help="Number of training epochs."
+    )
+    parser.add_argument(
+        "--num_eval_epochs", default=10, type=int, help="Number of evaluation epochs."
     )
 
-    # Other Configurations
-    parser.add_argument(
-        "--do_login_first_time",
-        action="store_true",
-        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
-    )
-    parser.add_argument(
-        "--huggingface_token", type=str, default=os.getenv("HUGGINGFACE_TOKEN")
-    )
-    parser.add_argument(
-        "--huggingface_repo_name", type=str, default=os.getenv("HUGGINGFACE_REPO_NAME")
-    )
+    # # Other Configurations
+    # parser.add_argument(
+    #     "--do_login_first_time",
+    #     action="store_true",
+    #     help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
+    # )
+    # parser.add_argument(
+    #     "--huggingface_token", type=str, default=os.getenv("HUGGINGFACE_TOKEN")
+    # )
+    # parser.add_argument(
+    #     "--huggingface_repo_name", type=str, default=os.getenv("HUGGINGFACE_REPO_NAME")
+    # )
 
     args = parser.parse_args()
 
@@ -165,9 +176,12 @@ if __name__ == "__main__":
         num_attention_heads=args.num_attention_heads,
         num_hidden_layers=args.num_hidden_layers,
         type_vocab_size=args.type_vocab_size,
+        train_batch_size=args.train_batch_size,
+        eval_batch_size=args.eval_batch_size,
         learning_rate=args.learning_rate,
-        max_steps=args.max_steps,
-        do_login_first_time=args.do_login_first_time,
-        huggingface_token=args.huggingface_token,
-        huggingface_repo_name=args.huggingface_repo_name,
+        num_train_epochs=args.num_train_epochs,
+        num_eval_epochs=args.num_eval_epochs,
+        # do_login_first_time=args.do_login_first_time,
+        # huggingface_token=args.huggingface_token,
+        # huggingface_repo_name=args.huggingface_repo_name,
     )

@@ -118,8 +118,18 @@ class ScriptArguments:
     num_attention_heads: int = field(default=12)
     num_hidden_layers: int = field(default=12)
     type_vocab_size: int = field(default=2)
-    learning_rate: float = field(default=0.01)
-    max_steps: int = field(default=1000, metadata={"help": "Max steps to train for."})
+
+    train_batch_size: int = field(default=32, metadata={"help": "Training batch size."})
+    eval_batch_size: int = field(default=8, metadata={"help": "Evaluation batch size."})
+    learning_rate: float = field(
+        default=1e-4, metadata={"help": "Learning rate for training."}
+    )
+    num_train_epochs: int = field(
+        default=3, metadata={"help": "Number of training epochs."}
+    )
+    num_eval_epochs: int = field(
+        default=10, metadata={"help": "Number of evaluation epochs."}
+    )
 
     ### INFERENCING ###
     do_inference: bool = field(default=False)
@@ -279,11 +289,14 @@ def main():
             num_attention_heads=script_args.num_attention_heads,
             num_hidden_layers=script_args.num_hidden_layers,
             type_vocab_size=script_args.type_vocab_size,
+            train_batch_size=script_args.train_batch_size,
+            eval_batch_size=script_args.eval_batch_size,
             learning_rate=script_args.learning_rate,
-            max_steps=script_args.max_steps,
-            do_login_first_time=script_args.do_login_first_time,
-            huggingface_token=script_args.huggingface_token,
-            huggingface_repo_name=script_args.huggingface_repo_name,
+            num_train_epochs=script_args.num_train_epochs,
+            num_eval_epochs=script_args.num_eval_epochs,
+            # do_login_first_time=script_args.do_login_first_time,
+            # huggingface_token=script_args.huggingface_token,
+            # huggingface_repo_name=script_args.huggingface_repo_name,
         )
 
     else:
