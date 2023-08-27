@@ -48,7 +48,7 @@ class BookReformatter:
         BUFFER_SIZE = 10000  # Adjusted to 10,000
         file_count = 0
 
-        # Calculate the total for tqdm (optional, but provides better user feedback)
+        # Calculate the total for tqdm
         total = sum(
             1
             for _ in self.flatten(

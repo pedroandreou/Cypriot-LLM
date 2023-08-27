@@ -44,7 +44,12 @@ class TokenizerWrapper:
                 lowercase=config_dict["lowercase"],
             )
         else:
-            tokenizer = ByteLevelBPETokenizer()
+            tokenizer = ByteLevelBPETokenizer(
+                clean_text=config_dict["clean_text"],
+                handle_chinese_chars=config_dict["handle_chinese_chars"],
+                strip_accents=config_dict["strip_accents"],
+                lowercase=config_dict["lowercase"],
+            )
 
         filepaths = list(glob(os.path.join(self.filepaths_dir, "*.txt")))
         echo_with_color(f"Training the {self.model_type}'s tokenizer...", color="black")
@@ -60,7 +65,10 @@ class TokenizerWrapper:
         else:
             tokenizer.train(
                 files=filepaths,
+                vocab_size=config_dict["vocab_size"],
+                limit_alphabet=config_dict["limit_alphabet"],
                 min_frequency=config_dict["min_frequency"],
+                special_tokens=config_dict["special_tokens"],
             )
 
         echo_with_color(f"Saving the {self.model_type}'s tokenizer...", color="black")
@@ -80,7 +88,7 @@ class TokenizerWrapper:
                     "cls_token": "[CLS]",
                     "mask_token": "[MASK]",
                     "model_max_length": self.block_size,
-                    "max_len": self.model_type,
+                    "max_len": self.block_size,
                 }
                 json.dump(tokenizer_cfg, f)
 
