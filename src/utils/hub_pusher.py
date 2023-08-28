@@ -50,9 +50,9 @@ def push_tokenizer(
     ]  # Exclude the username and get only the repo name
 
     # Step 2: Move the tokenizer files
-    # Assuming vocab.txt is in the current directory
     for path in tokenizer_paths:
-        shutil.move(path, f"{repository_name}/vocab.txt")
+        filename = os.path.basename(path)  # Get the filename from the path
+        shutil.move(path, f"{repository_name}/{filename}")
 
     # Step 3: Push the tokenizer to Hugging Face
     os.chdir(repository_name)
