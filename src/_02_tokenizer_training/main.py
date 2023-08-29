@@ -14,65 +14,78 @@ class TokenizerWrapper:
         self,
         model_type: str,
         block_size: int,
+        clean_text: bool,
+        handle_chinese_chars: bool,
+        strip_accents: bool,
+        lowercase: bool,
+        vocab_size: int,
+        limit_alphabet: int,
+        min_frequency: int,
         filepaths_dir: Optional[str] = None,
     ):
         self.model_type = model_type
-        self.filepaths_dir = filepaths_dir
+        self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
         self.block_size = block_size
+        self.clean_text = clean_text
+        self.handle_chinese_chars = handle_chinese_chars
+        self.strip_accents = strip_accents
+        self.lowercase = lowercase
+        self.vocab_size = vocab_size
+        self.limit_alphabet = limit_alphabet
+        self.min_frequency = min_frequency
 
         self.tokenizer_dir_path = os.path.join(
             curr_dir, "trained_tokenizer_bundle", f"cy{model_type}"
         )
 
-    def train_tokenizer(self):
+    def get_tokenizer_and_train_args(self):
+        common_tokenizer_args = {
+            "clean_text": self.clean_text,
+            "handle_chinese_chars": self.handle_chinese_chars,
+            "strip_accents": self.strip_accents,
+            "lowercase": self.lowercase,
+        }
+        common_train_args = {
+            "files": self.filepaths,
+            "vocab_size": self.vocab_size,
+            "limit_alphabet": self.limit_alphabet,
+        }
 
-        echo_with_color("Loading configurations from the JSON file...", color="black")
-        config_path = os.path.join(
-            curr_dir, "initial_configs", f"{self.model_type}_config.json"
+        if self.model_type == "bert":
+            return (
+                BertWordPieceTokenizer(**common_tokenizer_args),
+                {
+                    **common_train_args,
+                    "wordpieces_prefix": "##",
+                    "special_tokens": [
+                        "[PAD]",
+                        "[UNK]",
+                        "[CLS]",
+                        "[SEP]",
+                        "[MASK]",
+                        "<S>",
+                        "<T>",
+                    ],
+                },
+            )
+        return (
+            ByteLevelBPETokenizer(**common_tokenizer_args),
+            {
+                **common_train_args,
+                "min_frequency": self.min_frequency,
+                "special_tokens": ["<s>", "<pad>", "</s>", "<unk>", "<mask>"],
+            },
         )
-        with open(config_path, "r") as f:
-            config_dict = json.load(f)
+
+    def train_tokenizer(self):
 
         echo_with_color(
             f"Initalizing the {self.model_type}'s tokenizer...", color="black"
         )
-        if self.model_type == "bert":
-            tokenizer = BertWordPieceTokenizer(
-                clean_text=config_dict["clean_text"],
-                handle_chinese_chars=config_dict["handle_chinese_chars"],
-                strip_accents=config_dict["strip_accents"],
-                lowercase=config_dict["lowercase"],
-            )
-        else:
-            tokenizer = ByteLevelBPETokenizer(
-                clean_text=config_dict["clean_text"],
-                handle_chinese_chars=config_dict["handle_chinese_chars"],
-                strip_accents=config_dict["strip_accents"],
-                lowercase=config_dict["lowercase"],
-            )
+        tokenizer, train_args = self.get_tokenizer_and_train_args()
 
-        filepaths = list(glob(os.path.join(self.filepaths_dir, "*.txt")))
         echo_with_color(f"Training the {self.model_type}'s tokenizer...", color="black")
-
-        if self.model_type == "bert":
-            tokenizer.train(
-                files=filepaths,
-                vocab_size=config_dict["vocab_size"],
-                limit_alphabet=config_dict["limit_alphabet"],
-                wordpieces_prefix=config_dict["wordpieces_prefix"],
-                special_tokens=config_dict["special_tokens"],
-            )
-        else:
-            tokenizer.train(
-                files=filepaths,
-                vocab_size=config_dict["vocab_size"],
-                limit_alphabet=config_dict["limit_alphabet"],
-                min_frequency=config_dict["min_frequency"],
-                special_tokens=config_dict["special_tokens"],
-            )
-
-        echo_with_color(f"Saving the {self.model_type}'s tokenizer...", color="black")
-        tokenizer.save_model(self.tokenizer_dir_path)
+        tokenizer.train(**train_args)
 
         if self.model_type == "bert":
 
@@ -80,8 +93,8 @@ class TokenizerWrapper:
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
                     # "model_type": "bert", # For AutoTokenizer.from_pretrained
-                    "handle_chinese_chars": False,
-                    "do_lower_case": True,
+                    "handle_chinese_chars": self.handle_chinese_chars,
+                    "do_lower_case": self.lowercase,
                     "unk_token": "[UNK]",
                     "sep_token": "[SEP]",
                     "pad_token": "[PAD]",
@@ -150,6 +163,13 @@ def main(
     model_type,
     cleaned_files_dir_path,
     block_size,
+    clean_text,
+    handle_chinese_chars,
+    strip_accents,
+    lowercase,
+    vocab_size,
+    limit_alphabet,
+    min_frequency,
     do_push_tokenizer_to_hub,
     do_login_first_time,
     huggingface_token,
@@ -168,6 +188,13 @@ def main(
         tokenizer_paths = TokenizerWrapper(
             model_type=model_type,
             block_size=block_size,
+            clean_text=clean_text,
+            handle_chinese_chars=handle_chinese_chars,
+            strip_accents=strip_accents,
+            lowercase=lowercase,
+            vocab_size=vocab_size,
+            limit_alphabet=limit_alphabet,
+            min_frequency=min_frequency,
         ).get_tokenizer_paths()
 
         push_tokenizer(
@@ -185,6 +212,86 @@ def main(
         )
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Script parameters.")
+
+    # Basic arguments
+    parser.add_argument(
+        "--model_type", type=str, default="bert", help="Model type to use."
+    )
+    parser.add_argument("--block_size", type=int, default=512, help="Block size.")
+
+    # Tokenizer parameters
+    parser.add_argument(
+        "--clean_text", type=bool, default=True, help="Clean text during tokenization."
+    )
+    parser.add_argument(
+        "--handle_chinese_chars",
+        type=bool,
+        default=True,
+        help="Handle Chinese characters during tokenization.",
+    )
+    parser.add_argument(
+        "--strip_accents",
+        type=bool,
+        default=True,
+        help="Strip accents during tokenization.",
+    )
+    parser.add_argument(
+        "--lowercase",
+        type=bool,
+        default=True,
+        help="Convert to lowercase during tokenization.",
+    )
+    parser.add_argument(
+        "--vocab_size", type=int, default=30522, help="Vocabulary size."
+    )
+    parser.add_argument(
+        "--limit_alphabet",
+        type=int,
+        default=1000,
+        help="Maximum different characters to keep.",
+    )
+    parser.add_argument(
+        "--min_frequency",
+        type=int,
+        default=2,
+        help="Minimum frequency for a token to be included in the vocabulary.",
+    )
+
+    # Paths and tokens from environment variables
+    parser.add_argument(
+        "--cleaned_files_dir_path",
+        type=str,
+        default=os.getenv("CLEANED_FILES_DIR_PATH"),
+        help="Path to cleaned files directory.",
+    )
+    parser.add_argument(
+        "--huggingface_token",
+        type=str,
+        default=os.getenv("HUGGINGFACE_TOKEN"),
+        help="HuggingFace token.",
+    )
+    parser.add_argument(
+        "--huggingface_repo_name",
+        type=str,
+        default=os.getenv("HUGGINGFACE_REPO_NAME"),
+        help="HuggingFace repository name.",
+    )
+
+    # Flags for actions
+    parser.add_argument(
+        "--do_push_tokenizer_to_hub", action="store_true", help="Push tokenizer to hub."
+    )
+    parser.add_argument(
+        "--do_login_first_time",
+        action="store_true",
+        help="Login to the hub for the first time. Credentials will be cached afterwards.",
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -192,55 +299,19 @@ if __name__ == "__main__":
 
     load_dotenv(find_dotenv())
 
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--model_type", type=str, default="bert", help="Type of model to use"
-    )
-
-    default_cleaned_files_path = os.getenv("CLEANED_FILES_DIR_PATH")
-    parser.add_argument(
-        "--cleaned_files_dir_path", type=str, default=default_cleaned_files_path
-    )
-
-    parser.add_argument(
-        "--block_size", type=int, default=512, help="Define the block size."
-    )
-
-    parser.add_argument(
-        "--do_push_tokenizer_to_hub",
-        action="store_true",
-        help="Enable or disable pushing tokenizer to hub.",
-    )
-
-    parser.add_argument(
-        "--do_login_first_time",
-        action="store_true",
-        help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
-    )
-
-    default_huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
-    parser.add_argument(
-        "--huggingface_token",
-        type=str,
-        default=default_huggingface_token,
-        help="Token for HuggingFace.",
-    )
-
-    default_huggingface_repo_name = os.getenv("HUGGINGFACE_REPO_NAME")
-    parser.add_argument(
-        "--huggingface_repo_name",
-        type=str,
-        default=default_huggingface_repo_name,
-        help="Name of the HuggingFace repo.",
-    )
-
-    args = parser.parse_args()
+    args = parse_arguments()
 
     main(
         args.model_type,
         args.cleaned_files_dir_path,
         args.block_size,
+        args.clean_text,
+        args.handle_chinese_chars,
+        args.strip_accents,
+        args.lowercase,
+        args.vocab_size,
+        args.limit_alphabet,
+        args.min_frequency,
         args.do_push_tokenizer_to_hub,
         args.do_login_first_time,
         args.huggingface_token,

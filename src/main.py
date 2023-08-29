@@ -51,6 +51,11 @@ class ScriptArguments:
         default=False, metadata={"help": "Enable or disable push to hub."}
     )
 
+    ### DO FILE ANALYSIS ###
+    do_file_analysis: bool = field(
+        default=False, metadata={"help": "Enable or disable file analysis."}
+    )
+
     ### EXPORTING CSV TO TXT FILES ###
     do_export_csv_to_txt_files: bool = field(
         default=False,
@@ -59,11 +64,6 @@ class ScriptArguments:
     cleaned_files_dir_path: Optional[str] = field(
         default=os.getenv("CLEANED_FILES_DIR_PATH"),
         metadata={"help": "Path to the directory for cleaned files"},
-    )
-
-    ### DO FILE ANALYSIS ###
-    do_file_analysis: bool = field(
-        default=False, metadata={"help": "Enable or disable file analysis."}
     )
 
     ### DO TOKENIZER TRAINING ###
@@ -175,6 +175,16 @@ def main():
     else:
         echo_with_color("Skipping data cleaning.", color="red")
 
+    ### FILE ANALYSIS ###
+    if script_args.do_file_analysis:
+        echo_with_color("Calculating file capacities...", color="green")
+        calculate_file_capacities()
+
+        echo_with_color("Comparing token counts...", color="green")
+        compare_token_counts()
+    else:
+        echo_with_color("Skipping file analysis...", color="green")
+
     ### EXPORTING CSV TO TXT FILES ###
     if script_args.do_export_csv_to_txt_files:
         echo_with_color("Exporting CSV to txt files...", color="blue")
@@ -187,16 +197,6 @@ def main():
         )
     else:
         echo_with_color("Skipping export of CSV to txt files...", color="blue")
-
-    ### FILE ANALYSIS ###
-    if script_args.do_file_analysis:
-        echo_with_color("Calculating file capacities...", color="green")
-        calculate_file_capacities()
-
-        echo_with_color("Comparing token counts...", color="green")
-        compare_token_counts()
-    else:
-        echo_with_color("Skipping file analysis...", color="green")
 
     ### TOKENIZER TRAINING ###
     if script_args.do_train_tokenizer:

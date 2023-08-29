@@ -52,7 +52,7 @@ class MaskedDataset(Dataset):
         ):  # Loop over each tensor in the dataset
             input_ids = self.encodings[i]
             attention_mask = (input_ids != 0).long()
-            labels = input_ids.detach().clone()
+            labels = input_ids
 
             encodings_dict = {
                 "input_ids": input_ids,
@@ -60,7 +60,10 @@ class MaskedDataset(Dataset):
                 "labels": labels,
             }
 
-            masked_encodings = self.process_batch(encodings_dict)
+            if self.mlm_type == "manual":
+                masked_encodings = self.manual_mlm(encodings_dict)
+            else:  # automatic
+                masked_encodings = self.automatic_mlm(encodings_dict)
 
             for key in masked_encodings:
                 masked_encodings_list[key].append(masked_encodings[key])
@@ -71,16 +74,10 @@ class MaskedDataset(Dataset):
 
         return masked_encodings_list
 
-    def process_batch(self, data):
-        if self.mlm_type == "manual":
-            return self.manual_mlm(data)
-        else:
-            return self.automatic_mlm(data)
-
-    def manual_mlm(self, data):
-        input_ids = data["input_ids"]
-        attention_mask = data["attention_mask"]
-        labels = data["labels"]
+    def manual_mlm(self, batch):
+        mask = torch.tensor(batch["attention_mask"])
+        labels = torch.tensor(batch["input_ids"])
+        input_ids = labels.detach().clone()
 
         # create random array of floats with equal dims to input_ids
         rand = torch.rand(input_ids.shape)
@@ -89,28 +86,31 @@ class MaskedDataset(Dataset):
         if self.model_type == "bert":
             mask_arr = (
                 (rand < self.mlm_probability)
-                & (input_ids != 0)
-                & (input_ids != 1)
-                & (input_ids != 2)
+                * (input_ids != 0)
+                * (input_ids != 1)
+                * (input_ids != 2)
             )
         else:
             mask_arr = (
                 (rand < self.mlm_probability)
-                & (input_ids != 100)
-                & (input_ids != 101)
-                & (input_ids != 102)  # not sure for the 100
+                * (input_ids != 100)
+                * (input_ids != 101)
+                * (input_ids != 102)  # not sure for the 100
             )
 
-        selection = torch.flatten(mask_arr.nonzero()).tolist()
+        for i in range(input_ids.shape[0]):
+            # get indices of mask positions from mask array
+            selection = torch.flatten(mask_arr[i].nonzero()).tolist()
 
-        if self.model_type == "bert":
-            input_ids[selection] = 3
-        else:
-            input_ids[selection] = 103
+            # mask input ids
+            if self.model_type == "bert":
+                input_ids[i, selection] = 3
+            else:
+                input_ids[i, selection] = 103
 
         return {
             "input_ids": input_ids,
-            "attention_mask": attention_mask,
+            "attention_mask": mask,
             "labels": labels,
         }
 

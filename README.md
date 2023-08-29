@@ -59,13 +59,25 @@ python main.py \
     --do_clean_data \
     --do_push_dataset_to_hub \
 
-    --do_export_csv_to_txt_files \
-
     --do_file_analysis \
+
+    --do_export_csv_to_txt_files \
 
     --do_train_tokenizer \
     --model_type bert \
     --block_size 512 \
+    --clean_text True \
+    --handle_chinese_chars False \
+    --strip_accents False \
+    --lowercase True \
+    --vocab_size 30522 \
+    --limit_alphabet 1000 \
+
+    vocab_size=config_dict["vocab_size"],
+    limit_alphabet=config_dict["limit_alphabet"],
+    special_tokens=config_dict["special_tokens"],
+
+
     --do_push_tokenizer_to_hub \
 
     --do_reformat_files \
@@ -172,11 +184,11 @@ Where the job script is:
 ```
 #!/bin/bash
 
-#SBATCH --job-name=train-w-8-cores
+#SBATCH --job-name=train-w-8-coresW
 #SBATCH --partition=gpu
 #SBATCH --ntasks-per-node=8
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:1W
 #SBATCH --output=train.log
 #SBATCH --error=error.log
 #SBATCH --time=24:00:00
@@ -191,17 +203,17 @@ if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
             --do_merge_docs
 
 else if [ $SLURM_ARRAY_TASK_ID -eq 2 ]; then
-    python main.py \
+    python main.py \W
             --do_clean_data
             # --do_push_dataset_to_hub
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 3 ]; then
+else if [ $SLURM_ARRAY_TASK_ID -eq 3 ]; thenW
     python main.py \
-            --do_export_csv_to_txt_files
+            --do_file_analysis
 
 else if [ $SLURM_ARRAY_TASK_ID -eq 4 ]; then
     python main.py \
-            --do_file_analysis
+            --do_export_csv_to_txt_files
 
 else if [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
     python main.py \
@@ -253,7 +265,7 @@ else if [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
 else if [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
     python main.py \
             --model_type bert \
-            # --mlm_type manual \ # to be defined
+            # --model_path \ # to be defined
             --block_size 512
 
 fi

@@ -48,11 +48,22 @@ def main(model_type, paths, block_size):
     for key, files_list in files_list_dict.items():
         echo_with_color("Tokenizing {key} files", color="bright_yellow")
 
+        if files_list:  # Check if the list is not empty
+            first_path = files_list[0]
+            print(first_path)
+        else:
+            print(f"No files found for key: {key}")
+
         tokenized_dataset = LineByLineTextDataset(
             model_type=model_type,
             files_list=files_list,
             block_size=block_size,
         )
+
+        print("the file path for ", files_list[0], "is: \n", tokenized_dataset[0])
+        print("the file path for ", files_list[1], "is: \n", tokenized_dataset[1])
+        print("the file path for ", files_list[2], "is: \n", tokenized_dataset[2])
+        exit()
 
         echo_with_color(f"Saving the tokenized {key} dataset...", color="bright_yellow")
         save_dataset(curr_dir, tokenized_dataset, "encodings", "tokenized", key)
