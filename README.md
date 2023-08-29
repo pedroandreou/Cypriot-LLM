@@ -72,12 +72,7 @@ python main.py \
     --lowercase True \
     --vocab_size 30522 \
     --limit_alphabet 1000 \
-
-    vocab_size=config_dict["vocab_size"],
-    limit_alphabet=config_dict["limit_alphabet"],
-    special_tokens=config_dict["special_tokens"],
-
-
+    --min_frequency 2 \
     --do_push_tokenizer_to_hub \
 
     --do_reformat_files \

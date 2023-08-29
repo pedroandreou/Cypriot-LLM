@@ -70,6 +70,13 @@ class ScriptArguments:
     do_train_tokenizer: bool = field(default=False)
     model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
     block_size: int = field(default=512, metadata={"help": "Define the block size."})
+    clean_text: bool = True
+    handle_chinese_chars: bool = False
+    strip_accents: bool = False
+    lowercase: bool = True
+    vocab_size: int = 30522
+    limit_alphabet: int = 1000
+    min_frequency: int = 2
 
     do_push_tokenizer_to_hub: bool = field(
         default=False, metadata={"help": "Enable or disable pushing tokenizer to hub."}
@@ -206,6 +213,13 @@ def main():
             script_args.model_type,
             script_args.cleaned_files_dir_path,
             script_args.block_size,
+            script_args.clean_text,
+            script_args.handle_chinese_chars,
+            script_args.strip_accents,
+            script_args.lowercase,
+            script_args.vocab_size,
+            script_args.limit_alphabet,
+            script_args.min_frequency,
             script_args.do_push_tokenizer_to_hub,
             script_args.do_login_first_time,
             script_args.huggingface_token,

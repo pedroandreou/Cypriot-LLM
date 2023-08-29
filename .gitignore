@@ -26,12 +26,7 @@
 !**/initial_configs/*
 
 # Dataset saved encodings
-**/*.pkl
 **/*.pth
-**/test.py
 
 # Inference directory
 inference/
-
-# Experimentation
-break_file

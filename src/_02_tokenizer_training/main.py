@@ -24,7 +24,6 @@ class TokenizerWrapper:
         filepaths_dir: Optional[str] = None,
     ):
         self.model_type = model_type
-        self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
         self.block_size = block_size
         self.clean_text = clean_text
         self.handle_chinese_chars = handle_chinese_chars
@@ -33,6 +32,8 @@ class TokenizerWrapper:
         self.vocab_size = vocab_size
         self.limit_alphabet = limit_alphabet
         self.min_frequency = min_frequency
+
+        self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
 
         self.tokenizer_dir_path = os.path.join(
             curr_dir, "trained_tokenizer_bundle", f"cy{model_type}"
@@ -87,8 +88,8 @@ class TokenizerWrapper:
         echo_with_color(f"Training the {self.model_type}'s tokenizer...", color="black")
         tokenizer.train(**train_args)
 
+        # Save BERT's files to disk
         if self.model_type == "bert":
-
             config_path = os.path.join(self.tokenizer_dir_path, "config.json")
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
