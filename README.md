@@ -88,8 +88,11 @@ python main.py \
     --num_attention_heads 12 \
     --num_hidden_layers 6  \
     --type_vocab_size 1 \
+    --train_batch_size 8 \
+    --eval_batch_size 8 \
     --learning_rate 0.01 \
-    --max_steps 1_000_000 \
+    --num_train_epochs 2 \
+    --num_eval_epochs 10 \
 
     --do_login_first_time
 ```
@@ -162,33 +165,98 @@ and enter your huggingface token by creating it with `write` access [here](https
 
 Then you will be able to run your batch job by doing:
 ```
-sbatch job.sub
+sbatch --array=1-2-3-4-5-6-7-8 job.sub
 ```
 
 Where the job script is:
 ```
 #!/bin/bash
 
-#SBATCH --job-name=test-train
+#SBATCH --job-name=train-w-8-cores
 #SBATCH --partition=gpu
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=8
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
 #SBATCH --output=train.log
 #SBATCH --error=error.log
+#SBATCH --time=24:00:00
 #SBATCH -A p156
 
 module load Python/3.9.6-GCCcore-11.2.0
 source .venv/bin/activate
-python src/main.py --do_merge_docs False \
-                   --do_clean_data False \
-                   --do_push_dataset_to_hub False \
-                   --do_export_csv_to_txt_files False \
-                   --do_file_analysis False \
-                   --do_train_tokenizer \
-                   --model_type bert \
-                   --block_size 512 \
-                   --do_push_tokenizer_to_hub False
+cd src
+
+if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
+    python main.py \
+            --do_merge_docs
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 2 ]; then
+    python main.py \
+            --do_clean_data
+            # --do_push_dataset_to_hub
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 3 ]; then
+    python main.py \
+            --do_export_csv_to_txt_files
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 4 ]; then
+    python main.py \
+            --do_file_analysis
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
+    python main.py \
+            --do_train_tokenizer \
+           --model_type bert \
+           --block_size 512
+           # --do_push_tokenizer_to_hub \
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 6 ]; then
+    python main.py \
+            --do_reformat_files \
+            --sliding_window_size 8
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 7 ]; then
+    python main.py \
+            --do_split_paths
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
+    python main.py \
+            --do_tokenize_files \
+            --model_type bert \
+            --paths train_test \
+            --block_size 512
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
+    python main.py \
+            --do_create_masked_encodings \
+            --mlm_type manual \
+            --mlm_probability 0.15
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
+    python main.py \
+            --do_train_model \
+            --model_type bert \
+            --trainer_type pytorch \
+            --seed 42 \
+            --vocab_size 30522 \
+            --block_size 512 \
+            --hidden_size 768 \
+            --num_attention_heads 12 \
+            --num_hidden_layers 6  \
+            --type_vocab_size 1 \
+            --train_batch_size 8 \
+            --eval_batch_size 8 \
+            --learning_rate 0.01 \
+            --num_train_epochs 2 \
+            --num_eval_epochs 10
+
+else if [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
+    python main.py \
+            --model_type bert \
+            # --mlm_type manual \ # to be defined
+            --block_size 512
+
+fi
 ```
 you can see the output of the logs in `train.log` and the error in `error.log`
 
