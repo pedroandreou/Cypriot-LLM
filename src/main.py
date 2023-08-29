@@ -61,6 +61,10 @@ class ScriptArguments:
         default=False,
         metadata={"help": "Enable or disable export of CSV to txt files."},
     )
+    do_load_dataset_from_hub: bool = field(
+        default=False,
+        metadata={"help": "Determine if dataset should be loaded from hub or locally."},
+    )
     cleaned_files_dir_path: Optional[str] = field(
         default=os.getenv("CLEANED_FILES_DIR_PATH"),
         metadata={"help": "Path to the directory for cleaned files"},
@@ -70,10 +74,10 @@ class ScriptArguments:
     do_train_tokenizer: bool = field(default=False)
     model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
     block_size: int = field(default=512, metadata={"help": "Define the block size."})
-    clean_text: bool = True
-    handle_chinese_chars: bool = False
-    strip_accents: bool = False
-    lowercase: bool = True
+    clean_text: bool = field(default=True)
+    handle_chinese_chars: bool = field(default=False)
+    strip_accents: bool = field(default=False)
+    lowercase: bool = field(default=True)
     vocab_size: int = 30522
     limit_alphabet: int = 1000
     min_frequency: int = 2
@@ -198,6 +202,7 @@ def main():
 
         export_csv_to_txt_files(
             script_args.cleaned_files_dir_path,
+            script_args.do_load_dataset_from_hub,
             script_args.do_login_first_time,
             script_args.huggingface_token,
             script_args.huggingface_repo_name,

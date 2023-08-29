@@ -97,17 +97,12 @@ def main(cleaned_files_dir_path, sliding_window_size):
     reformatter.reformat_all_books()
 
 
-if __name__ == "__main__":
-    import argparse
-
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
-    parser = argparse.ArgumentParser()
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Script parameters.")
 
     parser.add_argument(
         "--cleaned_files_dir_path",
+        type=str,
         default=os.getenv("CLEANED_FILES_DIR_PATH"),
         help="The path where all the cleaned files are stored.",
     )
@@ -119,6 +114,16 @@ if __name__ == "__main__":
         help="Size of the sliding window for processing data.",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
+    args = parse_arguments()
 
     main(args.cleaned_files_dir_path, args.sliding_window_size)

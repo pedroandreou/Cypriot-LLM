@@ -62,6 +62,7 @@ python main.py \
     --do_file_analysis \
 
     --do_export_csv_to_txt_files \
+    --do_load_dataset_from_hub \
 
     --do_train_tokenizer \
     --model_type bert \

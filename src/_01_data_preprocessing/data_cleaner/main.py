@@ -87,26 +87,21 @@ def main(
         )
 
 
-if __name__ == "__main__":
-    import argparse
-
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
+def parse_arguments():
     parser = argparse.ArgumentParser()
 
+    # Dataset push and login arguments
     parser.add_argument(
         "--do_push_dataset_to_hub",
         type=bool,
         default=False,
-        help="Enable or disable push to hub.",
+        help="Enable or disable push to hub. Accepts: True/False. Default is False.",
     )
     parser.add_argument(
         "--do_login_first_time",
         type=bool,
         default=False,
-        help="Toggle first-time login.",
+        help="Toggle first-time login. Accepts: True/False. Default is False.",
     )
     parser.add_argument(
         "--huggingface_token",
@@ -121,7 +116,17 @@ if __name__ == "__main__":
         help="Name of the Hugging Face dataset repository.",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
+    args = parse_arguments()
 
     main(
         args.do_push_dataset_to_hub,

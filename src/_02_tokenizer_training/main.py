@@ -224,25 +224,28 @@ def parse_arguments():
 
     # Tokenizer parameters
     parser.add_argument(
-        "--clean_text", type=bool, default=True, help="Clean text during tokenization."
+        "--clean_text",
+        type=bool,
+        default=True,
+        help="Clean text during tokenization. Accepts: True/False. Default is True.",
     )
     parser.add_argument(
         "--handle_chinese_chars",
         type=bool,
         default=True,
-        help="Handle Chinese characters during tokenization.",
+        help="Handle Chinese characters during tokenization. Accepts: True/False. Default is True.",
     )
     parser.add_argument(
         "--strip_accents",
         type=bool,
         default=True,
-        help="Strip accents during tokenization.",
+        help="Strip accents during tokenization. Accepts: True/False. Default is True.",
     )
     parser.add_argument(
         "--lowercase",
         type=bool,
         default=True,
-        help="Convert to lowercase during tokenization.",
+        help="Convert to lowercase during tokenization. Accepts: True/False. Default is True.",
     )
     parser.add_argument(
         "--vocab_size", type=int, default=30522, help="Vocabulary size."
@@ -282,12 +285,16 @@ def parse_arguments():
 
     # Flags for actions
     parser.add_argument(
-        "--do_push_tokenizer_to_hub", action="store_true", help="Push tokenizer to hub."
+        "--do_push_tokenizer_to_hub",
+        type=bool,
+        default=False,
+        help="Whether or not to push tokenizer to the hub. Provide a boolean value (e.g., True/False, Yes/No).",
     )
     parser.add_argument(
         "--do_login_first_time",
-        action="store_true",
-        help="Login to the hub for the first time. Credentials will be cached afterwards.",
+        type=bool,
+        default=False,
+        help="Whether to login to the hub for the first time. Credentials will be cached afterwards. Provide a boolean value (e.g., True/False, Yes/No).",
     )
 
     return parser.parse_args()

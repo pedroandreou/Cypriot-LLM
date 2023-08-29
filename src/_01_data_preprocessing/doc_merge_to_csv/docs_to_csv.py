@@ -112,14 +112,8 @@ def main(data_path):
     df.to_csv(output_file, index=False)
 
 
-if __name__ == "__main__":
-    import argparse
-
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
-    parser = argparse.ArgumentParser()
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Script parameters.")
 
     parser.add_argument(
         "--data_path",
@@ -128,6 +122,16 @@ if __name__ == "__main__":
         help="Path to the dataset directory.",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
+    args = parse_arguments()
 
     main(args.data_path)

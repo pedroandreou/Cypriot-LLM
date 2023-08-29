@@ -105,14 +105,10 @@ def main(
     # Should allow pushing the model to the hub here
 
 
-if __name__ == "__main__":
-    import argparse
-
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
-    parser = argparse.ArgumentParser()
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Arguments for model setup and training."
+    )
 
     # Model
     parser.add_argument(
@@ -151,7 +147,6 @@ if __name__ == "__main__":
         "--num_eval_epochs", default=10, type=int, help="Number of evaluation epochs."
     )
 
-    # # Other Configurations
     # parser.add_argument(
     #     "--do_login_first_time",
     #     action="store_true",
@@ -164,7 +159,17 @@ if __name__ == "__main__":
     #     "--huggingface_repo_name", type=str, default=os.getenv("HUGGINGFACE_REPO_NAME")
     # )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+
+    args = parse_arguments()
 
     main(
         model_type=args.model_type,

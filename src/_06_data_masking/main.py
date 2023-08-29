@@ -31,10 +31,10 @@ def main(model_type, mlm_type, mlm_probability):
     save_dataset(curr_dir, masked_test_dataset, "masked_encodings", "masked", "test")
 
 
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Arguments for model setup and data handling."
+    )
 
     parser.add_argument(
         "--model_type", type=str, default="bert", help="Type of model to use"
@@ -45,17 +45,23 @@ if __name__ == "__main__":
         type=str,
         choices=["manual", "automatic"],
         default="manual",
-        help="Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'",
+        help="Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'.",
     )
 
     parser.add_argument(
         "--mlm_probability",
         type=float,
         default=0.15,
-        help="Ratio of tokens to mask for masked language modeling loss",
+        help="Ratio of tokens to mask.",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    args = parse_arguments()
 
     main(
         model_type=args.model_type,
