@@ -36,10 +36,10 @@ def main(model_type: str, model_path: str, block_size: int):
         loaded_model = RobertaForMaskedLM.from_pretrained(model_path)
 
     echo_with_color("Loading the saved tokenizer...", color="bright_white")
-    loaded_tokenizer = TokenizerWrapper(
+    loaded_tokenizer = TokenizerWrapper().load_tokenizer(
         model_type,
         block_size,
-    ).load_tokenizer()
+    )
 
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_tokenizer)
 

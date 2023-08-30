@@ -67,10 +67,10 @@ python main.py \
     --do_train_tokenizer \
     --model_type bert \
     --block_size 512 \
-    --clean_text True \
+    --clean_text \
     --handle_chinese_chars False \
     --strip_accents False \
-    --lowercase True \
+    --lowercase \
     --vocab_size 30522 \
     --limit_alphabet 1000 \
     --min_frequency 2 \

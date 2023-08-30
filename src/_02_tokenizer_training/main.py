@@ -1,7 +1,6 @@
 import json
 import os
 from glob import glob
-from typing import Optional
 
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
@@ -21,7 +20,55 @@ class TokenizerWrapper:
         vocab_size: int,
         limit_alphabet: int,
         min_frequency: int,
-        filepaths_dir: Optional[str] = None,
+        filepaths_dir: str,
+    ):
+        if all(
+            arg is None
+            for arg in (
+                model_type,
+                block_size,
+                clean_text,
+                handle_chinese_chars,
+                strip_accents,
+                lowercase,
+                vocab_size,
+                limit_alphabet,
+                min_frequency,
+                filepaths_dir,
+            )
+        ):
+            self.default_constructor()
+        else:
+            self.parameterized_constructor(
+                model_type,
+                block_size,
+                clean_text,
+                handle_chinese_chars,
+                strip_accents,
+                lowercase,
+                vocab_size,
+                limit_alphabet,
+                min_frequency,
+                filepaths_dir,
+            )
+
+    def default_constructor(self):
+        print(
+            "Using default constructor. This instance is meant for loading the tokenizer only."
+        )
+
+    def parameterized_constructor(
+        self,
+        model_type,
+        block_size,
+        clean_text,
+        handle_chinese_chars,
+        strip_accents,
+        lowercase,
+        vocab_size,
+        limit_alphabet,
+        min_frequency,
+        filepaths_dir,
     ):
         self.model_type = model_type
         self.block_size = block_size
@@ -35,62 +82,59 @@ class TokenizerWrapper:
 
         self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
 
-        self.tokenizer_dir_path = os.path.join(
-            curr_dir, "trained_tokenizer_bundle", f"cy{model_type}"
-        )
+    def train_tokenizer(self):
+        def get_tokenizer_and_train_args(self):
+            common_tokenizer_args = {
+                "clean_text": self.clean_text,
+                "handle_chinese_chars": self.handle_chinese_chars,
+                "strip_accents": self.strip_accents,
+                "lowercase": self.lowercase,
+            }
+            common_train_args = {
+                "files": self.filepaths,
+                "vocab_size": self.vocab_size,
+                "limit_alphabet": self.limit_alphabet,
+            }
 
-    def get_tokenizer_and_train_args(self):
-        common_tokenizer_args = {
-            "clean_text": self.clean_text,
-            "handle_chinese_chars": self.handle_chinese_chars,
-            "strip_accents": self.strip_accents,
-            "lowercase": self.lowercase,
-        }
-        common_train_args = {
-            "files": self.filepaths,
-            "vocab_size": self.vocab_size,
-            "limit_alphabet": self.limit_alphabet,
-        }
-
-        if self.model_type == "bert":
+            if self.model_type == "bert":
+                return (
+                    BertWordPieceTokenizer(**common_tokenizer_args),
+                    {
+                        **common_train_args,
+                        "wordpieces_prefix": "##",
+                        "special_tokens": [
+                            "[PAD]",
+                            "[UNK]",
+                            "[CLS]",
+                            "[SEP]",
+                            "[MASK]",
+                            "<S>",
+                            "<T>",
+                        ],
+                    },
+                )
             return (
-                BertWordPieceTokenizer(**common_tokenizer_args),
+                ByteLevelBPETokenizer(**common_tokenizer_args),
                 {
                     **common_train_args,
-                    "wordpieces_prefix": "##",
-                    "special_tokens": [
-                        "[PAD]",
-                        "[UNK]",
-                        "[CLS]",
-                        "[SEP]",
-                        "[MASK]",
-                        "<S>",
-                        "<T>",
-                    ],
+                    "min_frequency": self.min_frequency,
+                    "special_tokens": ["<s>", "<pad>", "</s>", "<unk>", "<mask>"],
                 },
             )
-        return (
-            ByteLevelBPETokenizer(**common_tokenizer_args),
-            {
-                **common_train_args,
-                "min_frequency": self.min_frequency,
-                "special_tokens": ["<s>", "<pad>", "</s>", "<unk>", "<mask>"],
-            },
-        )
-
-    def train_tokenizer(self):
 
         echo_with_color(
             f"Initalizing the {self.model_type}'s tokenizer...", color="black"
         )
-        tokenizer, train_args = self.get_tokenizer_and_train_args()
+        tokenizer, train_args = get_tokenizer_and_train_args()
 
         echo_with_color(f"Training the {self.model_type}'s tokenizer...", color="black")
         tokenizer.train(**train_args)
 
         # Save BERT's files to disk
         if self.model_type == "bert":
-            config_path = os.path.join(self.tokenizer_dir_path, "config.json")
+            config_path = os.path.join(
+                self.tokenizer_dir_path, f"cy{self.model_type}", "config.json"
+            )
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
                     # "model_type": "bert", # For AutoTokenizer.from_pretrained
@@ -106,29 +150,38 @@ class TokenizerWrapper:
                 }
                 json.dump(tokenizer_cfg, f)
 
-    def get_tokenizer_paths(self):
+    def get_tokenizer_paths(self, model_type):
         paths = []
         if self.model_type == "bert":
-            config_path = os.path.join(self.tokenizer_dir_path, "config.json")
-            vocab_path = os.path.join(self.tokenizer_dir_path, "vocab.txt")
+            config_path = os.path.join(
+                self.tokenizer_dir_path, f"cy{model_type}", "config.json"
+            )
+            vocab_path = os.path.join(
+                self.tokenizer_dir_path, f"cy{model_type}", "vocab.txt"
+            )
             paths.append(config_path)
             paths.append(vocab_path)
 
         else:  # roberta
-            vocab_path = os.path.join(self.tokenizer_dir_path, "vocab.json")
-            merges_path = os.path.join(self.tokenizer_dir_path, "merges.txt")
+            vocab_path = os.path.join(
+                self.tokenizer_dir_path, f"cy{model_type}", "vocab.json"
+            )
+            merges_path = os.path.join(
+                self.tokenizer_dir_path, f"cy{model_type}", "merges.txt"
+            )
             paths.append(vocab_path)
             paths.append(merges_path)
 
         return paths
 
-    def load_tokenizer(self):
+    def load_tokenizer(self, model_type, block_size):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
         """
-        if self.model_type == "bert":
-            config_path, vocab_path = self.get_tokenizer_paths()
+
+        if model_type == "bert":
+            config_path, vocab_path = self.get_tokenizer_paths(model_type)
 
             # Load configurations
             with open(config_path, "r") as file:
@@ -142,7 +195,7 @@ class TokenizerWrapper:
             )
 
         else:  # roberta
-            vocab_path, merges_path = self.get_tokenizer_paths()
+            vocab_path, merges_path = self.get_tokenizer_paths(model_type)
 
             # Load tokenizer
             tokenizer = ByteLevelBPETokenizer(vocab_path, merges_path)
@@ -151,13 +204,14 @@ class TokenizerWrapper:
                 ("<s>", tokenizer.token_to_id("<s>")),
             )
 
-        tokenizer.enable_truncation(max_length=self.block_size)
-        tokenizer.enable_padding(length=self.block_size)
+        tokenizer.enable_truncation(max_length=block_size)
+        tokenizer.enable_padding(length=block_size)
 
         return tokenizer
 
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
+tokenizer_dir_path = os.path.join(curr_dir, "trained_tokenizer_bundle")
 
 
 def main(
@@ -180,23 +234,23 @@ def main(
     TokenizerWrapper(
         model_type=model_type,
         block_size=block_size,
+        clean_text=clean_text,
+        handle_chinese_chars=handle_chinese_chars,
+        strip_accents=strip_accents,
+        lowercase=lowercase,
+        vocab_size=vocab_size,
+        limit_alphabet=limit_alphabet,
+        min_frequency=min_frequency,
         filepaths_dir=cleaned_files_dir_path,
     ).train_tokenizer()
 
     if do_push_tokenizer_to_hub:
         from utils.hub_pusher import push_tokenizer
 
-        tokenizer_paths = TokenizerWrapper(
-            model_type=model_type,
-            block_size=block_size,
-            clean_text=clean_text,
-            handle_chinese_chars=handle_chinese_chars,
-            strip_accents=strip_accents,
-            lowercase=lowercase,
-            vocab_size=vocab_size,
-            limit_alphabet=limit_alphabet,
-            min_frequency=min_frequency,
-        ).get_tokenizer_paths()
+        # Normally we push the whole tokenizer
+        # but since we are using 'tokenizers' instead of 'transformers' library
+        # we need to push the files manually
+        tokenizer_paths = TokenizerWrapper().get_tokenizer_paths(model_type)
 
         push_tokenizer(
             curr_dir,

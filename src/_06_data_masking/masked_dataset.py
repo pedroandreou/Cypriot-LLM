@@ -16,11 +16,9 @@ class MaskedDataset(Dataset):
     ):
         self.masked_encodings = None
 
-        if (
-            tokenized_dataset is None
-            and model_type is None
-            and mlm_type is None
-            and mlm_probability is None
+        if all(
+            arg is None
+            for arg in (tokenized_dataset, model_type, mlm_type, mlm_probability)
         ):
             self.default_constructor()
         else:

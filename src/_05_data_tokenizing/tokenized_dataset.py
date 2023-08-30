@@ -21,7 +21,7 @@ class LineByLineTextDataset(Dataset):
         files_list: list = None,
         block_size: str = None,
     ):
-        if model_type is None and files_list is None and block_size is None:
+        if all(arg is None for arg in (model_type, files_list, block_size)):
             self.default_constructor()
         else:
             self.parameterized_constructor(model_type, files_list, block_size)
@@ -43,10 +43,10 @@ class LineByLineTextDataset(Dataset):
         self.examples = []
 
         echo_with_color(f"Loading {self.model_type} tokenizer", color="bright_yellow")
-        tokenizer = TokenizerWrapper(
+        tokenizer = TokenizerWrapper().load_tokenizer(
             self.model_type,
             block_size,
-        ).load_tokenizer()
+        )
 
         # Wrapping files_list with tqdm to display the progress bar
         tqdm_iterator = tqdm(files_list, desc="Tokenizing files")
