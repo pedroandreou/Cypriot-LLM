@@ -82,59 +82,69 @@ class TokenizerWrapper:
 
         self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
 
-    def train_tokenizer(self):
-        def get_tokenizer_and_train_args(self):
-            common_tokenizer_args = {
-                "clean_text": self.clean_text,
-                "handle_chinese_chars": self.handle_chinese_chars,
-                "strip_accents": self.strip_accents,
-                "lowercase": self.lowercase,
-            }
-            common_train_args = {
-                "files": self.filepaths,
-                "vocab_size": self.vocab_size,
-                "limit_alphabet": self.limit_alphabet,
-            }
+    def get_tokenizer_and_train_args(self):
+        common_tokenizer_args = {
+            "lowercase": self.lowercase,
+        }
+        common_train_args = {
+            "files": self.filepaths,
+            "vocab_size": self.vocab_size,
+        }
 
-            if self.model_type == "bert":
-                return (
-                    BertWordPieceTokenizer(**common_tokenizer_args),
-                    {
-                        **common_train_args,
-                        "wordpieces_prefix": "##",
-                        "special_tokens": [
-                            "[PAD]",
-                            "[UNK]",
-                            "[CLS]",
-                            "[SEP]",
-                            "[MASK]",
-                            "<S>",
-                            "<T>",
-                        ],
-                    },
-                )
+        if self.model_type == "bert":
             return (
-                ByteLevelBPETokenizer(**common_tokenizer_args),
+                BertWordPieceTokenizer(
+                    **common_tokenizer_args,
+                    clean_text=self.clean_text,
+                    handle_chinese_chars=self.handle_chinese_chars,
+                    strip_accents=self.strip_accents,
+                ),
                 {
                     **common_train_args,
-                    "min_frequency": self.min_frequency,
-                    "special_tokens": ["<s>", "<pad>", "</s>", "<unk>", "<mask>"],
+                    "limit_alphabet": self.limit_alphabet,
+                    "wordpieces_prefix": "##",
+                    "special_tokens": [
+                        "[PAD]",
+                        "[UNK]",
+                        "[CLS]",
+                        "[SEP]",
+                        "[MASK]",
+                        "<S>",
+                        "<T>",
+                    ],
                 },
             )
+        return (
+            ByteLevelBPETokenizer(**common_tokenizer_args),
+            {
+                **common_train_args,
+                "min_frequency": self.min_frequency,
+                "special_tokens": ["<s>", "<pad>", "</s>", "<unk>", "<mask>"],
+            },
+        )
+
+    def train_tokenizer(self):
 
         echo_with_color(
             f"Initalizing the {self.model_type}'s tokenizer...", color="black"
         )
-        tokenizer, train_args = get_tokenizer_and_train_args()
+        tokenizer, train_args = self.get_tokenizer_and_train_args()
 
         echo_with_color(f"Training the {self.model_type}'s tokenizer...", color="black")
         tokenizer.train(**train_args)
 
-        # Save BERT's files to disk
+        echo_with_color(
+            f"Saving the {self.model_type}'s tokenizer files...", color="black"
+        )
+        specific_tokenizer_dir_path = os.path.join(
+            tokenizer_dir_path, f"cy{self.model_type}"
+        )
+        tokenizer.save_model(specific_tokenizer_dir_path)
+
+        # Save BERT's config json file to disk
+        # as it is not saved automatically
         if self.model_type == "bert":
-            config_path = os.path.join(
-                self.tokenizer_dir_path, f"cy{self.model_type}", "config.json"
-            )
+            config_path = os.path.join(specific_tokenizer_dir_path, "config.json")
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
                     # "model_type": "bert", # For AutoTokenizer.from_pretrained
@@ -154,20 +164,20 @@ class TokenizerWrapper:
         paths = []
         if self.model_type == "bert":
             config_path = os.path.join(
-                self.tokenizer_dir_path, f"cy{model_type}", "config.json"
+                tokenizer_dir_path, f"cy{model_type}", "config.json"
             )
             vocab_path = os.path.join(
-                self.tokenizer_dir_path, f"cy{model_type}", "vocab.txt"
+                tokenizer_dir_path, f"cy{model_type}", "vocab.txt"
             )
             paths.append(config_path)
             paths.append(vocab_path)
 
         else:  # roberta
             vocab_path = os.path.join(
-                self.tokenizer_dir_path, f"cy{model_type}", "vocab.json"
+                tokenizer_dir_path, f"cy{model_type}", "vocab.json"
             )
             merges_path = os.path.join(
-                self.tokenizer_dir_path, f"cy{model_type}", "merges.txt"
+                tokenizer_dir_path, f"cy{model_type}", "merges.txt"
             )
             paths.append(vocab_path)
             paths.append(merges_path)

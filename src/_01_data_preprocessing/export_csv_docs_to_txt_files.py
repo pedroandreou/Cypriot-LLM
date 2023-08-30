@@ -1,12 +1,11 @@
 import argparse
 import os
 
+import pandas as pd
 from datasets import load_dataset
 from tqdm import tqdm
-import pandas as pd
 
 from utils.hub_pusher import hub_login
-
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
