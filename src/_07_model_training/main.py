@@ -47,19 +47,12 @@ def main(
 ):
     set_seed(seed)
 
-    print("Loading the masked encodings of the train and test sets...")
-    masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings()
-
     print("Detect device...")
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-    print("Initialize model...")
-    # Dynamically choose the correct configuration and model based on script_args.model_type
-    ConfigClass = BertConfig if model_type == "bert" else RobertaConfig
-    ModelClass = BertForMaskedLM if model_type == "bert" else RobertaForMaskedLM
-
     # As we are training from scratch, we initialize from a config
     print("Initialize config...")
+    ConfigClass = BertConfig if model_type == "bert" else RobertaConfig
     config = ConfigClass(
         vocab_size=vocab_size,
         max_position_embeddings=block_size,
@@ -68,12 +61,18 @@ def main(
         num_hidden_layers=num_hidden_layers,
         type_vocab_size=type_vocab_size,
     )
+
+    print("Initialize model...")
+    ModelClass = BertForMaskedLM if model_type == "bert" else RobertaForMaskedLM
     model = ModelClass(config=config).to(device)
+
+    print("Loading the masked encodings of the train and test sets...")
+    masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings()
+    model_path = os.path.join(curr_dir, "trained_model_bundle", f"cy{model_type}")
 
     print(
         f"Training model from scratch using {trainer_type.capitalize()} as our trainer type"
     )
-    model_path = os.path.join(curr_dir, "trained_model_bundle", f"cy{model_type}")
     if trainer_type == "pytorch":
         pytorch_trainer = PyTorchModelTrainer(
             train_set=masked_train_set,

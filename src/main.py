@@ -124,7 +124,6 @@ class ScriptArguments:
         metadata={"help": "Type of trainer to use: pytorch or huggingface"},
     )
     seed: int = field(default=42, metadata={"help": "Seed for reproducibility"})
-    vocab_size: int = field(default=30522)
     hidden_size: int = field(default=768)
     num_attention_heads: int = field(default=12)
     num_hidden_layers: int = field(default=12)
@@ -160,13 +159,13 @@ class ScriptArguments:
 
 def main():
     parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
+    args = parser.parse_args_into_dataclasses()[0]
 
     ### MERGING DATA ###
-    if script_args.do_merge_docs:
+    if args.do_merge_docs:
         echo_with_color("Compiling the data into a single CSV file...", color="yellow")
 
-        merge_docs(script_args.data_path)
+        merge_docs(args.data_path)
     else:
         echo_with_color(
             "Skipping the data compilation into a single CSV file...",
@@ -174,20 +173,20 @@ def main():
         )
 
     ### CLEANING DATA ###
-    if script_args.do_clean_data:
+    if args.do_clean_data:
         echo_with_color("Cleaning the data...", color="red")
 
         clean_data(
-            script_args.do_push_dataset_to_hub,
-            script_args.do_login_first_time,
-            script_args.huggingface_token,
-            script_args.huggingface_repo_name,
+            args.do_push_dataset_to_hub,
+            args.do_login_first_time,
+            args.huggingface_token,
+            args.huggingface_repo_name,
         )
     else:
         echo_with_color("Skipping data cleaning.", color="red")
 
     ### FILE ANALYSIS ###
-    if script_args.do_file_analysis:
+    if args.do_file_analysis:
         echo_with_color("Calculating file capacities...", color="green")
         calculate_file_capacities()
 
@@ -197,55 +196,55 @@ def main():
         echo_with_color("Skipping file analysis...", color="green")
 
     ### EXPORTING CSV TO TXT FILES ###
-    if script_args.do_export_csv_to_txt_files:
+    if args.do_export_csv_to_txt_files:
         echo_with_color("Exporting CSV to txt files...", color="blue")
 
         export_csv_to_txt_files(
-            script_args.cleaned_files_dir_path,
-            script_args.do_load_dataset_from_hub,
-            script_args.do_login_first_time,
-            script_args.huggingface_token,
-            script_args.huggingface_repo_name,
+            args.cleaned_files_dir_path,
+            args.do_load_dataset_from_hub,
+            args.do_login_first_time,
+            args.huggingface_token,
+            args.huggingface_repo_name,
         )
     else:
         echo_with_color("Skipping export of CSV to txt files...", color="blue")
 
     ### TOKENIZER TRAINING ###
-    if script_args.do_train_tokenizer:
+    if args.do_train_tokenizer:
         echo_with_color("Training a tokenizer from scratch...", color="black")
 
         train_tokenizer(
-            script_args.model_type,
-            script_args.cleaned_files_dir_path,
-            script_args.block_size,
-            script_args.clean_text,
-            script_args.handle_chinese_chars,
-            script_args.strip_accents,
-            script_args.lowercase,
-            script_args.vocab_size,
-            script_args.limit_alphabet,
-            script_args.min_frequency,
-            script_args.do_push_tokenizer_to_hub,
-            script_args.do_login_first_time,
-            script_args.huggingface_token,
-            script_args.huggingface_repo_name,
+            args.model_type,
+            args.cleaned_files_dir_path,
+            args.block_size,
+            args.clean_text,
+            args.handle_chinese_chars,
+            args.strip_accents,
+            args.lowercase,
+            args.vocab_size,
+            args.limit_alphabet,
+            args.min_frequency,
+            args.do_push_tokenizer_to_hub,
+            args.do_login_first_time,
+            args.huggingface_token,
+            args.huggingface_repo_name,
         )
     else:
         echo_with_color("Skipping the training of a tokenizer...", color="black")
 
     ### REFORMAT FILES ###
-    if script_args.do_reformat_files:
+    if args.do_reformat_files:
         echo_with_color("Reformatting the files...", color="magenta")
 
         reformat_files(
-            script_args.cleaned_files_dir_path,
-            script_args.sliding_window_size,
+            args.cleaned_files_dir_path,
+            args.sliding_window_size,
         )
     else:
         echo_with_color("Skipping the reformatting of the files...", color="magenta")
 
     ### SPLIT PATHS ###
-    if script_args.do_split_paths:
+    if args.do_split_paths:
         echo_with_color(
             "Splitting the paths to train and test path sets...",
             color="white",
@@ -259,15 +258,15 @@ def main():
         )
 
     ### TOKENIZE FILES ###
-    if script_args.do_tokenize_files:
+    if args.do_tokenize_files:
         echo_with_color(
             "Tokenizing the files and saving them...", color="bright_yellow"
         )
 
         tokenize_files(
-            script_args.model_type,
-            script_args.paths,
-            script_args.block_size,
+            args.model_type,
+            args.paths,
+            args.block_size,
         )
     else:
         echo_with_color(
@@ -276,16 +275,16 @@ def main():
         )
 
     ### MASK TOKENS ###
-    if script_args.do_create_masked_encodings:
+    if args.do_create_masked_encodings:
         echo_with_color(
             "Creating masked encodings for the files...",
             color="bright_magenta",
         )
 
         create_masked_encodings(
-            script_args.model_type,
-            script_args.mlm_type,
-            script_args.mlm_probability,
+            args.model_type,
+            args.mlm_type,
+            args.mlm_probability,
         )
 
     else:
@@ -295,40 +294,40 @@ def main():
         )
 
     ### TRAIN MODEL ###
-    if script_args.do_train_model:
+    if args.do_train_model:
         echo_with_color("Training the model...", color="bright_cyan")
 
         train_model(
-            model_type=script_args.model_type,
-            trainer_type=script_args.trainer_type,
-            seed=script_args.seed,
-            vocab_size=script_args.vocab_size,
-            block_size=script_args.block_size,
-            hidden_size=script_args.hidden_size,
-            num_attention_heads=script_args.num_attention_heads,
-            num_hidden_layers=script_args.num_hidden_layers,
-            type_vocab_size=script_args.type_vocab_size,
-            train_batch_size=script_args.train_batch_size,
-            eval_batch_size=script_args.eval_batch_size,
-            learning_rate=script_args.learning_rate,
-            num_train_epochs=script_args.num_train_epochs,
-            num_eval_epochs=script_args.num_eval_epochs,
-            # do_login_first_time=script_args.do_login_first_time,
-            # huggingface_token=script_args.huggingface_token,
-            # huggingface_repo_name=script_args.huggingface_repo_name,
+            model_type=args.model_type,
+            trainer_type=args.trainer_type,
+            seed=args.seed,
+            vocab_size=args.vocab_size,
+            block_size=args.block_size,
+            hidden_size=args.hidden_size,
+            num_attention_heads=args.num_attention_heads,
+            num_hidden_layers=args.num_hidden_layers,
+            type_vocab_size=args.type_vocab_size,
+            train_batch_size=args.train_batch_size,
+            eval_batch_size=args.eval_batch_size,
+            learning_rate=args.learning_rate,
+            num_train_epochs=args.num_train_epochs,
+            num_eval_epochs=args.num_eval_epochs,
+            # do_login_first_time=args.do_login_first_time,
+            # huggingface_token=args.huggingface_token,
+            # huggingface_repo_name=args.huggingface_repo_name,
         )
 
     else:
         echo_with_color("Skipping the training of the model...", color="bright_cyan")
 
     ### INFERENCING ###
-    if script_args.do_inference:
+    if args.do_inference:
         echo_with_color("Inferencing...", color="bright_white")
 
         infer(
-            model_type=script_args.model_type,
+            model_type=args.model_type,
             model_path=None,
-            block_size=script_args.block_size,
+            block_size=args.block_size,
         )
 
     else:
