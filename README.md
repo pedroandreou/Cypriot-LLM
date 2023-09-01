@@ -164,22 +164,22 @@ and enter your huggingface token by creating it with `write` access [here](https
 
 
 ### Submitting batch jobs
-Then you will be able to submit a single job as:
-```
-sbatch --array=1 job.sub
-```
+Do not submit more than a single job at once as it will lead to errors.
 
-Do not submit more than a single job at once since the array mechanism was used for partitioning my tasks into distinct jobs, saving us from having multiple job scripts or continuously adjusting the flags.
+<br>
+
+The array mechanism was used for partitioning my tasks into distinct jobs, saving us from having multiple job scripts or continuously adjusting the flags.
+
+<br>
 
 The job script is:
 ```
 #!/bin/bash
 
-#SBATCH --job-name=train-w-8-cores
 #SBATCH --partition=gpu
 #SBATCH --ntasks-per-node=8
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:1W
+#SBATCH --gres=gpu:1
 #SBATCH --output=train.log
 #SBATCH --error=error.log
 #SBATCH --time=24:00:00
@@ -193,49 +193,50 @@ if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
     python main.py \
             --do_merge_docs
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 2 ]; then
-    python main.py \W
+elif [ $SLURM_ARRAY_TASK_ID -eq 2 ]; then
+    python main.py \
             --do_clean_data
             # --do_push_dataset_to_hub
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 3 ]; thenW
+elif [ $SLURM_ARRAY_TASK_ID -eq 3 ]; then
+    python main.py \
+            --do_export_csv_to_txt_files
+            --do_load_dataset_from_hub False \
+
+elif [ $SLURM_ARRAY_TASK_ID -eq 4 ]; then
     python main.py \
             --do_file_analysis
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 4 ]; then
-    python main.py \
-            --do_export_csv_to_txt_files
-
-else if [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
+elif [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
     python main.py \
             --do_train_tokenizer \
            --model_type bert \
            --block_size 512
            # --do_push_tokenizer_to_hub \
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 6 ]; then
+elif [ $SLURM_ARRAY_TASK_ID -eq 6 ]; then
     python main.py \
             --do_reformat_files \
             --sliding_window_size 8
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 7 ]; then
+elif [ $SLURM_ARRAY_TASK_ID -eq 7 ]; then
     python main.py \
             --do_split_paths
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
+elif [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
     python main.py \
             --do_tokenize_files \
             --model_type bert \
             --paths train_test \
             --block_size 512
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
+elif [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
     python main.py \
             --do_create_masked_encodings \
             --mlm_type manual \
             --mlm_probability 0.15
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
+elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
     python main.py \
             --do_train_model \
             --model_type bert \
@@ -253,7 +254,7 @@ else if [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
             --num_train_epochs 2 \
             --num_eval_epochs 10
 
-else if [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
+elif [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
     python main.py \
             --model_type bert \
             # --model_path \ # to be defined
@@ -262,6 +263,14 @@ else if [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
 fi
 ```
 you can see the output of the logs in `train.log` and the error in `error.log`
+
+<br>
+
+Submit a single job as:
+```
+sbatch --array=<task> job.sub
+```
+where <task> can be any from 1 to 11
 
 
 More information on how to run jobs here https://hpcf.cyi.ac.cy/documentation/running_jobs.html
