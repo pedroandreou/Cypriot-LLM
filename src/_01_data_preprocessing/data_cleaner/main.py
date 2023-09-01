@@ -14,9 +14,6 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def main(
     do_push_dataset_to_hub,
-    do_login_first_time,
-    huggingface_token,
-    huggingface_repo_name,
 ):
 
     input_file_name = os.path.normpath(
@@ -74,9 +71,6 @@ def main(
         )
 
         push_dataset(
-            do_login_first_time=do_login_first_time,
-            huggingface_token=huggingface_token,
-            huggingface_repo_name=huggingface_repo_name,
             output_file_name=output_file_name,
             custom_key="preprocessed_data",
         )
@@ -97,24 +91,6 @@ def parse_arguments():
         default=False,
         help="Enable or disable push to hub. Accepts: True/False. Default is False.",
     )
-    parser.add_argument(
-        "--do_login_first_time",
-        type=bool,
-        default=False,
-        help="Toggle first-time login. Accepts: True/False. Default is False.",
-    )
-    parser.add_argument(
-        "--huggingface_token",
-        type=str,
-        default=os.getenv("HUGGINGFACE_TOKEN"),
-        help="Hugging Face token for authentication.",
-    )
-    parser.add_argument(
-        "--huggingface_repo_name",
-        type=str,
-        default=os.getenv("HUGGINGFACE_REPO_NAME"),
-        help="Name of the Hugging Face dataset repository.",
-    )
 
     return parser.parse_args()
 
@@ -122,15 +98,8 @@ def parse_arguments():
 if __name__ == "__main__":
     import argparse
 
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
     args = parse_arguments()
 
     main(
         args.do_push_dataset_to_hub,
-        args.do_login_first_time,
-        args.huggingface_token,
-        args.huggingface_repo_name,
     )

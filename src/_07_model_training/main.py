@@ -41,9 +41,6 @@ def main(
     learning_rate: float,
     num_train_epochs: int,
     num_eval_epochs: int,
-    # do_login_first_time: bool,
-    # huggingface_token: str,
-    # huggingface_repo_name: str,
 ):
     set_seed(seed)
 
@@ -146,27 +143,11 @@ def parse_arguments():
         "--num_eval_epochs", default=10, type=int, help="Number of evaluation epochs."
     )
 
-    # parser.add_argument(
-    #     "--do_login_first_time",
-    #     action="store_true",
-    #     help="Toggle first-time login. Credentials will be cached after the initial login to the hub.",
-    # )
-    # parser.add_argument(
-    #     "--huggingface_token", type=str, default=os.getenv("HUGGINGFACE_TOKEN")
-    # )
-    # parser.add_argument(
-    #     "--huggingface_repo_name", type=str, default=os.getenv("HUGGINGFACE_REPO_NAME")
-    # )
-
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     import argparse
-
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
 
     args = parse_arguments()
 
@@ -185,7 +166,4 @@ if __name__ == "__main__":
         learning_rate=args.learning_rate,
         num_train_epochs=args.num_train_epochs,
         num_eval_epochs=args.num_eval_epochs,
-        # do_login_first_time=args.do_login_first_time,
-        # huggingface_token=args.huggingface_token,
-        # huggingface_repo_name=args.huggingface_repo_name,
     )

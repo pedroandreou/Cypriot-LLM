@@ -100,9 +100,7 @@ python main.py \
     --eval_batch_size 8 \
     --learning_rate 0.01 \
     --num_train_epochs 2 \
-    --num_eval_epochs 10 \
-
-    --do_login_first_time
+    --num_eval_epochs 10
 ```
 
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
@@ -136,7 +134,7 @@ If your local OS is different, then follow this [documentation page](https://hpc
 In the root directory of the git cloned repo, run `mkdir cleaned_files`
 ```
 Cypriot-LLM/
-├── dataset/ # from Transferring the raw dataset to the supercomputer above
+├── dataset/ # from 'Transferring the raw dataset to the supercomputer' step above
 ├── cleaned_files/ # from this step
 ├── README.md
 └── ...
@@ -270,7 +268,7 @@ Submit a single job as:
 ```
 sbatch --array=<task> job.sub
 ```
-where <task> can be any from 1 to 11
+where `<task>` can be any from 1 to 11
 
 
 More information on how to run jobs here https://hpcf.cyi.ac.cy/documentation/running_jobs.html

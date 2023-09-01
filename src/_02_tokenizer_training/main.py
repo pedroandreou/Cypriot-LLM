@@ -237,9 +237,6 @@ def main(
     limit_alphabet,
     min_frequency,
     do_push_tokenizer_to_hub,
-    do_login_first_time,
-    huggingface_token,
-    huggingface_repo_name,
 ):
 
     TokenizerWrapper(
@@ -266,9 +263,6 @@ def main(
         push_tokenizer(
             curr_dir,
             tokenizer_paths,
-            do_login_first_time,
-            huggingface_token,
-            huggingface_repo_name,
         )
 
     else:
@@ -335,18 +329,6 @@ def parse_arguments():
         default=os.getenv("CLEANED_FILES_DIR_PATH"),
         help="Path to cleaned files directory.",
     )
-    parser.add_argument(
-        "--huggingface_token",
-        type=str,
-        default=os.getenv("HUGGINGFACE_TOKEN"),
-        help="HuggingFace token.",
-    )
-    parser.add_argument(
-        "--huggingface_repo_name",
-        type=str,
-        default=os.getenv("HUGGINGFACE_REPO_NAME"),
-        help="HuggingFace repository name.",
-    )
 
     # Flags for actions
     parser.add_argument(
@@ -354,12 +336,6 @@ def parse_arguments():
         type=bool,
         default=False,
         help="Whether or not to push tokenizer to the hub. Provide a boolean value (e.g., True/False, Yes/No).",
-    )
-    parser.add_argument(
-        "--do_login_first_time",
-        type=bool,
-        default=False,
-        help="Whether to login to the hub for the first time. Credentials will be cached afterwards. Provide a boolean value (e.g., True/False, Yes/No).",
     )
 
     return parser.parse_args()
@@ -386,7 +362,4 @@ if __name__ == "__main__":
         args.limit_alphabet,
         args.min_frequency,
         args.do_push_tokenizer_to_hub,
-        args.do_login_first_time,
-        args.huggingface_token,
-        args.huggingface_repo_name,
     )

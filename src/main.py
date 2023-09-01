@@ -144,18 +144,6 @@ class ScriptArguments:
     ### INFERENCING ###
     do_inference: bool = field(default=False)
 
-    ### PUSHING DATA TO HUB ###
-    do_login_first_time: bool = field(
-        default=False,
-        metadata={
-            "help": "Toggle first-time login. Credentials will be cached after the initial login to the hub."
-        },
-    )
-    huggingface_token: Optional[str] = field(default=os.getenv("HUGGINGFACE_TOKEN"))
-    huggingface_repo_name: Optional[str] = field(
-        default=os.getenv("HUGGINGFACE_REPO_NAME")
-    )
-
 
 def main():
     parser = HfArgumentParser(ScriptArguments)
@@ -178,9 +166,6 @@ def main():
 
         clean_data(
             args.do_push_dataset_to_hub,
-            args.do_login_first_time,
-            args.huggingface_token,
-            args.huggingface_repo_name,
         )
     else:
         echo_with_color("Skipping data cleaning.", color="red")
@@ -202,9 +187,6 @@ def main():
         export_csv_to_txt_files(
             args.cleaned_files_dir_path,
             args.do_load_dataset_from_hub,
-            args.do_login_first_time,
-            args.huggingface_token,
-            args.huggingface_repo_name,
         )
     else:
         echo_with_color("Skipping export of CSV to txt files...", color="blue")
@@ -225,9 +207,6 @@ def main():
             args.limit_alphabet,
             args.min_frequency,
             args.do_push_tokenizer_to_hub,
-            args.do_login_first_time,
-            args.huggingface_token,
-            args.huggingface_repo_name,
         )
     else:
         echo_with_color("Skipping the training of a tokenizer...", color="black")
@@ -312,9 +291,6 @@ def main():
             learning_rate=args.learning_rate,
             num_train_epochs=args.num_train_epochs,
             num_eval_epochs=args.num_eval_epochs,
-            # do_login_first_time=args.do_login_first_time,
-            # huggingface_token=args.huggingface_token,
-            # huggingface_repo_name=args.huggingface_repo_name,
         )
 
     else:

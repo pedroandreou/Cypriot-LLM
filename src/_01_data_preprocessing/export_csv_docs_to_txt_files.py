@@ -2,10 +2,13 @@ import argparse
 import os
 
 import pandas as pd
-from datasets import load_dataset
+from dotenv import find_dotenv, load_dotenv
 from tqdm import tqdm
 
-from utils.hub_pusher import hub_login
+from src.utils.hub_pusher import load_dataset
+
+load_dotenv(find_dotenv())
+
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,22 +16,11 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def main(
     output_dir_path,
     do_load_dataset_from_hub,
-    do_login_first_time,
-    huggingface_token,
-    huggingface_repo_name,
 ):
 
     if do_load_dataset_from_hub:
-        hub_login(huggingface_token, do_login_first_time)
+        dataset = load_dataset("preprocessed_data")
 
-        # Load the dataset
-        dataset = load_dataset(huggingface_repo_name)
-
-        # Access the dataset
-        custom_key = "preprocessed_data"
-        dataset = dataset[custom_key]
-
-        # Convert to Pandas DataFrame
         df = dataset.to_pandas()
     else:
         # Load it from locally
@@ -44,7 +36,7 @@ def main(
             f.write(str(value))
 
 
-def parse_dataset_arguments():
+def parse_arguments():
     parser = argparse.ArgumentParser(description="Script parameters.")
 
     parser.add_argument(
@@ -61,43 +53,15 @@ def parse_dataset_arguments():
         help="Determine if dataset should be loaded from hub. Accepts: True/False. Default is False, indicating the dataset should be loaded locally.",
     )
 
-    parser.add_argument(
-        "--do_login_first_time",
-        type=bool,
-        default=False,
-        help="Toggle first-time login. Accepts: True/False",
-    )
-
-    parser.add_argument(
-        "--huggingface_token",
-        type=str,
-        default=os.getenv("HUGGINGFACE_TOKEN"),
-        help="Hugging Face token for authentication.",
-    )
-
-    parser.add_argument(
-        "--huggingface_repo_name",
-        type=str,
-        default=os.getenv("HUGGINGFACE_REPO_NAME"),
-        help="Name of the Hugging Face dataset repository.",
-    )
-
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     import argparse
 
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
-    args = parse_dataset_arguments()
+    args = parse_arguments()
 
     main(
         args.output_dir_path,
         args.do_load_dataset_from_hub,
-        args.do_login_first_time,
-        args.huggingface_token,
-        args.huggingface_repo_name,
     )

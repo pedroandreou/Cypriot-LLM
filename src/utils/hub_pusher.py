@@ -3,14 +3,18 @@ import shutil
 import subprocess
 
 import pandas as pd
-from datasets import Dataset, DatasetDict
+from datasets import Dataset, DatasetDict, load_dataset
 from huggingface_hub import login
 
+huggingface_repo_name = os.getenv("HUGGINGFACE_REPO_NAME")
+huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
+do_login_first_time = False
 
-def hub_login(token: str, do_login_first_time: bool) -> None:
+
+def hub_login() -> None:
     if do_login_first_time:
         print("Logging in...")
-        login(token=token)
+        login(token=huggingface_token)
     else:
         print("Skipping logging in since credentials are in the cache...")
 
@@ -31,12 +35,22 @@ def push_dataset(
     DatasetDict({custom_key: dataset}).push_to_hub(huggingface_repo_name, private=True)
 
 
+def load_dataset(custom_key: str):
+    hub_login(huggingface_token, do_login_first_time)
+
+    # Load the dataset
+    dataset = load_dataset(huggingface_repo_name)
+
+    # Access the dataset
+    custom_key = "preprocessed_data"
+    dataset = dataset[custom_key]
+
+    return dataset
+
+
 def push_tokenizer(
     curr_dir: str,
     tokenizer_paths: list,
-    do_login_first_time: bool,
-    huggingface_token: str,
-    huggingface_repo_name: str,
 ) -> None:
     hub_login(huggingface_token, do_login_first_time)
 
