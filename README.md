@@ -105,8 +105,6 @@ python main.py \
     --do_login_first_time
 ```
 
-If you want to add different arguments for training the tokenizer, just go to the `initial_configs` directory where you will find a config JSON file for the corresponding model. Change the values there and rerun the script.
-
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
 
 # Cyclone
@@ -115,72 +113,69 @@ Cyclone is the name of the super computer at the Cyprus Institute. In order to r
 this [link](https://hpcfsupport.atlassian.net/servicedesk/customer/portal/3/create/29). Through the process of getting access,
 you need to pass over your public key so that you can ssh into the super computer.
 
-Each user is being given a separate user directory. In the home directory there is a project folder with the name `data_p105`, p105
-is the project id. This folder is shared among all members of the project. The project folder also has generous quota for saving data
-and models so all our work should go there.
+Each user is being given a separate user directory. In the home directory there is a project folder with the name `data_p156`, where p156 is the project id. This folder is shared among all members of the project. The project folder also has generous quota for saving data and models so all our work should go there.
 
 If the github repo is not there already, clone and create a virtualenv but to do this, you need to follow below.
 
 
+### Cloning GitHub repo on the supercomputer
 Before cloning the github repo, you need to do:
 1. `cd ~/.ssh` on the supercomputer to copy the content of the `id_rsa.pub` file which is your public key
 2. Go to your GitHub's Settings - `SSH and GPG keys`,
 3. Click `New SSH key`
 4. Add a descriptive title and paste the key into the "Key" field and click `Add SSH key`.
-5. Try to clone your github repo in the SSH way; for example, `git clone git@github.com:MantisAI/cypriot_bert.git`, it will work.
+5. Try to clone your github repo in the SSH way; for example, by doing `git clone git@github.com:pedroandreou/Cypriot-LLM.git`
 
 
-Transfer the dataset from your local machine to the git repo on the HPC system by downloading [WinSCP](https://winscp.net/eng/download.php).
-Follow this [documentation page](https://hpcf.cyi.ac.cy/documentation/data_transfer.html) for doing so.
+### Transferring the raw dataset to the supercomputer
+Transfer the dataset from your local machine to the cloned git repo on the supercomputer by downloading [WinSCP](https://winscp.net/eng/download.php) for Windows.
+If your local OS is different, then follow this [documentation page](https://hpcf.cyi.ac.cy/documentation/data_transfer.html) for doing so.
 
 
-Copy the environment variables as follows and change the paths to the location that uploaded the dataset:
-```
-cp .env.example .env
-vim .env
-```
-
-For example in the root directory, add the dataset directory containing all the documents and also in the root directory, run `mkdir cleaned_files`
+### Create cleaned files dir
+In the root directory of the git cloned repo, run `mkdir cleaned_files`
 ```
 Cypriot-LLM/
-├── cleaned_files/
-├── dataset/
+├── dataset/ # from Transferring the raw dataset to the supercomputer above
+├── cleaned_files/ # from this step
 ├── README.md
 └── ...
 ```
-and then in the `.env` file, the paths for dataset and cleaned files should be as follows:
+
+### Modify `.env` file's paths for raw dataset and cleaned files dir
+and then in the `.env` file, add the paths of dataset and cleaned files as follows:
 ```
 DATASET_DIR_PATH="/nvme/h/cy22pa1/data_p156/Cypriot-LLM/dataset"
 CLEANED_FILES_DIR_PATH="/nvme/h/cy22pa1/data_p156/Cypriot-LLM/cleaned_files"
 ```
 
-To make paths work, go to the root directory and run:
+### If paths do not work:
+To make paths work, go to the root directory of the git cloned repo and run:
 ```
 pip install -e .
 ```
 
-Then you need to run your batch script, but for doing so, you need to do this manually on the supercomputer:
-```
-source ./.venv/bin/activate
-pip install -r requirements.xt
-```
-
-And lastly, you also need to login into your HuggingFace account:
+### Login to your HuggingFace account
+Login by doing:
 ```
 huggingface-cli login
 ```
 and enter your huggingface token by creating it with `write` access [here](https://huggingface.co/settings/tokens)
 
-Then you will be able to run your batch job by doing:
+
+### Submitting batch jobs
+Then you will be able to submit a single job as:
 ```
-sbatch --array=1-2-3-4-5-6-7-8 job.sub
+sbatch --array=1 job.sub
 ```
 
-Where the job script is:
+Do not submit more than a single job at once since the array mechanism was used for partitioning my tasks into distinct jobs, saving us from having multiple job scripts or continuously adjusting the flags.
+
+The job script is:
 ```
 #!/bin/bash
 
-#SBATCH --job-name=train-w-8-coresW
+#SBATCH --job-name=train-w-8-cores
 #SBATCH --partition=gpu
 #SBATCH --ntasks-per-node=8
 #SBATCH --nodes=1
