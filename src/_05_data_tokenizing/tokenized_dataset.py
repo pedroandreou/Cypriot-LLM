@@ -13,7 +13,7 @@ They are saved as a list of lists of integers, where each list of integers is a 
 """
 
 
-class LineByLineTextDataset(Dataset):
+class TokenizedDataset(Dataset):
     def __init__(
         self,
         model_type: str = None,
@@ -69,7 +69,7 @@ class LineByLineTextDataset(Dataset):
             if self.model_type == "bert"
             else "ByteLevelBPETokenizer"
         )
-        return f"<LineByLineTextDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.examples)}>"
+        return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.examples)}>"
 
     def __len__(self):
         if not self.examples:
@@ -83,7 +83,8 @@ class LineByLineTextDataset(Dataset):
             return {}
         return torch.tensor(self.examples[i].ids, dtype=torch.long)
 
-    def load_encodings(self):
+    @staticmethod
+    def load_encodings():
         def get_dataset_path(set_type):
             curr_dir = os.path.dirname(os.path.realpath(__file__))
             folder_name = "encodings"

@@ -11,16 +11,16 @@ from src.utils.common_utils import echo_with_color
 class TokenizerWrapper:
     def __init__(
         self,
-        model_type: str,
-        block_size: int,
-        clean_text: bool,
-        handle_chinese_chars: bool,
-        strip_accents: bool,
-        lowercase: bool,
-        vocab_size: int,
-        limit_alphabet: int,
-        min_frequency: int,
-        filepaths_dir: str,
+        model_type: str = None,
+        block_size: int = None,
+        clean_text: bool = None,
+        handle_chinese_chars: bool = None,
+        strip_accents: bool = None,
+        lowercase: bool = None,
+        vocab_size: int = None,
+        limit_alphabet: int = None,
+        min_frequency: int = None,
+        filepaths_dir: str = None,
     ):
         if all(
             arg is None
@@ -160,38 +160,39 @@ class TokenizerWrapper:
                 }
                 json.dump(tokenizer_cfg, f)
 
-    def get_tokenizer_paths(self, model_type):
-        paths = []
-        if self.model_type == "bert":
-            config_path = os.path.join(
-                tokenizer_dir_path, f"cy{model_type}", "config.json"
-            )
-            vocab_path = os.path.join(
-                tokenizer_dir_path, f"cy{model_type}", "vocab.txt"
-            )
-            paths.append(config_path)
-            paths.append(vocab_path)
-
-        else:  # roberta
-            vocab_path = os.path.join(
-                tokenizer_dir_path, f"cy{model_type}", "vocab.json"
-            )
-            merges_path = os.path.join(
-                tokenizer_dir_path, f"cy{model_type}", "merges.txt"
-            )
-            paths.append(vocab_path)
-            paths.append(merges_path)
-
-        return paths
-
-    def load_tokenizer(self, model_type, block_size):
+    @staticmethod
+    def load_tokenizer(model_type, block_size):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
         """
 
+        def get_tokenizer_paths(model_type):
+            paths = []
+            if model_type == "bert":
+                config_path = os.path.join(
+                    tokenizer_dir_path, f"cy{model_type}", "config.json"
+                )
+                vocab_path = os.path.join(
+                    tokenizer_dir_path, f"cy{model_type}", "vocab.txt"
+                )
+                paths.append(config_path)
+                paths.append(vocab_path)
+
+            else:  # roberta
+                vocab_path = os.path.join(
+                    tokenizer_dir_path, f"cy{model_type}", "vocab.json"
+                )
+                merges_path = os.path.join(
+                    tokenizer_dir_path, f"cy{model_type}", "merges.txt"
+                )
+                paths.append(vocab_path)
+                paths.append(merges_path)
+
+            return paths
+
         if model_type == "bert":
-            config_path, vocab_path = self.get_tokenizer_paths(model_type)
+            config_path, vocab_path = get_tokenizer_paths(model_type)
 
             # Load configurations
             with open(config_path, "r") as file:
@@ -205,7 +206,7 @@ class TokenizerWrapper:
             )
 
         else:  # roberta
-            vocab_path, merges_path = self.get_tokenizer_paths(model_type)
+            vocab_path, merges_path = get_tokenizer_paths(model_type)
 
             # Load tokenizer
             tokenizer = ByteLevelBPETokenizer(vocab_path, merges_path)

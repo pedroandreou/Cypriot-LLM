@@ -1,6 +1,6 @@
 import os
 
-from src._05_data_tokenizing.tokenized_dataset import LineByLineTextDataset
+from src._05_data_tokenizing.tokenized_dataset import TokenizedDataset
 from src._06_data_masking.masked_dataset import MaskedDataset
 from src.utils.common_utils import echo_with_color, save_dataset
 
@@ -10,7 +10,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def main(model_type, mlm_type, mlm_probability):
 
     echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
-    train_dataset, test_dataset = LineByLineTextDataset().load_encodings()
+    train_dataset, test_dataset = TokenizedDataset().load_encodings()
 
     echo_with_color("Creating masked datasets...", color="bright_magenta")
     masked_train_dataset = MaskedDataset(

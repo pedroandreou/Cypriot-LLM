@@ -136,7 +136,8 @@ class MaskedDataset(Dataset):
         item = {key: val[index] for key, val in self.masked_encodings.items()}
         return item
 
-    def load_masked_encodings(self):
+    @staticmethod
+    def load_masked_encodings():
         def get_dataset_path(set_type):
             curr_dir = os.path.dirname(os.path.realpath(__file__))
             folder_name = "masked_encodings"

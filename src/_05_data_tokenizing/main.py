@@ -1,6 +1,6 @@
 import os
 
-from src._05_data_tokenizing.tokenized_dataset import LineByLineTextDataset
+from src._05_data_tokenizing.tokenized_dataset import TokenizedDataset
 from src.utils.common_utils import echo_with_color, save_dataset
 
 
@@ -54,7 +54,7 @@ def main(model_type, paths, block_size):
         # else:
         #     print(f"No files found for key: {key}")
 
-        tokenized_dataset = LineByLineTextDataset(
+        tokenized_dataset = TokenizedDataset(
             model_type=model_type,
             files_list=files_list,
             block_size=block_size,
