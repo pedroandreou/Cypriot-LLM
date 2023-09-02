@@ -2,7 +2,7 @@ import json
 
 from transformers import BertForMaskedLM, RobertaForMaskedLM, pipeline
 
-from _02_tokenizer_training.main import TokenizerWrapper
+from src._02_tokenizer_training.main import TokenizerWrapper
 from src.utils.common_utils import echo_with_color
 
 

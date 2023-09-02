@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 from src.utils.common_utils import echo_with_color
-from utils.hub_pusher import push_dataset
+from src.utils.hub_pusher import push_dataset
 
 from .diacritic_remover import DiacriticRemover
 from .greek_letter_joiner import GreekLetterJoiner
