@@ -134,22 +134,17 @@ Before cloning the github repo, you need to do:
 Transfer the dataset from your local machine to the cloned git repo on the supercomputer by downloading [WinSCP](https://winscp.net/eng/download.php) for Windows.
 If your local OS is different, then follow this [documentation page](https://hpcf.cyi.ac.cy/documentation/data_transfer.html) for doing so.
 
-
-### Create cleaned files dir
-In the root directory of the git cloned repo, run `mkdir cleaned_files`
 ```
 Cypriot-LLM/
-├── dataset/ # from 'Transferring the raw dataset to the supercomputer' step above
-├── cleaned_files/ # from this step
+├── dataset/ # transfer it here
 ├── README.md
 └── ...
-```
+
 
 ### Modify `.env` file's paths for raw dataset and cleaned files dir
 and then in the `.env` file, add the paths of dataset and cleaned files as follows:
 ```
 DATASET_DIR_PATH="/nvme/h/cy22pa1/data_p156/Cypriot-LLM/dataset"
-CLEANED_FILES_DIR_PATH="/nvme/h/cy22pa1/data_p156/Cypriot-LLM/cleaned_files"
 ```
 
 ### If paths do not work:

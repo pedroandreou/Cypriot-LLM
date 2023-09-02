@@ -20,7 +20,6 @@ class TokenizerWrapper:
         vocab_size: int = None,
         limit_alphabet: int = None,
         min_frequency: int = None,
-        filepaths_dir: str = None,
     ):
         if all(
             arg is None
@@ -34,7 +33,6 @@ class TokenizerWrapper:
                 vocab_size,
                 limit_alphabet,
                 min_frequency,
-                filepaths_dir,
             )
         ):
             self.default_constructor()
@@ -49,7 +47,6 @@ class TokenizerWrapper:
                 vocab_size,
                 limit_alphabet,
                 min_frequency,
-                filepaths_dir,
             )
 
     def default_constructor(self):
@@ -68,7 +65,6 @@ class TokenizerWrapper:
         vocab_size,
         limit_alphabet,
         min_frequency,
-        filepaths_dir,
     ):
         self.model_type = model_type
         self.block_size = block_size
@@ -80,6 +76,13 @@ class TokenizerWrapper:
         self.limit_alphabet = limit_alphabet
         self.min_frequency = min_frequency
 
+        filepaths_dir = os.path.join(
+            curr_dir,
+            "..",
+            "_01_data_preprocessing",
+            "_04_csv_to_txt_conversion",
+            "cleaned_files",
+        )
         self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
 
     def get_tokenizer_and_train_args(self):
@@ -227,7 +230,6 @@ tokenizer_dir_path = os.path.join(curr_dir, "trained_tokenizer_bundle")
 
 def main(
     model_type,
-    cleaned_files_dir_path,
     block_size,
     clean_text,
     handle_chinese_chars,
@@ -249,7 +251,6 @@ def main(
         vocab_size=vocab_size,
         limit_alphabet=limit_alphabet,
         min_frequency=min_frequency,
-        filepaths_dir=cleaned_files_dir_path,
     ).train_tokenizer()
 
     if do_push_tokenizer_to_hub:
@@ -322,14 +323,6 @@ def parse_arguments():
         help="Minimum frequency for a token to be included in the vocabulary.",
     )
 
-    # Paths and tokens from environment variables
-    parser.add_argument(
-        "--cleaned_files_dir_path",
-        type=str,
-        default=os.getenv("CLEANED_FILES_DIR_PATH"),
-        help="Path to cleaned files directory.",
-    )
-
     # Flags for actions
     parser.add_argument(
         "--do_push_tokenizer_to_hub",
@@ -344,15 +337,10 @@ def parse_arguments():
 if __name__ == "__main__":
     import argparse
 
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
     args = parse_arguments()
 
     main(
         args.model_type,
-        args.cleaned_files_dir_path,
         args.block_size,
         args.clean_text,
         args.handle_chinese_chars,

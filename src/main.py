@@ -67,10 +67,6 @@ class ScriptArguments:
         default=False,
         metadata={"help": "Determine if dataset should be loaded from hub or locally."},
     )
-    cleaned_files_dir_path: Optional[str] = field(
-        default=os.getenv("CLEANED_FILES_DIR_PATH"),
-        metadata={"help": "Path to the directory for cleaned files"},
-    )
 
     ### DO TOKENIZER TRAINING ###
     do_train_tokenizer: bool = field(default=False)
@@ -183,7 +179,6 @@ def main():
         echo_with_color("Exporting CSV to txt files...", color="blue")
 
         export_csv_to_txt_files(
-            args.cleaned_files_dir_path,
             args.do_load_dataset_from_hub,
         )
     else:
@@ -195,7 +190,6 @@ def main():
 
         train_tokenizer(
             args.model_type,
-            args.cleaned_files_dir_path,
             args.block_size,
             args.clean_text,
             args.handle_chinese_chars,
@@ -214,7 +208,6 @@ def main():
         echo_with_color("Reformatting the files...", color="magenta")
 
         reformat_files(
-            args.cleaned_files_dir_path,
             args.sliding_window_size,
         )
     else:

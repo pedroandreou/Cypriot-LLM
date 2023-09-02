@@ -17,8 +17,16 @@ class BookReformatter:
     https://gist.github.com/marrrcin/bcc115fbadf79eba9d9c8ca711da9e20
     """
 
-    def __init__(self, all_files_path, sliding_window_size):
-        self.book_paths = list(glob(os.path.join(all_files_path, "*.txt")))
+    def __init__(self, sliding_window_size):
+        cleaned_files_dir_path = os.path.join(
+            curr_dir,
+            "..",
+            "_01_data_preprocessing",
+            "_04_csv_to_txt_conversion",
+            "cleaned_files",
+        )
+
+        self.book_paths = list(glob(os.path.join(cleaned_files_dir_path, "*.txt")))
         self.sw = sliding_window_size
 
     @staticmethod
@@ -92,20 +100,13 @@ class BookReformatter:
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def main(cleaned_files_dir_path, sliding_window_size):
-    reformatter = BookReformatter(cleaned_files_dir_path, sliding_window_size)
+def main(sliding_window_size):
+    reformatter = BookReformatter(sliding_window_size)
     reformatter.reformat_all_books()
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Script parameters.")
-
-    parser.add_argument(
-        "--cleaned_files_dir_path",
-        type=str,
-        default=os.getenv("CLEANED_FILES_DIR_PATH"),
-        help="The path where all the cleaned files are stored.",
-    )
 
     parser.add_argument(
         "--sliding_window_size",
@@ -120,10 +121,6 @@ def parse_arguments():
 if __name__ == "__main__":
     import argparse
 
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
     args = parse_arguments()
 
-    main(args.cleaned_files_dir_path, args.sliding_window_size)
+    main(args.sliding_window_size)

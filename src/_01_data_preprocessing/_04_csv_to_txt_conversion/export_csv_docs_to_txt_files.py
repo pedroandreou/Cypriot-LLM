@@ -9,7 +9,6 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main(
-    output_dir_path: str,
     do_load_dataset_from_hub: bool,
 ):
 
@@ -26,20 +25,13 @@ def main(
     for num in tqdm(range(len(df)), desc="Exporting CSV docs to TXT files"):
         value = df.iloc[num, 1]
 
-        file_path = os.path.join(output_dir_path, f"text_file{num}.txt")
+        file_path = os.path.join(curr_dir, "cleaned_files", f"text_file{num}.txt")
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(str(value))
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Script parameters.")
-
-    parser.add_argument(
-        "--output_dir_path",
-        type=str,
-        default=os.getenv("CLEANED_FILES_DIR_PATH"),
-        help="Path to the output directory for cleaned files.",
-    )
 
     parser.add_argument(
         "--do_load_dataset_from_hub",
@@ -54,13 +46,8 @@ def parse_arguments():
 if __name__ == "__main__":
     import argparse
 
-    from dotenv import find_dotenv, load_dotenv
-
-    load_dotenv(find_dotenv())
-
     args = parse_arguments()
 
     main(
-        args.output_dir_path,
         args.do_load_dataset_from_hub,
     )
