@@ -167,117 +167,12 @@ and enter your huggingface token by creating it with `write` access [here](https
 
 
 ### Submitting batch jobs
-Do not submit more than a single job at once as it will lead to errors.
+
+The array mechanism was used for partitioning my tasks into distinct jobs, saving us from having multiple job scripts or continuously adjusting the flags. Look into the `job.sub` script.
 
 <br>
 
-The array mechanism was used for partitioning my tasks into distinct jobs, saving us from having multiple job scripts or continuously adjusting the flags.
-
-<br>
-
-Store the following job script in a `job.sub` file using `vim` or any other text editor of your preference:
-```
-#!/bin/bash
-
-#SBATCH --partition=gpu
-#SBATCH --ntasks-per-node=8
-#SBATCH --nodes=1
-#SBATCH --gres=gpu:1
-#SBATCH --output=train.log
-#SBATCH --error=error.log
-#SBATCH --time=24:00:00
-#SBATCH -A p156
-
-module load Python/3.9.6-GCCcore-11.2.0
-
-# Check if the .venv directory does not exist
-if [ ! -d ".venv" ]; then
-    pip install -e .
-
-    python3 -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-else
-    source .venv/bin/activate
-fi
-
-cd src
-
-if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
-    python main.py \
-            --do_merge_docs
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 2 ]; then
-    python main.py \
-            --do_clean_data
-            # --do_push_dataset_to_hub
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 3 ]; then
-    python main.py \
-            --do_export_csv_to_txt_files
-            --do_load_dataset_from_hub False \
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 4 ]; then
-    python main.py \
-            --do_file_analysis
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
-    python main.py \
-            --do_train_tokenizer \
-           --model_type bert \
-           --block_size 512
-           # --do_push_tokenizer_to_hub \
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 6 ]; then
-    python main.py \
-            --do_reformat_files \
-            --sliding_window_size 8
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 7 ]; then
-    python main.py \
-            --do_split_paths
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
-    python main.py \
-            --do_tokenize_files \
-            --model_type bert \
-            --block_size 512
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
-    python main.py \
-            --do_create_masked_encodings \
-            --mlm_type manual \
-            --mlm_probability 0.15
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
-    python main.py \
-            --do_train_model \
-            --model_type bert \
-            --trainer_type pytorch \
-            --seed 42 \
-            --vocab_size 30522 \
-            --block_size 512 \
-            --hidden_size 768 \
-            --num_attention_heads 12 \
-            --num_hidden_layers 6  \
-            --type_vocab_size 1 \
-            --train_batch_size 8 \
-            --eval_batch_size 8 \
-            --learning_rate 0.01 \
-            --num_train_epochs 2 \
-            --num_eval_epochs 10
-
-elif [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
-    python main.py \
-            --model_type bert \
-            # --model_path \ # to be defined
-            --block_size 512
-
-fi
-```
-you can see the output of the logs in `train.log` and the error in `error.log`
-
-<br>
+In other words, do not submit more than a single job at once as it will lead to errors.
 
 Submit a single job as:
 ```
