@@ -25,7 +25,7 @@ python -m venv .venv
 ### How to activate the virtual environment to run the code
 ```
 ## Linux
-source ./.env/bin/activate
+source ./.venv/bin/activate
 
 
 ## Windows
@@ -36,6 +36,11 @@ pip install -r requirements.txt
 
 ### Make a copy of the example environment variables file (this is not the virtual env; don't get confused)
 ```
+## Linux
+cp .env.example .env
+
+
+## Windows
 xcopy .env.example .env
 ```
 
@@ -169,7 +174,7 @@ The array mechanism was used for partitioning my tasks into distinct jobs, savin
 
 <br>
 
-The job script is:
+Store the following job script in a `job.sub` file using `vim` or any other text editor of your preference:
 ```
 #!/bin/bash
 
@@ -183,7 +188,15 @@ The job script is:
 #SBATCH -A p156
 
 module load Python/3.9.6-GCCcore-11.2.0
-source .venv/bin/activate
+
+# Check if the .venv directory does not exist
+if [ ! -d ".venv" ]; then
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+else
+    source .venv/bin/activate
+
 cd src
 
 if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
@@ -224,7 +237,6 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
     python main.py \
             --do_tokenize_files \
             --model_type bert \
-            --paths train_test \
             --block_size 512
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
