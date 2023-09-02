@@ -14,8 +14,8 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main(
-    output_dir_path,
-    do_load_dataset_from_hub,
+    output_dir_path: str,
+    do_load_dataset_from_hub: bool,
 ):
 
     if do_load_dataset_from_hub:
@@ -25,7 +25,7 @@ def main(
     else:
         # Load it from locally
         df = pd.read_csv(
-            os.path.join(curr_dir, "data_cleaner", "preprocessed_docs.csv")
+            os.path.join(curr_dir, "..", "_02_data_cleaner", "preprocessed_docs.csv")
         )
 
     for num in tqdm(range(len(df)), desc="Exporting CSV docs to TXT files"):
