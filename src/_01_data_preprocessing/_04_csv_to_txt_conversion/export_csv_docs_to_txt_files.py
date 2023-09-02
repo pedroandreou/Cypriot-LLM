@@ -2,13 +2,9 @@ import argparse
 import os
 
 import pandas as pd
-from dotenv import find_dotenv, load_dotenv
 from tqdm import tqdm
 
-from src.utils.hub_pusher import load_custom_dataset
-
-load_dotenv(find_dotenv())
-
+from utils.hub_pusher import load_custom_dataset
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -58,6 +54,10 @@ def parse_arguments():
 
 if __name__ == "__main__":
     import argparse
+
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
 
     args = parse_arguments()
 
