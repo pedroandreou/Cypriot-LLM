@@ -28,7 +28,7 @@ class MaskedDataset(Dataset):
 
     def default_constructor(self):
         print(
-            "Using default constructor. This instance is meant for loading data only."
+            "Using default constructor. This instance of MaskedDataset class is meant for loading data only."
         )
         pass
 

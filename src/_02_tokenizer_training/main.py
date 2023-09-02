@@ -54,7 +54,7 @@ class TokenizerWrapper:
 
     def default_constructor(self):
         print(
-            "Using default constructor. This instance is meant for loading the tokenizer only."
+            "Using default constructor. This instance of TokenizerWrapper class is meant for loading the tokenizer only."
         )
 
     def parameterized_constructor(

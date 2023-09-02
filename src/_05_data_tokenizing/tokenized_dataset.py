@@ -27,7 +27,7 @@ class TokenizedDataset(Dataset):
 
     def default_constructor(self):
         print(
-            "Using default constructor. This instance is meant for loading data only."
+            "Using default constructor. This instance of TokenizedDataset class is meant for loading data only."
         )
         self.examples = []
         self.model_type = None
