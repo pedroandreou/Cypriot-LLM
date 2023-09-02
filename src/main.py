@@ -5,7 +5,7 @@ from typing import Optional
 from dotenv import find_dotenv, load_dotenv
 from transformers import HfArgumentParser
 
-from _01_data_preprocessing._04_csv_to_txt_conversion.export_csv_docs_to_txt_files import (
+from src._01_data_preprocessing._04_csv_to_txt_conversion.export_csv_docs_to_txt_files import (
     main as export_csv_to_txt_files,
 )
 from src._01_data_preprocessing._01_doc_merge_to_csv.docs_to_csv import (

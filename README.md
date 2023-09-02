@@ -192,6 +192,8 @@ module load Python/3.9.6-GCCcore-11.2.0
 
 # Check if the .venv directory does not exist
 if [ ! -d ".venv" ]; then
+    pip install -e .
+
     python3 -m venv .venv
     source .venv/bin/activate
     pip install -r requirements.txt
@@ -279,7 +281,7 @@ you can see the output of the logs in `train.log` and the error in `error.log`
 
 Submit a single job as:
 ```
-sbatch --array=<task> job.sub
+sbatch --job-name=Stage<task> --array=<task> job.sub
 ```
 where `<task>` can be any from 1 to 11
 
