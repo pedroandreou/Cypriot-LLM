@@ -139,7 +139,7 @@ Cypriot-LLM/
 ├── dataset/ # transfer it here
 ├── README.md
 └── ...
-
+```
 
 ### Modify `.env` file's paths for raw dataset and cleaned files dir
 and then in the `.env` file, add the paths of dataset and cleaned files as follows:
