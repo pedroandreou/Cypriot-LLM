@@ -84,16 +84,16 @@ class MaskedDataset(Dataset):
         if self.model_type == "bert":
             mask_arr = (
                 (rand < self.mlm_probability)
+                * (input_ids != 101)
+                * (input_ids != 102)
                 * (input_ids != 0)
-                * (input_ids != 1)
-                * (input_ids != 2)
             )
         else:
             mask_arr = (
                 (rand < self.mlm_probability)
-                * (input_ids != 100)
-                * (input_ids != 101)
-                * (input_ids != 102)  # not sure for the 100
+                * (input_ids != 0)
+                * (input_ids != 1)
+                * (input_ids != 2)  # not sure for the 100
             )
 
         for i in range(input_ids.shape[0]):
@@ -102,9 +102,9 @@ class MaskedDataset(Dataset):
 
             # mask input ids
             if self.model_type == "bert":
-                input_ids[i, selection] = 3
-            else:
                 input_ids[i, selection] = 103
+            else:
+                input_ids[i, selection] = 3
 
         return {
             "input_ids": input_ids,

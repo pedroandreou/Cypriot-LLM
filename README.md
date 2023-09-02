@@ -82,7 +82,6 @@ python main.py \
     --do_split_paths \
 
     --do_tokenize_files \
-    --paths train_test \
 
     --do_create_masked_encodings \
     --mlm_type manual \

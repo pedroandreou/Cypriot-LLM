@@ -5,13 +5,13 @@ from typing import Optional
 from dotenv import find_dotenv, load_dotenv
 from transformers import HfArgumentParser
 
-from src._01_data_preprocessing._02_data_cleaner.main import main as clean_data
-from src._01_data_preprocessing._01_doc_merge_to_csv.docs_to_csv import (
-    main as merge_docs,
-)
 from _01_data_preprocessing._04_csv_to_txt_conversion.export_csv_docs_to_txt_files import (
     main as export_csv_to_txt_files,
 )
+from src._01_data_preprocessing._01_doc_merge_to_csv.docs_to_csv import (
+    main as merge_docs,
+)
+from src._01_data_preprocessing._02_data_cleaner.main import main as clean_data
 from src._01_data_preprocessing._03_file_analysis_helpers.calculate_file_capacities import (
     main as calculate_file_capacities,
 )
@@ -101,10 +101,6 @@ class ScriptArguments:
 
     ### TOKENIZE FILES ###
     do_tokenize_files: bool = field(default=False)
-    paths: str = field(
-        default="train_test",
-        metadata={"help": "Which file paths to use: all, train, test, or train_test."},
-    )
 
     ### MASK TOKENS ###
     do_create_masked_encodings: bool = field(default=False)
@@ -246,7 +242,6 @@ def main():
 
         tokenize_files(
             args.model_type,
-            args.paths,
             args.block_size,
         )
     else:

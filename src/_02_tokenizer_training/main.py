@@ -109,8 +109,8 @@ class TokenizerWrapper:
                         "[CLS]",
                         "[SEP]",
                         "[MASK]",
-                        "<S>",
-                        "<T>",
+                        # "<S>",
+                        # "<T>",
                     ],
                 },
             )

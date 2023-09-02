@@ -1,72 +1,30 @@
 import os
 
+from src._04_path_splitting.main import PathSplitter
 from src._05_data_tokenizing.tokenized_dataset import TokenizedDataset
 from src.utils.common_utils import echo_with_color, save_dataset
-
-
-def fetch_txt_files(paths_type):
-    paths_directory = os.path.normpath(
-        os.path.join(curr_dir, "..", "_04_path_splitting", "file_paths")
-    )
-
-    file_mapping = {
-        "all": "all_paths.txt",
-        "train": "train_paths.txt",
-        "test": "test_paths.txt",
-        "train_test": ["train_paths.txt", "test_paths.txt"],
-    }
-
-    # Using a dictionary to store the path_type as the key and its corresponding paths as the value
-    txt_files_dict = {}
-
-    file_name = file_mapping.get(paths_type)
-
-    if isinstance(file_name, list):
-        for fn in file_name:
-            key = fn.split("_")[0]  # Using the filename's prefix as the key
-            print(f"Loading {key} paths")
-
-            with open(os.path.join(paths_directory, fn), "r") as f:
-                txt_files_dict[key] = f.read().splitlines()
-    else:
-        print(f"Loading {paths_type} paths")
-
-        with open(os.path.join(paths_directory, file_name), "r") as f:
-            txt_files_dict[paths_type] = f.read().splitlines()
-
-    return txt_files_dict
-
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def main(model_type, paths, block_size):
+def process_and_save_dataset(key, paths, model_type, block_size, curr_dir):
+    echo_with_color(f"Tokenizing {key} files", color="bright_yellow")
+    tokenized_dataset = TokenizedDataset(
+        model_type=model_type,
+        files_list=paths,
+        block_size=block_size,
+    )
+    echo_with_color(f"Saving the tokenized {key} dataset...", color="bright_yellow")
+    save_dataset(curr_dir, tokenized_dataset, "encodings", "tokenized", key)
 
-    # key is train or test
-    # value is a list of paths
-    files_list_dict = fetch_txt_files(paths)
-    for key, files_list in files_list_dict.items():
-        echo_with_color("Tokenizing {key} files", color="bright_yellow")
 
-        # if files_list:  # Check if the list is not empty
-        #     first_path = files_list[0]
-        #     print(first_path)
-        # else:
-        #     print(f"No files found for key: {key}")
+def main(model_type, block_size):
 
-        tokenized_dataset = TokenizedDataset(
-            model_type=model_type,
-            files_list=files_list,
-            block_size=block_size,
-        )
+    train_paths, test_paths = PathSplitter.load_paths()
 
-        # print("the file path for ", files_list[0], "is: \n", tokenized_dataset[0])
-        # print("the file path for ", files_list[1], "is: \n", tokenized_dataset[1])
-        # print("the file path for ", files_list[2], "is: \n", tokenized_dataset[2])
-        # exit()
-
-        echo_with_color(f"Saving the tokenized {key} dataset...", color="bright_yellow")
-        save_dataset(curr_dir, tokenized_dataset, "encodings", "tokenized", key)
+    echo_with_color("Tokenizing files", color="bright_yellow")
+    process_and_save_dataset("train", train_paths, model_type, block_size, curr_dir)
+    process_and_save_dataset("test", test_paths, model_type, block_size, curr_dir)
 
 
 def parse_arguments():
@@ -74,14 +32,6 @@ def parse_arguments():
 
     parser.add_argument(
         "--model_type", type=str, default="bert", help="Type of model to use"
-    )
-
-    parser.add_argument(
-        "--paths",
-        type=str,
-        choices=["all", "train", "test", "train_test"],
-        default="train_test",
-        help="Which file paths to use: all, train, test, or train_test.",
     )
 
     parser.add_argument("--block_size", type=int, default=512, help="Block size.")
@@ -96,6 +46,5 @@ if __name__ == "__main__":
 
     main(
         model_type=args.model_type,
-        paths=args.paths,
         block_size=args.block_size,
     )
