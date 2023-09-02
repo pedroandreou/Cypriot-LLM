@@ -29,10 +29,10 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def main():
     initial_doc_file_path = os.path.normpath(
-        os.path.join(curr_dir, "..", "doc_merge_to_csv", "all_documents.csv")
+        os.path.join(curr_dir, "..", "_01_doc_merge_to_csv", "all_documents.csv")
     )
     preprocessed_doc_file_path = os.path.normpath(
-        os.path.join(curr_dir, "..", "data_cleaner", "preprocessed_docs.csv")
+        os.path.join(curr_dir, "..", "_02_data_cleaner", "preprocessed_docs.csv")
     )
     files = [initial_doc_file_path, preprocessed_doc_file_path]
 

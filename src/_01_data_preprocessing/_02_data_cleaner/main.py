@@ -17,7 +17,7 @@ def main(
 ):
 
     input_file_name = os.path.normpath(
-        os.path.join(curr_dir, "..", "doc_merge_to_csv", "all_documents.csv")
+        os.path.join(curr_dir, "..", "_01_doc_merge_to_csv", "all_documents.csv")
     )
 
     try:
