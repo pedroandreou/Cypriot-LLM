@@ -35,7 +35,7 @@ def push_dataset(
     DatasetDict({custom_key: dataset}).push_to_hub(huggingface_repo_name, private=True)
 
 
-def load_dataset(custom_key: str):
+def load_custom_dataset(custom_key: str):
     hub_login(huggingface_token, do_login_first_time)
 
     # Load the dataset

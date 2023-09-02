@@ -5,7 +5,7 @@ import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 from tqdm import tqdm
 
-from src.utils.hub_pusher import load_dataset
+from src.utils.hub_pusher import load_custom_dataset
 
 load_dotenv(find_dotenv())
 
@@ -19,7 +19,7 @@ def main(
 ):
 
     if do_load_dataset_from_hub:
-        dataset = load_dataset("preprocessed_data")
+        dataset = load_custom_dataset("preprocessed_data")
 
         df = dataset.to_pandas()
     else:

@@ -26,6 +26,7 @@ python -m venv .venv
 ```
 ## Linux
 source ./.venv/bin/activate
+pip install -r requirements.txt
 
 
 ## Windows
@@ -196,6 +197,7 @@ if [ ! -d ".venv" ]; then
     pip install -r requirements.txt
 else
     source .venv/bin/activate
+fi
 
 cd src
 
