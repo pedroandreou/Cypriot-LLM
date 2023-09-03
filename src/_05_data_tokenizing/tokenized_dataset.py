@@ -72,15 +72,9 @@ class TokenizedDataset(Dataset):
         return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.examples)}>"
 
     def __len__(self):
-        if not self.examples:
-            print("Warning: Dataset not initialized. Returning length 0.")
-            return 0
         return len(self.examples)
 
     def __getitem__(self, i):
-        if not self.examples:
-            print("Warning: Dataset not initialized. Returning empty item.")
-            return {}
         return torch.tensor(self.examples[i].ids, dtype=torch.long)
 
     @staticmethod
