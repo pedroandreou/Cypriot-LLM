@@ -141,14 +141,14 @@ Cypriot-LLM/
 └── ...
 ```
 
-### Modify `.env` file's paths for raw dataset and cleaned files dir
-and then in the `.env` file, add the paths of dataset and cleaned files as follows:
+### Modify environment variables file
+Go to the `.env` file and add the path of the dataset as follows:
 ```
 DATASET_DIR_PATH="/nvme/h/cy22pa1/data_p156/Cypriot-LLM/dataset"
 ```
 
-### If paths do not work:
-To make paths work, go to the root directory of the git cloned repo and run:
+### If the repo paths do not work:
+Go to the root directory of the git cloned repo and run:
 ```
 pip install -e .
 ```
@@ -173,7 +173,7 @@ Submit a single job as:
 ```
 sbatch --job-name=Stage<task> --array=<task> job.sub
 ```
-where `<task>` can be any from 1 to 11
+where `<task>` can be any number from 1 to 11
 
 
 More information on how to run jobs here https://hpcf.cyi.ac.cy/documentation/running_jobs.html

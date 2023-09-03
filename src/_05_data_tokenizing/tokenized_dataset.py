@@ -8,8 +8,7 @@ from src._02_tokenizer_training.main import TokenizerWrapper
 from src.utils.common_utils import echo_with_color
 
 """
-The encodings are saved raw and NOT in format of input ids, attention mask, and labels. This is handled by the masked_dataset.py file.
-They are saved as a list of lists of integers, where each list of integers is a tokenized sample.
+A dataloader for accessing the tokenized dataset's token ids where each dataloader's index is returned in a different tensor.
 """
 
 
