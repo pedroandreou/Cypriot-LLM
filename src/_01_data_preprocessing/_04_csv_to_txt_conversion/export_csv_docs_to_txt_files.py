@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-from utils.hub_pusher import load_custom_dataset
+from utils.hub_pusher import load_pushed_dataset
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,7 +13,7 @@ def main(
 ):
 
     if do_load_dataset_from_hub:
-        dataset = load_custom_dataset("preprocessed_data")
+        dataset = load_pushed_dataset("preprocessed_data")
 
         df = dataset.to_pandas()
     else:

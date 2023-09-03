@@ -27,8 +27,20 @@ def main(model_type, mlm_type, mlm_probability):
     )
 
     echo_with_color("Saving masked datasets...", color="bright_magenta")
-    save_dataset(curr_dir, masked_train_dataset, "masked_encodings", "masked", "train")
-    save_dataset(curr_dir, masked_test_dataset, "masked_encodings", "masked", "test")
+    save_dataset(
+        curr_dir,
+        masked_train_dataset,
+        f"masked_encodings/cy{model_type}",
+        "masked",
+        "train",
+    )
+    save_dataset(
+        curr_dir,
+        masked_test_dataset,
+        f"masked_encodings/cy{model_type}",
+        "masked",
+        "test",
+    )
 
 
 def parse_arguments():

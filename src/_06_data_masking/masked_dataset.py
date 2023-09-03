@@ -6,6 +6,8 @@ from tqdm import tqdm
 
 # from transformers import DataCollatorForLanguageModeling
 
+curr_dir = os.path.dirname(os.path.realpath(__file__))
+
 
 class MaskedDataset(Dataset):
     def __init__(
@@ -65,7 +67,6 @@ class MaskedDataset(Dataset):
 
             if self.mlm_type == "manual":
                 masked_encodings_dict = self.manual_mlm(encodings_dict)
-
             else:  # automatic
                 masked_encodings_dict = self.automatic_mlm(encodings_dict)
 
@@ -139,10 +140,9 @@ class MaskedDataset(Dataset):
 
     @staticmethod
     def load_masked_encodings():
-        def get_dataset_path(set_type):
-            curr_dir = os.path.dirname(os.path.realpath(__file__))
+        def get_dataset_path(dataset_type):
             folder_name = "masked_encodings"
-            filename = f"masked_{set_type}_dataset.pth"
+            filename = f"masked_{dataset_type}_dataset.pth"
 
             return os.path.join(curr_dir, folder_name, filename)
 

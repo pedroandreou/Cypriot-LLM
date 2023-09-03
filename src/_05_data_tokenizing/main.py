@@ -15,7 +15,9 @@ def tokenize_and_save_dataset(key, paths, model_type, block_size, curr_dir):
         block_size=block_size,
     )
     echo_with_color(f"Saving the tokenized {key} dataset...", color="bright_yellow")
-    save_dataset(curr_dir, tokenized_dataset, "encodings", "tokenized", key)
+    save_dataset(
+        curr_dir, tokenized_dataset, f"encodings/cy{model_type}", "tokenized", key
+    )
 
 
 def main(model_type, block_size):
