@@ -30,3 +30,8 @@
 
 # Inference directory
 inference/
+
+# Batch script's files
+**/dataset/
+**/train.log
+**/error.log
