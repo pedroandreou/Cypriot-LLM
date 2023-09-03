@@ -43,23 +43,34 @@ class MaskedDataset(Dataset):
 
     def _create_masked_dataset(self):
         masked_encodings_list = {"input_ids": [], "attention_mask": [], "labels": []}
+        
+        count = 0
 
-        # Add tqdm around the loop iterable to display the progress bar
         for i in tqdm(
             range(len(self.encodings)), desc="Masking encodings"
         ):  # Loop over each tensor in the dataset
-            input_ids = self.encodings[i]
-            attention_mask = (input_ids != 0).long()
-            labels = input_ids
+            
+            labels = self.encodings[i].clone()
+            mask = (labels != 0).long()
+            input_ids = labels.detach().clone()
 
             encodings_dict = {
                 "input_ids": input_ids,
-                "attention_mask": attention_mask,
+                "attention_mask": mask,
                 "labels": labels,
             }
 
+            
             if self.mlm_type == "manual":
                 masked_encodings = self.manual_mlm(encodings_dict)
+                
+                print(f"the masked_encodings of count {count} is: ", masked_encodings, "\n")
+
+                if count == 3:
+                    exit()
+
+                count += 1
+
             else:  # automatic
                 masked_encodings = self.automatic_mlm(encodings_dict)
 
@@ -73,9 +84,10 @@ class MaskedDataset(Dataset):
         return masked_encodings_list
 
     def manual_mlm(self, batch):
-        mask = torch.tensor(batch["attention_mask"])
-        labels = torch.tensor(batch["input_ids"])
-        input_ids = labels.detach().clone()
+        input_ids = batch["input_ids"]
+        mask = batch["attention_mask"]
+        labels = batch["input_ids"]
+
 
         # create random array of floats with equal dims to input_ids
         rand = torch.rand(input_ids.shape)
@@ -93,7 +105,7 @@ class MaskedDataset(Dataset):
                 (rand < self.mlm_probability)
                 * (input_ids != 0)
                 * (input_ids != 1)
-                * (input_ids != 2)  # not sure for the 100
+                * (input_ids != 2)
             )
 
         for i in range(input_ids.shape[0]):

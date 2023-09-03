@@ -28,8 +28,7 @@ class TokenizedDataset(Dataset):
         print(
             "Using default constructor. This instance of TokenizedDataset class is meant for loading data only."
         )
-        self.examples = []
-        self.model_type = None
+        pass
 
     def parameterized_constructor(self, model_type, files_list, block_size):
         """
