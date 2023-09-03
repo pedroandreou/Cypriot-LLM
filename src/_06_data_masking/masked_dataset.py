@@ -51,8 +51,6 @@ class MaskedDataset(Dataset):
             "labels": [],
         }
 
-        count = 0  # For debugging purposes
-
         for i in tqdm(
             range(len(self.encodings)), desc="Masking encodings"
         ):  # Loop over each tensor in the dataset
@@ -79,15 +77,7 @@ class MaskedDataset(Dataset):
             for key in current_tensor_encodings:
                 entire_masked_encodings[key].append(current_tensor_encodings[key])
 
-            print(f"the total masked encodings dict is: {entire_masked_encodings}")
-
-            if count == 3:
-                exit()
-
-            count += 1
-
-        # Convert lists to tensors
-        for key in entire_masked_encodings[key]:
+        for key in entire_masked_encodings:
             entire_masked_encodings[key] = torch.stack(entire_masked_encodings[key])
 
         return entire_masked_encodings
