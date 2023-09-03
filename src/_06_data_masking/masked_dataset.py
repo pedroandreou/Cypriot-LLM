@@ -42,7 +42,7 @@ class MaskedDataset(Dataset):
         self.masked_encodings = self._create_masked_dataset()
 
     def _create_masked_dataset(self):
-        masked_encodings_list = {"input_ids": [], "attention_mask": [], "labels": []}
+        total_masked_encodings_dict = {"input_ids": [], "attention_mask": [], "labels": []}
         
         count = 0
 
@@ -62,31 +62,26 @@ class MaskedDataset(Dataset):
 
             
             if self.mlm_type == "manual":
-                masked_encodings = self.manual_mlm(encodings_dict)
-                
-                print(f"the masked_encodings of count {count} is: ", masked_encodings, "\n")
-
-                if count == 3:
-                    exit()
-
-                count += 1
+                masked_encodings_dict = self.manual_mlm(encodings_dict)
 
             else:  # automatic
-                masked_encodings = self.automatic_mlm(encodings_dict)
+                masked_encodings_dict = self.automatic_mlm(encodings_dict)
+        
 
-            for key in masked_encodings:
-                masked_encodings_list[key].append(masked_encodings[key])
+            for key in masked_encodings_dict:
+                total_masked_encodings_dict[key].append(masked_encodings_dict[key])
 
         # Convert lists to tensors
-        for key in masked_encodings_list:
-            masked_encodings_list[key] = torch.stack(masked_encodings_list[key])
+        for key in total_masked_encodings_dict[key]:
+            total_masked_encodings_dict[key] = torch.stack(total_masked_encodings_dict[key])
 
-        return masked_encodings_list
+        return total_masked_encodings_dict
+
 
     def manual_mlm(self, batch):
         input_ids = batch["input_ids"]
         mask = batch["attention_mask"]
-        labels = batch["input_ids"]
+        labels = batch["labels"]
 
 
         # create random array of floats with equal dims to input_ids
@@ -103,20 +98,20 @@ class MaskedDataset(Dataset):
         else:
             mask_arr = (
                 (rand < self.mlm_probability)
-                * (input_ids != 0)
                 * (input_ids != 1)
                 * (input_ids != 2)
+                * (input_ids != 0)
             )
 
         for i in range(input_ids.shape[0]):
             # get indices of mask positions from mask array
-            selection = torch.flatten(mask_arr[i].nonzero()).tolist()
+            selection = torch.flatten(mask_arr.nonzero()).tolist()
 
             # mask input ids
             if self.model_type == "bert":
-                input_ids[i, selection] = 103
+                input_ids[selection] = 103
             else:
-                input_ids[i, selection] = 3
+                input_ids[selection] = 3
 
         return {
             "input_ids": input_ids,
@@ -136,17 +131,10 @@ class MaskedDataset(Dataset):
         # return self.data_collator(data)
 
     def __len__(self):
-        if self.masked_encodings is None:
-            print("Warning: Dataset not initialized. Returning length 0.")
-            return 0
-        return len(self.masked_encodings["input_ids"])
+        return self.masked_encodings["input_ids"].shape[0]
 
     def __getitem__(self, index):
-        if self.masked_encodings is None:
-            print("Warning: Dataset not initialized. Returning empty item.")
-            return {}
-        item = {key: val[index] for key, val in self.masked_encodings.items()}
-        return item
+        return {key: tensor[index] for key, tensor in self.masked_encodings.items()}
 
     @staticmethod
     def load_masked_encodings():
