@@ -3,7 +3,8 @@ import os
 import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from transformers import DataCollatorForLanguageModeling
+
+# from transformers import DataCollatorForLanguageModeling
 
 
 class MaskedDataset(Dataset):
@@ -42,14 +43,16 @@ class MaskedDataset(Dataset):
         self.masked_encodings = self._create_masked_dataset()
 
     def _create_masked_dataset(self):
-        total_masked_encodings_dict = {"input_ids": [], "attention_mask": [], "labels": []}
-        
-        count = 0
+        total_masked_encodings_dict = {
+            "input_ids": [],
+            "attention_mask": [],
+            "labels": [],
+        }
 
         for i in tqdm(
             range(len(self.encodings)), desc="Masking encodings"
         ):  # Loop over each tensor in the dataset
-            
+
             labels = self.encodings[i].clone()
             mask = (labels != 0).long()
             input_ids = labels.detach().clone()
@@ -60,29 +63,27 @@ class MaskedDataset(Dataset):
                 "labels": labels,
             }
 
-            
             if self.mlm_type == "manual":
                 masked_encodings_dict = self.manual_mlm(encodings_dict)
 
             else:  # automatic
                 masked_encodings_dict = self.automatic_mlm(encodings_dict)
-        
 
             for key in masked_encodings_dict:
                 total_masked_encodings_dict[key].append(masked_encodings_dict[key])
 
         # Convert lists to tensors
         for key in total_masked_encodings_dict[key]:
-            total_masked_encodings_dict[key] = torch.stack(total_masked_encodings_dict[key])
+            total_masked_encodings_dict[key] = torch.stack(
+                total_masked_encodings_dict[key]
+            )
 
         return total_masked_encodings_dict
-
 
     def manual_mlm(self, batch):
         input_ids = batch["input_ids"]
         mask = batch["attention_mask"]
         labels = batch["labels"]
-
 
         # create random array of floats with equal dims to input_ids
         rand = torch.rand(input_ids.shape)
@@ -103,7 +104,7 @@ class MaskedDataset(Dataset):
                 * (input_ids != 0)
             )
 
-        for i in range(input_ids.shape[0]):
+        for _ in range(input_ids.shape[0]):
             # get indices of mask positions from mask array
             selection = torch.flatten(mask_arr.nonzero()).tolist()
 
@@ -120,7 +121,6 @@ class MaskedDataset(Dataset):
         }
 
     def automatic_mlm(self, data):
-        pass
         # data_collator = DataCollatorForLanguageModeling(
         #     tokenizer=loaded_tokenizer,
         #     mlm=True,
@@ -129,6 +129,7 @@ class MaskedDataset(Dataset):
         # )
 
         # return self.data_collator(data)
+        pass
 
     def __len__(self):
         return self.masked_encodings["input_ids"].shape[0]
