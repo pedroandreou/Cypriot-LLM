@@ -45,47 +45,54 @@ class MaskedDataset(Dataset):
         self.masked_encodings = self._create_masked_dataset()
 
     def _create_masked_dataset(self):
-        total_masked_encodings_dict = {
+        entire_masked_encodings = {
             "input_ids": [],
             "attention_mask": [],
             "labels": [],
         }
 
+        count = 0  # For debugging purposes
+
         for i in tqdm(
             range(len(self.encodings)), desc="Masking encodings"
         ):  # Loop over each tensor in the dataset
 
-            labels = self.encodings[i].clone()
-            mask = (labels != 0).long()
-            input_ids = labels.detach().clone()
-
-            encodings_dict = {
-                "input_ids": input_ids,
-                "attention_mask": mask,
-                "labels": labels,
-            }
+            current_tensor_labels = self.encodings[i].clone()
+            current_tensor_mask = (current_tensor_labels != 0).long()
+            current_tensor_input_ids = current_tensor_labels.detach().clone()
 
             if self.mlm_type == "manual":
-                masked_encodings_dict = self.manual_mlm(encodings_dict)
+                current_tensor_masked_input_ids = self.manual_mlm(
+                    current_tensor_input_ids
+                )
             else:  # automatic
-                masked_encodings_dict = self.automatic_mlm(encodings_dict)
+                current_tensor_masked_input_ids = self.automatic_mlm(
+                    current_tensor_input_ids
+                )
 
-            for key in masked_encodings_dict:
-                total_masked_encodings_dict[key].append(masked_encodings_dict[key])
+            current_tensor_encodings = {
+                "input_ids": current_tensor_masked_input_ids,
+                "attention_mask": current_tensor_mask,
+                "labels": current_tensor_labels,
+            }
+
+            for key in current_tensor_encodings:
+                entire_masked_encodings[key].append(current_tensor_encodings[key])
+
+            print(f"the total masked encodings dict is: {entire_masked_encodings}")
+
+            if count == 3:
+                exit()
+
+            count += 1
 
         # Convert lists to tensors
-        for key in total_masked_encodings_dict[key]:
-            total_masked_encodings_dict[key] = torch.stack(
-                total_masked_encodings_dict[key]
-            )
+        for key in entire_masked_encodings[key]:
+            entire_masked_encodings[key] = torch.stack(entire_masked_encodings[key])
 
-        return total_masked_encodings_dict
+        return entire_masked_encodings
 
-    def manual_mlm(self, batch):
-        input_ids = batch["input_ids"]
-        mask = batch["attention_mask"]
-        labels = batch["labels"]
-
+    def manual_mlm(self, input_ids):
         # create random array of floats with equal dims to input_ids
         rand = torch.rand(input_ids.shape)
 
@@ -115,11 +122,8 @@ class MaskedDataset(Dataset):
             else:
                 input_ids[selection] = 3
 
-        return {
-            "input_ids": input_ids,
-            "attention_mask": mask,
-            "labels": labels,
-        }
+        # masked input ids
+        return input_ids
 
     def automatic_mlm(self, data):
         # data_collator = DataCollatorForLanguageModeling(
