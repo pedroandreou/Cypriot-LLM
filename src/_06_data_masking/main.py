@@ -10,7 +10,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def main(model_type, mlm_type, mlm_probability):
 
     echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
-    train_dataset, test_dataset = TokenizedDataset().load_encodings()
+    train_dataset, test_dataset = TokenizedDataset().load_encodings(model_type)
 
     echo_with_color("Creating masked datasets...", color="bright_magenta")
     masked_train_dataset = MaskedDataset(

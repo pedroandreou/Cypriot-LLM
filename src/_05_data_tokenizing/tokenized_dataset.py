@@ -76,10 +76,10 @@ class TokenizedDataset(Dataset):
         return torch.tensor(self.examples[i].ids, dtype=torch.long)
 
     @staticmethod
-    def load_encodings():
+    def load_encodings(model_type: str):
         def get_dataset_path(set_type):
             curr_dir = os.path.dirname(os.path.realpath(__file__))
-            folder_name = "encodings"
+            folder_name = f"encodings/cy{model_type}"
             filename = f"tokenized_{set_type}_dataset.pth"
 
             return os.path.join(curr_dir, folder_name, filename)

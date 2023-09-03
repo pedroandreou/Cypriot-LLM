@@ -64,7 +64,9 @@ def main(
     model = ModelClass(config=config).to(device)
 
     print("Loading the masked encodings of the train and test sets...")
-    masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings()
+    masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings(
+        model_type
+    )
     model_path = os.path.join(curr_dir, "trained_model_bundle", f"cy{model_type}")
 
     print(
