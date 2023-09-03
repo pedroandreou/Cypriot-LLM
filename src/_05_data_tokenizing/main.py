@@ -7,7 +7,7 @@ from src.utils.common_utils import echo_with_color, save_dataset
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def tokenize_and_save_dataset(key, paths, model_type, block_size, curr_dir):
+def tokenize_and_save_dataset(key, paths, model_type, block_size):
     echo_with_color(f"Tokenizing {key} files", color="bright_yellow")
     tokenized_dataset = TokenizedDataset(
         model_type=model_type,
@@ -25,8 +25,8 @@ def main(model_type, block_size):
     train_paths, test_paths = PathSplitter.load_paths()
 
     echo_with_color("Tokenizing files", color="bright_yellow")
-    tokenize_and_save_dataset("train", train_paths, model_type, block_size, curr_dir)
-    tokenize_and_save_dataset("test", test_paths, model_type, block_size, curr_dir)
+    tokenize_and_save_dataset("train", train_paths, model_type, block_size)
+    tokenize_and_save_dataset("test", test_paths, model_type, block_size)
 
 
 def parse_arguments():

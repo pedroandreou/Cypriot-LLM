@@ -11,6 +11,8 @@ from src.utils.common_utils import echo_with_color
 A dataloader for accessing the tokenized dataset's token ids where each dataloader's index is returned in a different tensor.
 """
 
+curr_dir = os.path.dirname(os.path.realpath(__file__))
+
 
 class TokenizedDataset(Dataset):
     def __init__(
@@ -78,7 +80,6 @@ class TokenizedDataset(Dataset):
     @staticmethod
     def load_encodings(model_type: str):
         def get_dataset_path(set_type):
-            curr_dir = os.path.dirname(os.path.realpath(__file__))
             folder_name = f"encodings/cy{model_type}"
             filename = f"tokenized_{set_type}_dataset.pth"
 
