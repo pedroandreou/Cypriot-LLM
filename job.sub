@@ -49,10 +49,10 @@ MLM_PROBABILITY=0.15
 # --- Train Model Config ---
 MASKED_ENCODINGS_VERSION=1
 TRAINER_TYPE="pytorch"
-TRAIN_BATCH_SIZE=8
+TRAIN_BATCH_SIZE=32
 EVAL_BATCH_SIZE=8
-LEARNING_RATE=0.01
-NUM_TRAIN_EPOCHS=2
+LEARNING_RATE=1e-4
+NUM_TRAIN_EPOCHS=3
 NUM_EVAL_EPOCHS=10
 
 # ==============================
@@ -127,7 +127,7 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
             --hidden_size 768 \
             --num_attention_heads 12 \
             --num_hidden_layers 6  \
-            --type_vocab_size 1 \
+            --type_vocab_size 2 \
             --train_batch_size $TRAIN_BATCH_SIZE \
             --eval_batch_size $EVAL_BATCH_SIZE \
             --learning_rate $LEARNING_RATE \

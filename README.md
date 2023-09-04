@@ -104,10 +104,10 @@ python main.py \
     --num_attention_heads 12 \
     --num_hidden_layers 6  \
     --type_vocab_size 2 \
-    --train_batch_size 8 \
+    --train_batch_size 32 \
     --eval_batch_size 8 \
-    --learning_rate 0.01 \
-    --num_train_epochs 2 \
+    --learning_rate 1e-4 \
+    --num_train_epochs 3 \
     --num_eval_epochs 10
 ```
 
