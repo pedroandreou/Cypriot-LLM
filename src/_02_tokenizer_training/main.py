@@ -5,7 +5,7 @@ from glob import glob
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
 
-from src.utils.common_utils import echo_with_color
+from src.utils.common_utils import get_new_subdirectory_path, echo_with_color
 
 
 class TokenizerWrapper:
@@ -139,15 +139,20 @@ class TokenizerWrapper:
         echo_with_color(
             f"Saving the {self.model_type}'s tokenizer files...", color="black"
         )
-        specific_tokenizer_dir_path = os.path.join(
+        tokenizer_dir_path_w_model_type = os.path.join(
             tokenizer_dir_path, f"cy{self.model_type}"
         )
-        tokenizer.save_model(specific_tokenizer_dir_path)
+        tokenizer_dir_path_w_model_type_n_version = get_new_subdirectory_path(
+            tokenizer_dir_path_w_model_type, "tokenizer"
+        )
+        tokenizer.save_model(tokenizer_dir_path_w_model_type_n_version)
 
         # Save BERT's config json file to disk
         # as it is not saved automatically
         if self.model_type == "bert":
-            config_path = os.path.join(specific_tokenizer_dir_path, "config.json")
+            config_path = os.path.join(
+                tokenizer_dir_path_w_model_type_n_version, "config.json"
+            )
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
                     # "model_type": "bert", # For AutoTokenizer.from_pretrained
@@ -164,38 +169,42 @@ class TokenizerWrapper:
                 json.dump(tokenizer_cfg, f)
 
     @staticmethod
-    def load_tokenizer(model_type, block_size):
+    def load_tokenizer(model_type: str, tokenizer_version: int, block_size: int):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
         """
 
-        def get_tokenizer_paths(model_type):
+        def get_tokenizer_paths(model_type: str, tokenizer_version: int):
             paths = []
+
+            try:
+                specific_tokenizer_dir_path = os.path.join(
+                    tokenizer_dir_path,
+                    f"cy{model_type}",
+                    f"tokenizer_{tokenizer_version}",
+                )
+            except FileNotFoundError:
+                print(
+                    f"Directory '{specific_tokenizer_dir_path}' does not exist. Please ensure the provided model version is correct."
+                )
+
             if model_type == "bert":
-                config_path = os.path.join(
-                    tokenizer_dir_path, f"cy{model_type}", "config.json"
-                )
-                vocab_path = os.path.join(
-                    tokenizer_dir_path, f"cy{model_type}", "vocab.txt"
-                )
+                config_path = os.path.join(specific_tokenizer_dir_path, "config.json")
+                vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.txt")
                 paths.append(config_path)
                 paths.append(vocab_path)
 
             else:  # roberta
-                vocab_path = os.path.join(
-                    tokenizer_dir_path, f"cy{model_type}", "vocab.json"
-                )
-                merges_path = os.path.join(
-                    tokenizer_dir_path, f"cy{model_type}", "merges.txt"
-                )
+                vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.json")
+                merges_path = os.path.join(specific_tokenizer_dir_path, "merges.txt")
                 paths.append(vocab_path)
                 paths.append(merges_path)
 
             return paths
 
         if model_type == "bert":
-            config_path, vocab_path = get_tokenizer_paths(model_type)
+            config_path, vocab_path = get_tokenizer_paths(model_type, tokenizer_version)
 
             # Load configurations
             with open(config_path, "r") as file:
@@ -209,7 +218,7 @@ class TokenizerWrapper:
             )
 
         else:  # roberta
-            vocab_path, merges_path = get_tokenizer_paths(model_type)
+            vocab_path, merges_path = get_tokenizer_paths(model_type, tokenizer_version)
 
             # Load tokenizer
             tokenizer = ByteLevelBPETokenizer(vocab_path, merges_path)
@@ -229,16 +238,16 @@ tokenizer_dir_path = os.path.join(curr_dir, "trained_tokenizer_bundle")
 
 
 def main(
-    model_type,
-    block_size,
-    clean_text,
-    handle_chinese_chars,
-    strip_accents,
-    lowercase,
-    vocab_size,
-    limit_alphabet,
-    min_frequency,
-    do_push_tokenizer_to_hub,
+    model_type: str,
+    block_size: int,
+    clean_text: bool,
+    handle_chinese_chars: bool,
+    strip_accents: bool,
+    lowercase: bool,
+    vocab_size: int,
+    limit_alphabet: int,
+    min_frequency: int = None,
+    do_push_tokenizer_to_hub=None,
 ):
 
     TokenizerWrapper(

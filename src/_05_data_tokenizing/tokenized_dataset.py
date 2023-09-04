@@ -18,13 +18,19 @@ class TokenizedDataset(Dataset):
     def __init__(
         self,
         model_type: str = None,
+        tokenizer_version: str = None,
         files_list: list = None,
         block_size: str = None,
     ):
-        if all(arg is None for arg in (model_type, files_list, block_size)):
+        if all(
+            arg is None
+            for arg in (model_type, tokenizer_version, files_list, block_size)
+        ):
             self.default_constructor()
         else:
-            self.parameterized_constructor(model_type, files_list, block_size)
+            self.parameterized_constructor(
+                model_type, tokenizer_version, files_list, block_size
+            )
 
     def default_constructor(self):
         print(
@@ -32,7 +38,9 @@ class TokenizedDataset(Dataset):
         )
         pass
 
-    def parameterized_constructor(self, model_type, files_list, block_size):
+    def parameterized_constructor(
+        self, model_type, tokenizer_version, files_list, block_size
+    ):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
@@ -44,6 +52,7 @@ class TokenizedDataset(Dataset):
         echo_with_color(f"Loading {self.model_type} tokenizer", color="bright_yellow")
         tokenizer = TokenizerWrapper().load_tokenizer(
             self.model_type,
+            tokenizer_version,
             block_size,
         )
 

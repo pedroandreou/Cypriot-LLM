@@ -97,6 +97,9 @@ class ScriptArguments:
 
     ### TOKENIZE FILES ###
     do_tokenize_files: bool = field(default=False)
+    tokenizer_version: int = field(
+        default=1, metadata={"help": "Version of tokenizer to use"}
+    )
 
     ### MASK TOKENS ###
     do_create_masked_encodings: bool = field(default=False)
@@ -235,6 +238,7 @@ def main():
 
         tokenize_files(
             args.model_type,
+            args.tokenizer_version,
             args.block_size,
         )
     else:

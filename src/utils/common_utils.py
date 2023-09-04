@@ -4,6 +4,28 @@ import torch
 import typer
 
 
+def get_new_subdirectory_path(base_dir_path, artifact_type):
+    # Get a list of existing directories
+    existing_dirs = [
+        d
+        for d in os.listdir(base_dir_path)
+        if os.path.isdir(os.path.join(base_dir_path, d)) and d.startswith(f"tokenizer")
+    ]
+
+    # Find the next available counter
+    count = 1
+    while f"{artifact_type}_{count}" in existing_dirs:
+        count += 1
+
+    subdirectory = f"{artifact_type}_{count}"
+    full_subdirectory_path = os.path.join(base_dir_path, subdirectory)
+
+    # Create the directory
+    os.mkdir(full_subdirectory_path)
+
+    return full_subdirectory_path
+
+
 def save_dataset(curr_dir, dataset, base_path, sub_dir, key):
     filename = os.path.join(curr_dir, base_path, f"{sub_dir}_{key}_dataset.pth")
     torch.save(dataset, filename)

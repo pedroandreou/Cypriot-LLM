@@ -88,6 +88,7 @@ python main.py \
     --do_split_paths \
 
     --do_tokenize_files \
+    --tokenizer_version 1 \
 
     --do_create_masked_encodings \
     --mlm_type manual \
