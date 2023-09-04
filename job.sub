@@ -43,9 +43,12 @@ TOKENIZER_VERSION=1
 
 # --- Mask Tokens Config ---
 ENCODINGS_VERSION=1
+MLM_TYPE="manual"
+MLM_PROBABILITY=0.15
 
 # --- Train Model Config ---
 MASKED_ENCODINGS_VERSION=1
+TRAINER_TYPE="pytorch"
 TRAIN_BATCH_SIZE=8
 EVAL_BATCH_SIZE=8
 LEARNING_RATE=0.01
@@ -109,15 +112,15 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
     python main.py \
             --do_create_masked_encodings \
             --encodings_version $ENCODINGS_VERSION \
-            --mlm_type manual \
-            --mlm_probability 0.15
+            --mlm_type $MLM_TYPE \
+            --mlm_probability $MLM_PROBABILITY
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
     python main.py \
             --do_train_model \
             --masked_encodings_version $MASKED_ENCODINGS_VERSION \
             --model_type $MODEL_TYPE \
-            --trainer_type pytorch \
+            --trainer_type $TRAINER_TYPE \
             --seed 42 \
             --vocab_size $VOCAB_SIZE \
             --block_size $BLOCK_SIZE \
