@@ -57,7 +57,7 @@ def push_tokenizer(
     # Step 1: Clone the repository
     repository_url = f"https://huggingface.co/{huggingface_repo_name}"
 
-    os.chdir(f"{curr_dir}/huggingface")
+    os.chdir(os.path.join(curr_dir, "huggingface"))
     subprocess.run(["git", "clone", repository_url], check=True)
     repository_name = huggingface_repo_name.split("/")[
         -1
@@ -66,7 +66,7 @@ def push_tokenizer(
     # Step 2: Move the tokenizer files
     for path in tokenizer_paths:
         filename = os.path.basename(path)  # Get the filename from the path
-        shutil.move(path, f"{repository_name}/{filename}")
+        shutil.move(path, os.path.join(repository_name, filename))
 
     # Step 3: Push the tokenizer to Hugging Face
     os.chdir(repository_name)

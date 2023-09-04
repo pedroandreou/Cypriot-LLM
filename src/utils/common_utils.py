@@ -17,7 +17,7 @@ def get_new_subdirectory_path(base_dir_path, artifact_type):
     while f"{artifact_type}_{count}" in existing_dirs:
         count += 1
 
-    subdirectory = f"{artifact_type}_{count}"
+    subdirectory = f"{artifact_type}_v{count}"
     full_subdirectory_path = os.path.join(base_dir_path, subdirectory)
 
     # Create the directory
@@ -26,8 +26,8 @@ def get_new_subdirectory_path(base_dir_path, artifact_type):
     return full_subdirectory_path
 
 
-def save_dataset(curr_dir, dataset, base_path, sub_dir, key):
-    filename = os.path.join(curr_dir, base_path, f"{sub_dir}_{key}_dataset.pth")
+def save_dataset(filepath, sub_dir, key, dataset):
+    filename = os.path.join(filepath, f"{sub_dir}_{key}_dataset.pth")
     torch.save(dataset, filename)
 
 

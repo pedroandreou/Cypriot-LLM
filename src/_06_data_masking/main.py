@@ -2,15 +2,23 @@ import os
 
 from src._05_data_tokenizing.tokenized_dataset import TokenizedDataset
 from src._06_data_masking.masked_dataset import MaskedDataset
-from src.utils.common_utils import echo_with_color, save_dataset
+from src.utils.common_utils import (
+    echo_with_color,
+    get_new_subdirectory_path,
+    save_dataset,
+)
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def main(model_type, mlm_type, mlm_probability):
+def main(
+    model_type: str, encodings_version: int, mlm_type: str, mlm_probability: float
+):
 
     echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
-    train_dataset, test_dataset = TokenizedDataset().load_encodings(model_type)
+    train_dataset, test_dataset = TokenizedDataset().load_encodings(
+        model_type, encodings_version
+    )
 
     echo_with_color("Creating masked datasets...", color="bright_magenta")
     masked_train_dataset = MaskedDataset(
@@ -27,19 +35,24 @@ def main(model_type, mlm_type, mlm_probability):
     )
 
     echo_with_color("Saving masked datasets...", color="bright_magenta")
+    masked_dataset_dir_path_w_model_type = os.path.join(
+        curr_dir, "masked_encodings", f"cy{model_type}"
+    )
+    masked_dataset_dir_path_w_model_type_n_version = get_new_subdirectory_path(
+        masked_dataset_dir_path_w_model_type, "masked_encodings"
+    )
+
     save_dataset(
-        curr_dir,
-        masked_train_dataset,
-        f"masked_encodings/cy{model_type}",
+        masked_dataset_dir_path_w_model_type_n_version,
         "masked",
         "train",
+        masked_train_dataset,
     )
     save_dataset(
-        curr_dir,
-        masked_test_dataset,
-        f"masked_encodings/cy{model_type}",
+        masked_dataset_dir_path_w_model_type_n_version,
         "masked",
         "test",
+        masked_test_dataset,
     )
 
 
@@ -50,6 +63,13 @@ def parse_arguments():
 
     parser.add_argument(
         "--model_type", type=str, default="bert", help="Type of model to use"
+    )
+
+    parser.add_argument(
+        "--encodings_version",
+        type=int,
+        default="1",
+        help="Version of encodings to use",
     )
 
     parser.add_argument(
@@ -77,6 +97,7 @@ if __name__ == "__main__":
 
     main(
         model_type=args.model_type,
+        encodings_version=args.encodings_version,
         mlm_type=args.mlm_type,
         mlm_probability=args.mlm_probability,
     )

@@ -103,6 +103,9 @@ class ScriptArguments:
 
     ### MASK TOKENS ###
     do_create_masked_encodings: bool = field(default=False)
+    encodings_version: int = field(
+        default=1, metadata={"help": "Version of encodings to use"}
+    )
     mlm_type: str = field(
         default="manual",
         metadata={
@@ -116,6 +119,9 @@ class ScriptArguments:
 
     ### TRAIN MODEL ###
     do_train_model: bool = field(default=False)
+    masked_encodings_version: int = field(
+        default=1, metadata={"help": "Version of masked encodings to use"}
+    )
     trainer_type: str = field(
         default="pytorch",
         metadata={"help": "Type of trainer to use: pytorch or huggingface"},
@@ -256,6 +262,7 @@ def main():
 
         create_masked_encodings(
             args.model_type,
+            args.encodings_version,
             args.mlm_type,
             args.mlm_probability,
         )
@@ -272,6 +279,7 @@ def main():
 
         train_model(
             model_type=args.model_type,
+            masked_encodings_version=args.masked_encodings_version,
             trainer_type=args.trainer_type,
             seed=args.seed,
             vocab_size=args.vocab_size,

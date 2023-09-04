@@ -91,6 +91,7 @@ python main.py \
     --tokenizer_version 1 \
 
     --do_create_masked_encodings \
+    --encodings_version 1 \
     --mlm_type manual \
     --mlm_probability 0.15 \
 

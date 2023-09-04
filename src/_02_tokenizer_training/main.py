@@ -5,7 +5,7 @@ from glob import glob
 from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
 from tokenizers.processors import BertProcessing
 
-from src.utils.common_utils import get_new_subdirectory_path, echo_with_color
+from src.utils.common_utils import echo_with_color, get_new_subdirectory_path
 
 
 class TokenizerWrapper:
@@ -182,7 +182,7 @@ class TokenizerWrapper:
                 specific_tokenizer_dir_path = os.path.join(
                     tokenizer_dir_path,
                     f"cy{model_type}",
-                    f"tokenizer_{tokenizer_version}",
+                    f"tokenizer_v{tokenizer_version}",
                 )
             except FileNotFoundError:
                 print(

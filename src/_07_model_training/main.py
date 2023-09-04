@@ -29,6 +29,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def main(
     model_type: str,
+    masked_encodings_version: int,
     trainer_type: str,
     seed: int,
     vocab_size: int,
@@ -72,7 +73,7 @@ def main(
         color="bright_cyan",
     )
     masked_train_dataset, masked_test_dataset = MaskedDataset().load_masked_encodings(
-        model_type
+        model_type, masked_encodings_version
     )
     model_path = os.path.join(curr_dir, "trained_model_bundle", f"cy{model_type}")
 
@@ -126,6 +127,14 @@ def parse_arguments():
     )
     parser.add_argument("--seed", type=int, default=42, help="Seed for reproducibility")
 
+    # Masked Encodings
+    parser.add_argument(
+        "--masked_encodings_version",
+        type=int,
+        default=1,
+        help="Version of encodings to use",
+    )
+
     # Model Configurations
     parser.add_argument("--vocab_size", type=int, default=30522)
     parser.add_argument("--block_size", type=int, default=512)
@@ -161,6 +170,7 @@ if __name__ == "__main__":
 
     main(
         model_type=args.model_type,
+        masked_encodings_version=args.masked_encodings_version,
         trainer_type=args.trainer_type,
         seed=args.seed,
         vocab_size=args.vocab_size,

@@ -18,7 +18,7 @@ class TokenizedDataset(Dataset):
     def __init__(
         self,
         model_type: str = None,
-        tokenizer_version: str = None,
+        tokenizer_version: int = None,
         files_list: list = None,
         block_size: str = None,
     ):
@@ -87,17 +87,19 @@ class TokenizedDataset(Dataset):
         return torch.tensor(self.examples[i].ids, dtype=torch.long)
 
     @staticmethod
-    def load_encodings(model_type: str):
-        def get_dataset_path(set_type):
-            folder_name = f"encodings/cy{model_type}"
+    def load_encodings(model_type: str, encodings_version: int):
+        def get_dataset_path(set_type: str, encodings_version: int):
+            folder_name = os.path.join(
+                "encodings", f"cy{model_type}", f"encodings_v{encodings_version}"
+            )
             filename = f"tokenized_{set_type}_dataset.pth"
 
             return os.path.join(curr_dir, folder_name, filename)
 
-        train_dataset_path = get_dataset_path("train")
+        train_dataset_path = get_dataset_path("train", encodings_version)
         train_dataset = torch.load(train_dataset_path)
 
-        test_dataset_path = get_dataset_path("test")
+        test_dataset_path = get_dataset_path("test", encodings_version)
         test_dataset = torch.load(test_dataset_path)
 
         return train_dataset, test_dataset

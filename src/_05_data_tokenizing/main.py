@@ -2,12 +2,16 @@ import os
 
 from src._04_path_splitting.main import PathSplitter
 from src._05_data_tokenizing.tokenized_dataset import TokenizedDataset
-from src.utils.common_utils import echo_with_color, save_dataset
+from src.utils.common_utils import (
+    echo_with_color,
+    get_new_subdirectory_path,
+    save_dataset,
+)
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def tokenize_and_save_dataset(key, paths, model_type, tokenizer_version, block_size):
+def tokenize_and_save_dataset(model_type, tokenizer_version, paths, block_size, key):
     echo_with_color(f"Tokenizing {key} files", color="bright_yellow")
     tokenized_dataset = TokenizedDataset(
         model_type=model_type,
@@ -15,9 +19,16 @@ def tokenize_and_save_dataset(key, paths, model_type, tokenizer_version, block_s
         files_list=paths,
         block_size=block_size,
     )
+
     echo_with_color(f"Saving the tokenized {key} dataset...", color="bright_yellow")
+    dataset_dir_path_w_model_type = os.path.join(
+        curr_dir, "encodings", f"cy{model_type}"
+    )
+    dataset_dir_path_w_model_type_n_version = get_new_subdirectory_path(
+        dataset_dir_path_w_model_type, "encodings"
+    )
     save_dataset(
-        curr_dir, tokenized_dataset, f"encodings/cy{model_type}", "tokenized", key
+        dataset_dir_path_w_model_type_n_version, "tokenized", key, tokenized_dataset
     )
 
 
@@ -27,10 +38,10 @@ def main(model_type, tokenizer_version, block_size):
 
     echo_with_color("Tokenizing files", color="bright_yellow")
     tokenize_and_save_dataset(
-        "train", train_paths, model_type, tokenizer_version, block_size
+        model_type, tokenizer_version, train_paths, block_size, "train"
     )
     tokenize_and_save_dataset(
-        "test", test_paths, model_type, tokenizer_version, block_size
+        model_type, tokenizer_version, test_paths, block_size, "test"
     )
 
 

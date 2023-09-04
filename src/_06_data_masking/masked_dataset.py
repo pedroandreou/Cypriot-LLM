@@ -133,9 +133,13 @@ class MaskedDataset(Dataset):
         return {key: tensor[index] for key, tensor in self.masked_encodings.items()}
 
     @staticmethod
-    def load_masked_encodings(model_type: str):
+    def load_masked_encodings(model_type: str, masked_encodings_version: int):
         def get_dataset_path(dataset_type):
-            folder_name = f"masked_encodings/cy{model_type}"
+            folder_name = os.path.join(
+                "encodings",
+                f"cy{model_type}",
+                f"masked_encodings_v{masked_encodings_version}",
+            )
             filename = f"masked_{dataset_type}_dataset.pth"
 
             return os.path.join(curr_dir, folder_name, filename)
