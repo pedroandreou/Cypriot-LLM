@@ -35,3 +35,7 @@ inference/
 **/dataset/
 **/train.log
 **/error.log
+
+# Diagrams
+**/*.png
+**/*.dot
