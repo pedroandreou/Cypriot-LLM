@@ -16,7 +16,7 @@ from src._07_model_training.training_methods.huggingface_model_trainer import (
 from src._07_model_training.training_methods.pytorch_model_trainer import (
     PyTorchModelTrainer,
 )
-from src.utils.common_utils import echo_with_color
+from src.utils.common_utils import get_new_subdirectory_path, echo_with_color
 
 """
 Following Intro_to_Weights_&_Biases Google Colab notebook
@@ -75,7 +75,13 @@ def main(
     masked_train_dataset, masked_test_dataset = MaskedDataset().load_masked_encodings(
         model_type, masked_encodings_version
     )
-    model_path = os.path.join(curr_dir, "trained_model_bundle", f"cy{model_type}")
+
+    model_dir_path_w_model_type = os.path.join(
+        curr_dir, "trained_model_bundle", f"cy{model_type}"
+    )
+    model_dir_path_w_model_type_n_version = get_new_subdirectory_path(
+        model_dir_path_w_model_type, "model"
+    )
 
     echo_with_color(
         f"Training model from scratch using {trainer_type.capitalize()} as our trainer type...",
@@ -87,7 +93,7 @@ def main(
             test_set=masked_test_dataset,
             device=device,
             model=model,
-            model_path=model_path,
+            model_path=model_dir_path_w_model_type_n_version,
             train_batch_size=train_batch_size,
             eval_batch_size=eval_batch_size,
             learning_rate=learning_rate,
@@ -102,7 +108,7 @@ def main(
             train_set=masked_train_dataset,
             test_set=masked_test_dataset,
             model=model,
-            model_path=model_path,
+            model_path=model_dir_path_w_model_type_n_version,
             # data_collator=self.data_collator,
         )
         huggingface_trainer.train()

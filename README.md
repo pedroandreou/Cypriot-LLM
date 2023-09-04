@@ -96,6 +96,7 @@ python main.py \
     --mlm_probability 0.15 \
 
     --do_train_model \
+    --masked_encodings_version 1 \
     --trainer_type pytorch \
     --seed 42 \
     --vocab_size 30522 \
