@@ -14,7 +14,7 @@ def get_new_subdirectory_path(base_dir_path, artifact_type):
 
     # Find the next available counter
     count = 1
-    while f"{artifact_type}_{count}" in existing_dirs:
+    while f"{artifact_type}_v{count}" in existing_dirs:
         count += 1
 
     subdirectory = f"{artifact_type}_v{count}"
