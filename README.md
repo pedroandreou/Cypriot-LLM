@@ -103,7 +103,7 @@ python main.py \
     --hidden_size 768 \
     --num_attention_heads 12 \
     --num_hidden_layers 6  \
-    --type_vocab_size 1 \
+    --type_vocab_size 2 \
     --train_batch_size 8 \
     --eval_batch_size 8 \
     --learning_rate 0.01 \

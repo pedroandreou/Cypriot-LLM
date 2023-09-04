@@ -158,6 +158,7 @@ class TokenizerWrapper:
                     # "model_type": "bert", # For AutoTokenizer.from_pretrained
                     "handle_chinese_chars": self.handle_chinese_chars,
                     "do_lower_case": self.lowercase,
+                    "strip_accents": self.strip_accents,
                     "unk_token": "[UNK]",
                     "sep_token": "[SEP]",
                     "pad_token": "[PAD]",
