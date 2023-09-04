@@ -24,6 +24,32 @@ fi
 
 cd src
 
+# Set global variables
+### TOKENIZER
+MODEL_TYPE="bert"
+BLOCK_SIZE=512
+VOCAB_SIZE=30522
+STRIP_ACCENTS="False"
+LOWERCASE="" # True
+
+### REFORMAT FILES
+SLIDING_WINDOW_SIZE=8 # or set it to 4
+
+### TOKENIZE FILES
+TOKENIZER_VERSION=1
+
+# MASK TOKENS
+ENCODINGS_VERSION=1
+
+# TRAIN MODEL
+MASKED_ENCODINGS_VERSION=1
+TRAIN_BATCH_SIZE=8
+EVAL_BATCH_SIZE=8
+LEARNING_RATE=0.01
+NUM_TRAIN_EPOCHS=2
+NUM_EVAL_EPOCHS=10
+
+
 if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
     python main.py \
             --do_merge_docs
@@ -31,28 +57,35 @@ if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
 elif [ $SLURM_ARRAY_TASK_ID -eq 2 ]; then
     python main.py \
             --do_clean_data
-            # --do_push_dataset_to_hub
+            --do_push_dataset_to_hub False
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 3 ]; then
     python main.py \
-            --do_export_csv_to_txt_files
-            --do_load_dataset_from_hub False \
+            --do_file_analysis
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 4 ]; then
     python main.py \
-            --do_file_analysis
+            --do_export_csv_to_txt_files \
+            --do_load_dataset_from_hub False
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
     python main.py \
             --do_train_tokenizer \
-           --model_type bert \
-           --block_size 512
-           # --do_push_tokenizer_to_hub \
+            --model_type $MODEL_TYPE \
+            --block_size $BLOCK_SIZE \
+            --clean_text \
+            --handle_chinese_chars False \
+            --strip_accents $STRIP_ACCENTS \
+            --lowercase $LOWERCASE \
+            --vocab_size $VOCAB_SIZE \
+            --limit_alphabet 1000 \
+            --min_frequency 2
+            --do_push_tokenizer_to_hub False \
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 6 ]; then
     python main.py \
             --do_reformat_files \
-            --sliding_window_size 8
+            --sliding_window_size $SLIDING_WINDOW_SIZE
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 7 ]; then
     python main.py \
@@ -61,37 +94,40 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 7 ]; then
 elif [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
     python main.py \
             --do_tokenize_files \
-            --model_type bert \
-            --block_size 512
+            --model_type $MODEL_TYPE \
+            --tokenizer_version $TOKENIZER_VERSION \
+            --block_size $BLOCK_SIZE
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
     python main.py \
             --do_create_masked_encodings \
+            --encodings_version $ENCODINGS_VERSION \
             --mlm_type manual \
             --mlm_probability 0.15
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
     python main.py \
             --do_train_model \
-            --model_type bert \
+            --masked_encodings_version $MASKED_ENCODINGS_VERSION \
+            --model_type $MODEL_TYPE \
             --trainer_type pytorch \
             --seed 42 \
-            --vocab_size 30522 \
-            --block_size 512 \
+            --vocab_size $VOCAB_SIZE \
+            --block_size $BLOCK_SIZE \
             --hidden_size 768 \
             --num_attention_heads 12 \
             --num_hidden_layers 6  \
             --type_vocab_size 1 \
-            --train_batch_size 8 \
-            --eval_batch_size 8 \
-            --learning_rate 0.01 \
-            --num_train_epochs 2 \
-            --num_eval_epochs 10
+            --train_batch_size $TRAIN_BATCH_SIZE \
+            --eval_batch_size $EVAL_BATCH_SIZE \
+            --learning_rate $LEARNING_RATE \
+            --num_train_epochs $NUM_TRAIN_EPOCHS \
+            --num_eval_epochs $NUM_EVAL_EPOCHS
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
     python main.py \
-            --model_type bert \
+            --model_type $MODEL_TYPE \
             # --model_path \ # to be defined
-            --block_size 512
+            --block_size $BLOCK_SIZE
 
 fi
