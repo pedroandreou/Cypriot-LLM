@@ -9,7 +9,7 @@ def get_new_subdirectory_path(base_dir_path, artifact_type):
     existing_dirs = [
         d
         for d in os.listdir(base_dir_path)
-        if os.path.isdir(os.path.join(base_dir_path, d)) and d.startswith(f"tokenizer")
+        if os.path.isdir(os.path.join(base_dir_path, d)) and d.startswith(artifact_type)
     ]
 
     # Find the next available counter
