@@ -3,6 +3,8 @@ import torch
 from tqdm import tqdm
 from transformers import AdamW
 
+from src.utils.common_utils import echo_with_color
+
 
 class PyTorchModelTrainer:
     def __init__(
@@ -19,7 +21,7 @@ class PyTorchModelTrainer:
         num_eval_epochs,
     ):
         self.train_set = train_set
-        self.train_set = test_set
+        self.test_set = test_set
 
         self.device = device
         self.model = model
@@ -82,6 +84,11 @@ class PyTorchModelTrainer:
 
         # Save model
         self.model.save_pretrained(self.model_path)
+
+        echo_with_color(
+            f"The model are parameters are:\n {self.model.num_parameters()}",
+            color="bright_cyan",
+        )
 
     def eval(self):
         test_loader = torch.utils.data.DataLoader(

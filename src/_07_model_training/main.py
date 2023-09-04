@@ -16,6 +16,7 @@ from src._07_model_training.training_methods.huggingface_model_trainer import (
 from src._07_model_training.training_methods.pytorch_model_trainer import (
     PyTorchModelTrainer,
 )
+from src.utils.common_utils import echo_with_color
 
 """
 Following Intro_to_Weights_&_Biases Google Colab notebook
@@ -42,13 +43,14 @@ def main(
     num_train_epochs: int,
     num_eval_epochs: int,
 ):
+    echo_with_color("Setting seed...", color="bright_cyan")
     set_seed(seed)
 
-    print("Detect device...")
+    echo_with_color("Detecting device...", color="bright_cyan")
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     # As we are training from scratch, we initialize from a config
-    print("Initialize config...")
+    echo_with_color("Initializing config...", color="bright_cyan")
     ConfigClass = BertConfig if model_type == "bert" else RobertaConfig
     config = ConfigClass(
         vocab_size=vocab_size,
@@ -59,22 +61,28 @@ def main(
         type_vocab_size=type_vocab_size,
     )
 
-    print("Initialize model...")
+    echo_with_color(
+        "Initializing model from initialized config...", color="bright_cyan"
+    )
     ModelClass = BertForMaskedLM if model_type == "bert" else RobertaForMaskedLM
     model = ModelClass(config=config).to(device)
 
-    print("Loading the masked encodings of the train and test sets...")
-    masked_train_set, masked_test_dataset = MaskedDataset().load_masked_encodings(
+    echo_with_color(
+        "Loading the masked encodings of the train and test sets...",
+        color="bright_cyan",
+    )
+    masked_train_dataset, masked_test_dataset = MaskedDataset().load_masked_encodings(
         model_type
     )
     model_path = os.path.join(curr_dir, "trained_model_bundle", f"cy{model_type}")
 
-    print(
-        f"Training model from scratch using {trainer_type.capitalize()} as our trainer type"
+    echo_with_color(
+        f"Training model from scratch using {trainer_type.capitalize()} as our trainer type...",
+        color="bright_cyan",
     )
     if trainer_type == "pytorch":
         pytorch_trainer = PyTorchModelTrainer(
-            train_set=masked_train_set,
+            train_set=masked_train_dataset,
             test_set=masked_test_dataset,
             device=device,
             model=model,
@@ -90,15 +98,13 @@ def main(
     else:
         # should load the data collator here
         huggingface_trainer = HuggingFaceTrainer(
-            train_set=masked_train_set,
+            train_set=masked_train_dataset,
             test_set=masked_test_dataset,
             model=model,
             model_path=model_path,
             # data_collator=self.data_collator,
         )
         huggingface_trainer.train()
-
-    print(model.num_parameters())
 
     # Should allow pushing the model to the hub here
 
