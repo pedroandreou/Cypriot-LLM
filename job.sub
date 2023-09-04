@@ -24,30 +24,37 @@ fi
 
 cd src
 
-# Set global variables
-### TOKENIZER
+# ==============================
+# Global Configuration
+# ==============================
+
+# --- Tokenizer ---
 MODEL_TYPE="bert"
 BLOCK_SIZE=512
 VOCAB_SIZE=30522
 STRIP_ACCENTS="False"
-LOWERCASE="" # True
+LOWERCASE="" # Set to True to activate
 
-### REFORMAT FILES
-SLIDING_WINDOW_SIZE=8 # or set it to 4
+# --- Reformat Files ---
+SLIDING_WINDOW_SIZE=8 # Alternatively, set it to 4
 
-### TOKENIZE FILES
+# --- Tokenize Files ---
 TOKENIZER_VERSION=1
 
-# MASK TOKENS
+# --- Mask Tokens ---
 ENCODINGS_VERSION=1
 
-# TRAIN MODEL
+# --- Train Model ---
 MASKED_ENCODINGS_VERSION=1
 TRAIN_BATCH_SIZE=8
 EVAL_BATCH_SIZE=8
 LEARNING_RATE=0.01
 NUM_TRAIN_EPOCHS=2
 NUM_EVAL_EPOCHS=10
+
+# ==============================
+# ==============================
+# ==============================
 
 
 if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
