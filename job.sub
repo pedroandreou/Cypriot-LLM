@@ -89,8 +89,8 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
             --lowercase $LOWERCASE \
             --vocab_size $VOCAB_SIZE \
             --limit_alphabet 1000 \
-            --min_frequency 2
-            --do_push_tokenizer_to_hub False \
+            --min_frequency 2 \
+            --do_push_tokenizer_to_hub False
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 6 ]; then
     python main.py \
