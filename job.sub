@@ -28,23 +28,23 @@ cd src
 # Global Configuration
 # ==============================
 
-# --- Tokenizer ---
+# --- Tokenizer Config ---
 MODEL_TYPE="bert"
 BLOCK_SIZE=512
 VOCAB_SIZE=30522
 STRIP_ACCENTS="False"
 LOWERCASE="" # Set to True to activate
 
-# --- Reformat Files ---
+# --- Reformat Files Config ---
 SLIDING_WINDOW_SIZE=8 # Alternatively, set it to 4
 
-# --- Tokenize Files ---
+# --- Tokenize Files Config ---
 TOKENIZER_VERSION=1
 
-# --- Mask Tokens ---
+# --- Mask Tokens Config ---
 ENCODINGS_VERSION=1
 
-# --- Train Model ---
+# --- Train Model Config ---
 MASKED_ENCODINGS_VERSION=1
 TRAIN_BATCH_SIZE=8
 EVAL_BATCH_SIZE=8
