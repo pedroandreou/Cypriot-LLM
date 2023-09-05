@@ -10,5 +10,6 @@ typer
 rich
 python-dotenv
 datasets
+wandb
 # huggingface_hub
 # tqdm
