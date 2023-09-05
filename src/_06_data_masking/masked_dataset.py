@@ -136,7 +136,7 @@ class MaskedDataset(Dataset):
     def load_masked_encodings(model_type: str, masked_encodings_version: int):
         def get_dataset_path(dataset_type):
             folder_name = os.path.join(
-                "encodings",
+                "masked_encodings",
                 f"cy{model_type}",
                 f"masked_encodings_v{masked_encodings_version}",
             )
