@@ -1,12 +1,13 @@
+import os
+
 import numpy as np
 import torch
+import wandb
+from dotenv import find_dotenv, load_dotenv
 from tqdm import tqdm
 from transformers import AdamW
 
 from src.utils.common_utils import echo_with_color
-import wandb
-from dotenv import find_dotenv, load_dotenv
-import os
 
 load_dotenv(find_dotenv())
 

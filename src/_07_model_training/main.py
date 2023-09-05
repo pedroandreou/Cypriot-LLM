@@ -16,7 +16,7 @@ from src._07_model_training.training_methods.huggingface_model_trainer import (
 from src._07_model_training.training_methods.pytorch_model_trainer import (
     PyTorchModelTrainer,
 )
-from src.utils.common_utils import get_new_subdirectory_path, echo_with_color
+from src.utils.common_utils import echo_with_color, get_new_subdirectory_path
 
 """
 Following Intro_to_Weights_&_Biases Google Colab notebook
