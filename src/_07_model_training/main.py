@@ -18,7 +18,6 @@ from src._07_model_training.training_methods.pytorch_model_trainer import (
 )
 from src.utils.common_utils import echo_with_color, get_new_subdirectory_path
 
-
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 

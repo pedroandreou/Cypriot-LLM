@@ -107,7 +107,12 @@ python main.py \
     --train_batch_size 32 \
     --eval_batch_size 8 \
     --learning_rate 1e-4 \
-    --num_train_epochs 3
+    --num_train_epochs 3 \
+
+    --do_inference \
+    --model_version 1 \
+    --input_unmasked_sequence "είσαι" \
+    --input_masked_sequences "Θώρει τη [MASK]." "Η τηλεόραση, το [MASK], τα φώτα." "Μεν τον [MASK] κόρη μου."
 ```
 
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
@@ -116,7 +121,7 @@ As I am using the `tokenizers` library and not the `transfomers` one, I cannot j
 # :eyes: Weight & Biases
 
 The model's loss is logged in the W&B Platform.
-Provide your API key when prompted; finding it [here](https://wandb.ai/authorize).
+Provide your API key when prompted; finding it [here](https://wandb.ai/settings).
 
 
 # :computer: Cyclone

@@ -1,0 +1,108 @@
+import json
+
+from transformers import pipeline
+
+from src._02_tokenizer_training.main import TokenizerWrapper
+from src.utils.common_utils import echo_with_color
+
+
+class PipelineWrapper:
+    def __init__(self, model, tokenizer):
+        self.fill = pipeline("fill-mask", model=model, tokenizer=tokenizer)
+
+    def predict_next_token(self, input_string):
+        mask_token = self.fill.tokenizer.mask_token
+        predictions = self.fill(f"{input_string} {mask_token}")
+
+        for prediction in predictions:
+            echo_with_color(json.dumps(prediction, indent=4), color="bright_white")
+
+    def predict_specific_token_within_a_passing_sequence(self, examples):
+        for example in examples:
+            for prediction in self.fill(example):
+                echo_with_color(
+                    f"{prediction['sequence']}, confidence: {prediction['score']}",
+                    color="bright_white",
+                )
+            echo_with_color("=" * 50)
+
+
+def main(
+    model_type: str,
+    model_version: str,
+    tokenizer_version: int,
+    block_size: int,
+    input_unmasked_sequence: str,
+    input_masked_sequences: list,
+):
+
+    # echo_with_color("Loading the saved model...", color="bright_white")
+    # if model_type == "bert":
+    #     loaded_model = BertForMaskedLM.from_pretrained(model_version)
+    # else:
+    #     loaded_model = RobertaForMaskedLM.from_pretrained(model_version)
+
+    # Add static method in model class to load the model here
+
+    echo_with_color("Loading the saved tokenizer...", color="bright_white")
+    loaded_tokenizer = TokenizerWrapper().load_tokenizer(
+        model_type,
+        tokenizer_version,
+        block_size,
+    )
+
+    pipeline_wrapper = PipelineWrapper(loaded_model, loaded_tokenizer)
+    pipeline_wrapper.predict_next_token(input_unmasked_sequence)
+    pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
+        input_masked_sequences
+    )
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Arguments for setting up a pipeline for inferencing."
+    )
+
+    parser.add_argument(
+        "--model_type", type=str, default="bert", help="Type of model to use"
+    )
+    parser.add_argument(
+        "--model_version", type=str, required=True, help="Path to the model"
+    )
+    parser.add_argument(
+        "--tokenizer_version", type=int, default=1, help="Version of tokenizer to use"
+    )
+    parser.add_argument(
+        "--block_size", type=int, default=512, help="Define the block size."
+    )
+    parser.add_argument(
+        "--input_unmasked_sequence",
+        type=str,
+        default="είσαι",
+        help="Define input sequence for its next token to be predicted.",
+    )
+    parser.add_argument(
+        "--input_masked_sequences",
+        nargs="+",
+        default="Θώρει τη [MASK]."
+        "Η τηλεόραση, το [MASK], τα φώτα."
+        "Μεν τον [MASK] κόρη μου.",
+        help="Define list of input masked sequences to predict their masked tokens.",
+    )
+
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    import argparse
+
+    args = parse_arguments()
+
+    main(
+        args.model_type,
+        args.model_version,
+        args.tokenizer_version,
+        args.block_size,
+        args.input_unmasked_sequence,
+        args.input_masked_sequences,
+    )

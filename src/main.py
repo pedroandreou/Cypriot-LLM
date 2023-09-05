@@ -19,12 +19,12 @@ from src._01_data_preprocessing._04_csv_to_txt_conversion.export_csv_docs_to_txt
     main as export_csv_to_txt_files,
 )
 from src._02_tokenizer_training.main import main as train_tokenizer
-from src._03_data_reformatting.reformatter import main as reformat_files
+from src._03_data_reformatting.main import main as reformat_files
 from src._04_path_splitting.main import main as split_paths
 from src._05_data_tokenizing.main import main as tokenize_files
 from src._06_data_masking.main import main as create_masked_encodings
 from src._07_model_training.main import main as train_model
-from src._08_inferencing.pipeline import main as infer
+from src._08_inferencing.main import main as infer
 from src.utils.common_utils import echo_with_color
 
 load_dotenv(find_dotenv())
@@ -143,6 +143,22 @@ class ScriptArguments:
 
     ### INFERENCING ###
     do_inference: bool = field(default=False)
+    model_version: str = field(
+        default=os.getenv("MODEL_DIR_PATH"),
+        metadata={"help": "Version of model to use."},
+    )
+    input_unmasked_sequence: str = field(
+        default="είσαι",
+        metadata={"help": "Define input sequence for its next token to be predicted."},
+    )
+    input_masked_sequences: list = field(
+        default=[
+            "Θώρει τη [MASK].",
+            "Η τηλεόραση, το [MASK], τα φώτα.",
+            "Μεν τον [MASK] κόρη μου.",
+        ],
+        metadata={"help": "Define input masked sequence to predict its masked tokens."},
+    )
 
 
 def main():
@@ -300,8 +316,11 @@ def main():
 
         infer(
             model_type=args.model_type,
-            model_path=None,
+            model_version=args.model_version,
+            tokenizer_version=args.tokenizer_version,
             block_size=args.block_size,
+            input_unmasked_sequence=args.input_unmasked_sequence,
+            input_masked_sequences=args.input_masked_sequences,
         )
 
     else:
