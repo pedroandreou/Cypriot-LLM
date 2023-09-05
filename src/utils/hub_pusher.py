@@ -5,6 +5,9 @@ import subprocess
 import pandas as pd
 from datasets import Dataset, DatasetDict, load_dataset
 from huggingface_hub import login
+from dotenv import find_dotenv, load_dotenv
+
+load_dotenv(find_dotenv())
 
 huggingface_repo_name = os.getenv("HUGGINGFACE_REPO_NAME")
 huggingface_token = os.getenv("HUGGINGFACE_TOKEN")

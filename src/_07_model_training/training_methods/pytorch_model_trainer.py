@@ -5,6 +5,12 @@ from transformers import AdamW
 
 from src.utils.common_utils import echo_with_color
 import wandb
+from dotenv import find_dotenv, load_dotenv
+import os
+
+load_dotenv(find_dotenv())
+
+WANDB_KEY = os.getenv("WANDB_KEY")
 
 
 class PyTorchModelTrainer:
@@ -40,7 +46,7 @@ class PyTorchModelTrainer:
         This is because the automatic implementation of the MLM task uses a data collator which is only used with the HuggingFace API
         """
 
-        wandb.login()
+        wandb.login(key=WANDB_KEY)
 
         # Initialize Weights and Biases
         config = {
