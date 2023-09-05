@@ -53,7 +53,6 @@ TRAIN_BATCH_SIZE=32
 EVAL_BATCH_SIZE=8
 LEARNING_RATE=1e-4
 NUM_TRAIN_EPOCHS=3
-NUM_EVAL_EPOCHS=10
 
 # ==============================
 # ==============================
@@ -131,8 +130,7 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
             --train_batch_size $TRAIN_BATCH_SIZE \
             --eval_batch_size $EVAL_BATCH_SIZE \
             --learning_rate $LEARNING_RATE \
-            --num_train_epochs $NUM_TRAIN_EPOCHS \
-            --num_eval_epochs $NUM_EVAL_EPOCHS
+            --num_train_epochs $NUM_TRAIN_EPOCHS
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
     python main.py \

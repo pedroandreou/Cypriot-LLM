@@ -42,7 +42,6 @@ def main(
     eval_batch_size: int,
     learning_rate: float,
     num_train_epochs: int,
-    num_eval_epochs: int,
 ):
     echo_with_color("Setting seed...", color="bright_cyan")
     set_seed(seed)
@@ -98,7 +97,6 @@ def main(
             eval_batch_size=eval_batch_size,
             learning_rate=learning_rate,
             num_train_epochs=num_train_epochs,
-            num_eval_epochs=num_eval_epochs,
         )
         pytorch_trainer.train()
 
@@ -162,9 +160,6 @@ def parse_arguments():
     parser.add_argument(
         "--num_train_epochs", default=3, type=int, help="Number of training epochs."
     )
-    parser.add_argument(
-        "--num_eval_epochs", default=10, type=int, help="Number of evaluation epochs."
-    )
 
     return parser.parse_args()
 
@@ -189,5 +184,4 @@ if __name__ == "__main__":
         eval_batch_size=args.eval_batch_size,
         learning_rate=args.learning_rate,
         num_train_epochs=args.num_train_epochs,
-        num_eval_epochs=args.num_eval_epochs,
     )

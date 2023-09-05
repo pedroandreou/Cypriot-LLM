@@ -140,9 +140,6 @@ class ScriptArguments:
     num_train_epochs: int = field(
         default=3, metadata={"help": "Number of training epochs."}
     )
-    num_eval_epochs: int = field(
-        default=10, metadata={"help": "Number of evaluation epochs."}
-    )
 
     ### INFERENCING ###
     do_inference: bool = field(default=False)
@@ -292,7 +289,6 @@ def main():
             eval_batch_size=args.eval_batch_size,
             learning_rate=args.learning_rate,
             num_train_epochs=args.num_train_epochs,
-            num_eval_epochs=args.num_eval_epochs,
         )
 
     else:

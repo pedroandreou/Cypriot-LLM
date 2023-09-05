@@ -19,7 +19,6 @@ class PyTorchModelTrainer:
         eval_batch_size,
         learning_rate,
         num_train_epochs,
-        num_eval_epochs,
     ):
         self.train_set = train_set
         self.test_set = test_set
@@ -34,7 +33,6 @@ class PyTorchModelTrainer:
         self.learning_rate = learning_rate
 
         self.num_train_epochs = num_train_epochs
-        self.num_eval_epochs = num_eval_epochs
 
     def train(self):
         """
@@ -52,7 +50,6 @@ class PyTorchModelTrainer:
             "train_batch_size": self.train_batch_size,
             "eval_batch_size": self.eval_batch_size,
             "num_train_epochs": self.num_train_epochs,
-            "num_eval_epochs": self.num_eval_epochs,
         }
         wandb.init(project="nlp-model-training", config=config)
 

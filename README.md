@@ -107,8 +107,7 @@ python main.py \
     --train_batch_size 32 \
     --eval_batch_size 8 \
     --learning_rate 1e-4 \
-    --num_train_epochs 3 \
-    --num_eval_epochs 10
+    --num_train_epochs 3
 ```
 
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
