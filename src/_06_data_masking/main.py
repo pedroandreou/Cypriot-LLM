@@ -14,6 +14,13 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def main(
     model_type: str, encodings_version: int, mlm_type: str, mlm_probability: float
 ):
+    # Create a directory for the masked datasets
+    masked_dataset_dir_path_w_model_type = os.path.join(
+        curr_dir, "masked_encodings", f"cy{model_type}"
+    )
+    masked_dataset_dir_path_w_model_type_n_version = get_new_subdirectory_path(
+        masked_dataset_dir_path_w_model_type, "masked_encodings"
+    )
 
     echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
     train_dataset, test_dataset = TokenizedDataset().load_encodings(
@@ -35,13 +42,6 @@ def main(
     )
 
     echo_with_color("Saving masked datasets...", color="bright_magenta")
-    masked_dataset_dir_path_w_model_type = os.path.join(
-        curr_dir, "masked_encodings", f"cy{model_type}"
-    )
-    masked_dataset_dir_path_w_model_type_n_version = get_new_subdirectory_path(
-        masked_dataset_dir_path_w_model_type, "masked_encodings"
-    )
-
     save_dataset(
         masked_dataset_dir_path_w_model_type_n_version,
         "masked",

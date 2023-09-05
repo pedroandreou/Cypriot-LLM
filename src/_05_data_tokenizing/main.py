@@ -28,8 +28,6 @@ def tokenize_and_save_dataset(
 
 def main(model_type, tokenizer_version, block_size):
 
-    train_paths, test_paths = PathSplitter.load_paths()
-
     # Create a directory for the tokenized dataset
     dataset_dir_path_w_model_type = os.path.join(
         curr_dir, "encodings", f"cy{model_type}"
@@ -37,6 +35,8 @@ def main(model_type, tokenizer_version, block_size):
     dataset_dir_path_w_model_type_n_version = get_new_subdirectory_path(
         dataset_dir_path_w_model_type, "encodings"
     )
+
+    train_paths, test_paths = PathSplitter.load_paths()
 
     echo_with_color("Tokenizing files", color="bright_yellow")
     tokenize_and_save_dataset(

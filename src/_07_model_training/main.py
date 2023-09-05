@@ -18,11 +18,6 @@ from src._07_model_training.training_methods.pytorch_model_trainer import (
 )
 from src.utils.common_utils import echo_with_color, get_new_subdirectory_path
 
-"""
-Following Intro_to_Weights_&_Biases Google Colab notebook
-at https://colab.research.google.com/github/wandb/examples/blob/master/colabs/intro/Intro_to_Weights_%26_Biases.ipynb#scrollTo=xShwrFZeXPsL
-"""
-
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -43,6 +38,14 @@ def main(
     learning_rate: float,
     num_train_epochs: int,
 ):
+    # Create a directory for the model
+    model_dir_path_w_model_type = os.path.join(
+        curr_dir, "trained_model_bundle", f"cy{model_type}"
+    )
+    model_dir_path_w_model_type_n_version = get_new_subdirectory_path(
+        model_dir_path_w_model_type, "model"
+    )
+
     echo_with_color("Setting seed...", color="bright_cyan")
     set_seed(seed)
 
@@ -75,13 +78,6 @@ def main(
         model_type, masked_encodings_version
     )
 
-    model_dir_path_w_model_type = os.path.join(
-        curr_dir, "trained_model_bundle", f"cy{model_type}"
-    )
-    model_dir_path_w_model_type_n_version = get_new_subdirectory_path(
-        model_dir_path_w_model_type, "model"
-    )
-
     echo_with_color(
         f"Training model from scratch using {trainer_type.capitalize()} as our trainer type...",
         color="bright_cyan",
@@ -91,6 +87,7 @@ def main(
             train_set=masked_train_dataset,
             test_set=masked_test_dataset,
             device=device,
+            model_type=model_type,
             model=model,
             model_path=model_dir_path_w_model_type_n_version,
             train_batch_size=train_batch_size,

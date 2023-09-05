@@ -20,6 +20,7 @@ class PyTorchModelTrainer:
         train_set,
         test_set,
         device,
+        model_type,
         model,
         model_path,
         train_batch_size,
@@ -31,6 +32,7 @@ class PyTorchModelTrainer:
         self.test_set = test_set
 
         self.device = device
+        self.model_type = model_type
         self.model = model
         self.model_path = model_path
 
@@ -51,14 +53,15 @@ class PyTorchModelTrainer:
 
         # Initialize Weights and Biases
         config = {
-            "model": self.model.__class__.__name__,
+            "model": self.model_type,
             "model_path": self.model_path,
             "learning_rate": self.learning_rate,
             "train_batch_size": self.train_batch_size,
             "eval_batch_size": self.eval_batch_size,
             "num_train_epochs": self.num_train_epochs,
+            "total_trainable_params": self.model.num_parameters(),
         }
-        wandb.init(project="nlp-model-training", config=config)
+        wandb.init(project=f"cy{self.model_type}", config=config)
 
         train_loader = torch.utils.data.DataLoader(
             self.train_set,
@@ -72,12 +75,14 @@ class PyTorchModelTrainer:
             self.model.parameters(), lr=self.learning_rate
         )  # Initialize optimizer
 
-        for epoch in range(self.num_train_epochs):
+        for epoch in tqdm(
+            range(self.num_train_epochs), leave=True, total=self.num_train_epochs
+        ):
             losses = []
 
             # setup loop with TQDM and dataloader
-            loop = tqdm(train_loader, leave=True)
-            for batch in loop:
+            pbar = tqdm(train_loader, leave=True)
+            for batch in pbar:
                 self.model.train()  # Activate training mode
 
                 # initialize calculated gradients (from prev step)
@@ -104,14 +109,13 @@ class PyTorchModelTrainer:
                 wandb.log({"batch_loss": loss.item()})
 
                 # print relevant info to progress bar
-                loop.set_description(f"Epoch {epoch}")
-                loop.set_postfix(loss=loss.item())
+                pbar.set_description(f"Epoch {epoch}")
+                pbar.set_postfix(loss=loss.item())
                 losses.append(loss.item())
 
             # Log the mean loss at the end of each epoch
             mean_train_loss = np.mean(losses)
-            wandb.log({"epoch_loss": mean_train_loss})
-            print("Mean Training Loss", mean_train_loss)
+            wandb.log({"mean_train_loss": mean_train_loss})
 
             # Evaluate the model on the test set after each training epoch
             mean_test_loss = self.eval()
@@ -122,10 +126,6 @@ class PyTorchModelTrainer:
 
         # Save model
         self.model.save_pretrained(self.model_path)
-        echo_with_color(
-            f"The model are parameters are:\n {self.model.num_parameters()}",
-            color="bright_cyan",
-        )
 
     def eval(self):
         test_loader = torch.utils.data.DataLoader(
@@ -139,10 +139,8 @@ class PyTorchModelTrainer:
         self.model.eval()  # set model to evaluation mode
         losses = []
 
-        loop = tqdm(test_loader, leave=True)
-
-        # iterate over dataset
-        for batch in loop:
+        pbar = tqdm(test_loader, leave=True)
+        for batch in pbar:
             # copy input to device
             input_ids = batch["input_ids"].to(self.device)
             attention_mask = batch["attention_mask"].to(self.device)
@@ -157,9 +155,8 @@ class PyTorchModelTrainer:
             loss = outputs.loss
 
             # output current loss
-            loop.set_postfix(loss=loss.item())
+            pbar.set_postfix(loss=loss.item())
             losses.append(loss.item())
 
         mean_test_loss = np.mean(losses)
-        print("Mean Test Loss", mean_test_loss)
         return mean_test_loss

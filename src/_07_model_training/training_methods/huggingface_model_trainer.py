@@ -25,6 +25,7 @@ class HuggingFaceTrainer:
         training_args = TrainingArguments(
             output_dir=self.model_path,  # script_args.repository_id, - # output directory to where save model checkpoint
             overwrite_output_dir=True,
+            report_to="wandb",  # we need one line to track experiments in wandb
             per_device_train_batch_size=10,  # the training batch size, put it as high as your GPU memory fits
             per_device_eval_batch_size=64,  # evaluation batch size
             num_train_epochs=10,  # number of training epochs, feel free to tweak
@@ -35,9 +36,9 @@ class HuggingFaceTrainer:
             ### logging & evaluation strategies ###
             # logging_dir=f"{script_args.repository_id}/logs",
             # logging_strategy="steps",
-            logging_steps=1000,  # evaluate, log and save model checkpoints every 1000 step
+            logging_steps=1,  # evaluate, log and save model checkpoints every 1000 step
             # save_strategy="steps",
-            evaluation_strategy="steps",  # evaluate each `logging_steps` steps
+            evaluation_strategy="epoch",  # evaluate each `logging_steps` steps
             save_steps=1000,  # 5_000
             save_total_limit=3,  # 2 - # whether you don't have much space so you let only 3 model weights saved in the disk
             # report_to="tensorboard",
@@ -49,6 +50,7 @@ class HuggingFaceTrainer:
             ### pretraining ###
             # ddp_find_unused_parameters=True,
             # throughput_warmup_steps=2,
+            # weight_decay=0.01,
         )
 
         # Initialize the trainer and pass everything to it
