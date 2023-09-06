@@ -1,31 +1,33 @@
 import json
+import os
 
+from rich.console import Console
+from rich.table import Table
 from transformers import BertTokenizer, pipeline
 
 from src._02_tokenizer_training.main import TokenizerWrapper
 from src._07_model_training.main import load_model
 from src.utils.common_utils import echo_with_color
-import os
-from rich.table import Table
-from rich.console import Console
 
 
 class PipelineWrapper:
     def __init__(self, model, tokenizer):
         self.fill = pipeline("fill-mask", model=model, tokenizer=tokenizer)
+        self.console = Console()
+
+    def _create_prediction_table(self):
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Score", style="dim", width=12)
+        table.add_column("Token", style="dim", width=12)
+        table.add_column("Token String", width=20)
+        table.add_column("Sequence", width=50)
+        return table
 
     def predict_next_token(self, input_string):
         mask_token = self.fill.tokenizer.mask_token
         predictions = self.fill(f"{input_string} {mask_token}")
 
-        # Create a new table
-        print("The input sequence is: ", input_string, "\n")
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("Score", style="dim", width=20)
-        table.add_column("Token", style="dim", width=12)
-        table.add_column("Token String", width=20)
-        table.add_column("Sequence", width=40)
-
+        table = self._create_prediction_table()
         for prediction in predictions:
             table.add_row(
                 str(prediction["score"]),
@@ -33,18 +35,14 @@ class PipelineWrapper:
                 prediction["token_str"],
                 prediction["sequence"],
             )
-
-        console = Console()
-        console.print(table)
+        self.console.print(table)
 
     def predict_specific_token_within_a_passing_sequence(self, examples):
+        table = self._create_example_table()
         for example in examples:
             for prediction in self.fill(example):
-                echo_with_color(
-                    f"{prediction['sequence']}, confidence: {prediction['score']}",
-                    color="bright_white",
-                )
-            echo_with_color("=" * 50)
+                table.add_row(prediction["sequence"], str(prediction["score"]))
+        self.console.print(table)
 
 
 def main(
@@ -52,7 +50,7 @@ def main(
     model_version: str,
     tokenizer_version: int,
     input_unmasked_sequence: str,
-    # input_masked_sequences: list,
+    input_masked_sequences: list,
 ):
 
     echo_with_color("Loading the saved model...", color="bright_white")
@@ -83,9 +81,9 @@ def main(
 
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_transformers_tokenizer)
     pipeline_wrapper.predict_next_token(input_unmasked_sequence)
-    # pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
-    #     input_masked_sequences
-    # )
+    pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
+        input_masked_sequences
+    )
 
 
 def parse_arguments():
@@ -108,14 +106,14 @@ def parse_arguments():
         default="είσαι",
         help="Define input sequence for its next token to be predicted.",
     )
-    # parser.add_argument(
-    #     "--input_masked_sequences",
-    #     nargs="+",
-    #     default="Θώρει τη [MASK]."
-    #     "Η τηλεόραση, το [MASK], τα φώτα."
-    #     "Μεν τον [MASK] κόρη μου.",
-    #     help="Define list of input masked sequences to predict their masked tokens.",
-    # )
+    parser.add_argument(
+        "--input_masked_sequences",
+        nargs="+",
+        default="Θώρει τη [MASK]."
+        "Η τηλεόραση, το [MASK], τα φώτα."
+        "Μεν τον [MASK] κόρη μου.",
+        help="Define list of input masked sequences to predict their masked tokens.",
+    )
 
     return parser.parse_args()
 
