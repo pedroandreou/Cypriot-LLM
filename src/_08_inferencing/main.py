@@ -1,8 +1,8 @@
 import difflib
 import json
 import os
-from typing import List
 import re
+from typing import List
 
 from rich.console import Console
 from rich.table import Table
@@ -60,7 +60,7 @@ class PipelineWrapper:
         for example in examples:
 
             highlighted_example = example.replace("[MASK]", "[yellow][MASK][/yellow]")
-            
+
             console = Console(force_terminal=True)
             console.print(f"\n\nThe input sequence is: {highlighted_example}")
 
@@ -71,14 +71,14 @@ class PipelineWrapper:
                     example, prediction["sequence"]
                 )
                 table.add_row(diff_result, str(prediction["score"]))
-            
+
             console.print(table)
 
     @staticmethod
     def _highlight_difference(text1, text2):
         words1 = text1.split()
         words2 = text2.split()
-        
+
         wordslen1 = len(words1)
         wordslen2 = len(words2)
 
@@ -88,32 +88,32 @@ class PipelineWrapper:
                 extra_wordpiece_found = False
 
                 # Remove the MASK token from text1
-                pattern = r'\[MASK\][,.!?;:]*'
-                text1 = re.sub(pattern, '', text1).strip()
+                pattern = r"\[MASK\][,.!?;:]*"
+                text1 = re.sub(pattern, "", text1).strip()
                 words1 = text1.split()
 
-
                 highlighted_words = []
-                
+
                 for w1, w2 in zip(words1, words2):
                     if len(w1) == len(w2):
                         highlighted_words.append(w2)
                     else:
                         diff = len(w2) - len(w1)
                         common_part = w1
-                        added_part = w2[len(w1):]  # Take the extra part of w2
-                        highlighted_words.append(f"{common_part}[yellow]{added_part}[/yellow]")
+                        added_part = w2[len(w1) :]  # Take the extra part of w2
+                        highlighted_words.append(
+                            f"{common_part}[yellow]{added_part}[/yellow]"
+                        )
                         extra_wordpiece_found = True
 
-
                 if extra_wordpiece_found:
-                    return ' '.join(highlighted_words)
-                
+                    return " ".join(highlighted_words)
+
                 else:
                     # it means the mask token was jsut replaced by a whitespace
                     # in the prediction
                     return text2
-            
+
             elif wordslen1 < wordslen2:
                 mask_index = words1.index("[MASK]")
 
@@ -122,21 +122,23 @@ class PipelineWrapper:
                 # Color the tokens in words2 based on the difference.
                 for i in range(diff):
                     if mask_index + i < len(words2):
-                        words2[mask_index + i] = f"[yellow]{words2[mask_index + i]}[/yellow]"
-                
-                return ' '.join(words2)
-        else: 
-            # equal lengths 
+                        words2[
+                            mask_index + i
+                        ] = f"[yellow]{words2[mask_index + i]}[/yellow]"
+
+                return " ".join(words2)
+        else:
+            # equal lengths
             # just yellow the token that replaced the mask token
             highlighted_words = []
-            
+
             for w1, w2 in zip(words1, words2):
-                if w1.strip(',.!') == '[MASK]' and w1 != w2:
+                if w1.strip(",.!") == "[MASK]" and w1 != w2:
                     highlighted_words.append(f"[yellow]{w2}[/yellow]")
                 else:
                     highlighted_words.append(w2)
-            
-            return ' '.join(highlighted_words)
+
+            return " ".join(highlighted_words)
 
 
 def main(
@@ -175,7 +177,7 @@ def main(
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_transformers_tokenizer)
     # print("Predict next token based on the passing sequence")
     # pipeline_wrapper.predict_next_token(input_unmasked_sequence)
-    
+
     print("\n\nPredict specific token within a passing a sequence")
     pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
         input_masked_sequences
