@@ -19,11 +19,12 @@ class PipelineWrapper:
         predictions = self.fill(f"{input_string} {mask_token}")
 
         # Create a new table
+        print("The input sequence is: ", input_string, "\n")
         table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("Score", style="dim", width=12)
+        table.add_column("Score", style="dim", width=20)
         table.add_column("Token", style="dim", width=12)
         table.add_column("Token String", width=20)
-        table.add_column("Sequence", width=50)
+        table.add_column("Sequence", width=40)
 
         for prediction in predictions:
             table.add_row(
