@@ -21,6 +21,24 @@ from src.utils.common_utils import echo_with_color, get_new_subdirectory_path
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
+def load_model(model_type: str, model_version: int):
+    model_dir_path = os.path.join(
+        curr_dir,
+        "trained_model_bundle",
+        f"cy{model_type}",
+        f"model_v{model_version}",
+    )
+
+    if model_type == "bert":
+        config = BertConfig.from_pretrained(model_dir_path)
+        model = BertForMaskedLM.from_pretrained(model_dir_path, config=config)
+    else:
+        config = RobertaConfig.from_pretrained(model_dir_path)
+        model = RobertaForMaskedLM.from_pretrained(model_dir_path, config=config)
+
+    return model
+
+
 def main(
     model_type: str,
     masked_encodings_version: int,

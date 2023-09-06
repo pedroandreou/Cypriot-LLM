@@ -5,13 +5,19 @@ import torch
 import wandb
 from dotenv import find_dotenv, load_dotenv
 from tqdm import tqdm
-from transformers import AdamW
-
-from src.utils.common_utils import echo_with_color
+from transformers import (
+    AdamW,
+    BertConfig,
+    BertForMaskedLM,
+    RobertaConfig,
+    RobertaForMaskedLM,
+)
 
 load_dotenv(find_dotenv())
 
 WANDB_KEY = os.getenv("WANDB_KEY")
+
+curr_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 class PyTorchModelTrainer:
@@ -105,10 +111,10 @@ class PyTorchModelTrainer:
                 # update parameters
                 optim.step()
 
-                # Log the batch loss to Weights and Biases after each step
+                # Log the loss at each step
                 wandb.log({"batch_loss": loss.item()})
 
-                # print relevant info to progress bar
+                # Print relevant info to progress bar
                 pbar.set_description(f"Epoch {epoch}")
                 pbar.set_postfix(loss=loss.item())
                 losses.append(loss.item())

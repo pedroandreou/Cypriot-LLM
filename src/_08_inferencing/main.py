@@ -3,6 +3,7 @@ import json
 from transformers import pipeline
 
 from src._02_tokenizer_training.main import TokenizerWrapper
+from src._07_model_training.main import load_model
 from src.utils.common_utils import echo_with_color
 
 
@@ -36,13 +37,11 @@ def main(
     input_masked_sequences: list,
 ):
 
-    # echo_with_color("Loading the saved model...", color="bright_white")
-    # if model_type == "bert":
-    #     loaded_model = BertForMaskedLM.from_pretrained(model_version)
-    # else:
-    #     loaded_model = RobertaForMaskedLM.from_pretrained(model_version)
-
-    # Add static method in model class to load the model here
+    echo_with_color("Loading the saved model...", color="bright_white")
+    loaded_model = load_model(
+        model_type,
+        model_version,
+    )
 
     echo_with_color("Loading the saved tokenizer...", color="bright_white")
     loaded_tokenizer = TokenizerWrapper().load_tokenizer(
