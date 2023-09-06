@@ -1,6 +1,6 @@
 import json
 
-from transformers import pipeline
+from transformers import BertTokenizer, pipeline
 
 from src._02_tokenizer_training.main import TokenizerWrapper
 from src._07_model_training.main import load_model
@@ -38,19 +38,31 @@ def main(
 ):
 
     echo_with_color("Loading the saved model...", color="bright_white")
+
     loaded_model = load_model(
         model_type,
         model_version,
     )
 
     echo_with_color("Loading the saved tokenizer...", color="bright_white")
-    loaded_tokenizer = TokenizerWrapper().load_tokenizer(
+    # Our trained tokenizer is not compatible with the pipeline API (as our tokenizer is from the 'tokenizers' while the API from 'transformers').
+    # Therefore, we need to get the paths and load it from the 'transformers' library.
+    config_path, vocab_path = TokenizerWrapper().get_tokenizer_paths(
         model_type,
         tokenizer_version,
-        block_size,
     )
 
-    pipeline_wrapper = PipelineWrapper(loaded_model, loaded_tokenizer)
+    # Load configurations
+    with open(config_path, "r") as file:
+        config = json.load(file)
+
+    loaded_transformers_tokenizer = BertTokenizer.from_pretrained(
+        vocab_path,
+        handle_chinese_chars=config["handle_chinese_chars"],
+        do_lower_case=config["do_lower_case"],
+    )
+
+    pipeline_wrapper = PipelineWrapper(loaded_model, loaded_transformers_tokenizer)
     pipeline_wrapper.predict_next_token(input_unmasked_sequence)
     # pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
     #     input_masked_sequences

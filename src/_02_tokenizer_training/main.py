@@ -170,42 +170,50 @@ class TokenizerWrapper:
                 json.dump(tokenizer_cfg, f)
 
     @staticmethod
+    def get_tokenizer_paths(model_type: str, tokenizer_version: int):
+        """
+        This method is used to get the paths to the tokenizer's files.
+        Essentially it should a nested function of the 'load_tokenizer' function below but since our tokenizer is trained using the 'tokenizers' library
+        but the Inference Pipeline is using the 'transformers' library, we separated the function to be able to use it in both cases.
+        """
+        paths = []
+
+        try:
+            specific_tokenizer_dir_path = os.path.join(
+                tokenizer_dir_path,
+                f"cy{model_type}",
+                f"tokenizer_v{tokenizer_version}",
+            )
+        except FileNotFoundError:
+            print(
+                f"Directory '{specific_tokenizer_dir_path}' does not exist. Please ensure the provided model version is correct."
+            )
+
+        if model_type == "bert":
+            config_path = os.path.join(specific_tokenizer_dir_path, "config.json")
+            vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.txt")
+            paths.append(config_path)
+            paths.append(vocab_path)
+
+        else:  # roberta
+            vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.json")
+            merges_path = os.path.join(specific_tokenizer_dir_path, "merges.txt")
+            paths.append(vocab_path)
+            paths.append(merges_path)
+
+        return paths
+
+    @staticmethod
     def load_tokenizer(model_type: str, tokenizer_version: int, block_size: int):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
         """
 
-        def get_tokenizer_paths(model_type: str, tokenizer_version: int):
-            paths = []
-
-            try:
-                specific_tokenizer_dir_path = os.path.join(
-                    tokenizer_dir_path,
-                    f"cy{model_type}",
-                    f"tokenizer_v{tokenizer_version}",
-                )
-            except FileNotFoundError:
-                print(
-                    f"Directory '{specific_tokenizer_dir_path}' does not exist. Please ensure the provided model version is correct."
-                )
-
-            if model_type == "bert":
-                config_path = os.path.join(specific_tokenizer_dir_path, "config.json")
-                vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.txt")
-                paths.append(config_path)
-                paths.append(vocab_path)
-
-            else:  # roberta
-                vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.json")
-                merges_path = os.path.join(specific_tokenizer_dir_path, "merges.txt")
-                paths.append(vocab_path)
-                paths.append(merges_path)
-
-            return paths
-
         if model_type == "bert":
-            config_path, vocab_path = get_tokenizer_paths(model_type, tokenizer_version)
+            config_path, vocab_path = TokenizerWrapper.get_tokenizer_paths(
+                model_type, tokenizer_version
+            )
 
             # Load configurations
             with open(config_path, "r") as file:
@@ -219,7 +227,9 @@ class TokenizerWrapper:
             )
 
         else:  # roberta
-            vocab_path, merges_path = get_tokenizer_paths(model_type, tokenizer_version)
+            vocab_path, merges_path = TokenizerWrapper.get_tokenizer_paths(
+                model_type, tokenizer_version
+            )
 
             # Load tokenizer
             tokenizer = ByteLevelBPETokenizer(vocab_path, merges_path)
