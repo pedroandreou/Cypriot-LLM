@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List
 
 from dotenv import find_dotenv, load_dotenv
 from transformers import HfArgumentParser
@@ -151,8 +151,8 @@ class ScriptArguments:
         default="είσαι",
         metadata={"help": "Define input sequence for its next token to be predicted."},
     )
-    input_masked_sequences: list = field(
-        default=[
+    input_masked_sequences: List[str] = field(
+        default_factory=lambda: [
             "Θώρει τη [MASK].",
             "Η τηλεόραση, το [MASK], τα φώτα.",
             "Μεν τον [MASK] κόρη μου.",

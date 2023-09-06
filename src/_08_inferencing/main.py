@@ -8,6 +8,7 @@ from transformers import BertTokenizer, pipeline
 from src._02_tokenizer_training.main import TokenizerWrapper
 from src._07_model_training.main import load_model
 from src.utils.common_utils import echo_with_color
+from typing import List
 
 
 class PipelineWrapper:
@@ -38,7 +39,7 @@ class PipelineWrapper:
         self.console.print(table)
 
     def predict_specific_token_within_a_passing_sequence(self, examples):
-        table = self._create_example_table()
+        table = self._create_prediction_table()
         for example in examples:
             for prediction in self.fill(example):
                 table.add_row(prediction["sequence"], str(prediction["score"]))
@@ -50,9 +51,8 @@ def main(
     model_version: str,
     tokenizer_version: int,
     input_unmasked_sequence: str,
-    input_masked_sequences: list,
+    input_masked_sequences: List[str],
 ):
-
     echo_with_color("Loading the saved model...", color="bright_white")
 
     loaded_model = load_model(
@@ -80,7 +80,7 @@ def main(
     )
 
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_transformers_tokenizer)
-    pipeline_wrapper.predict_next_token(input_unmasked_sequence)
+    #pipeline_wrapper.predict_next_token(input_unmasked_sequence)
     pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
         input_masked_sequences
     )
