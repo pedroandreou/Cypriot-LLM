@@ -16,19 +16,26 @@ class PipelineWrapper:
         self.fill = pipeline("fill-mask", model=model, tokenizer=tokenizer)
         self.console = Console()
 
-    def _create_prediction_table(self):
+    def _create_prediction_table(self, columns):
         table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("Score", style="dim", width=12)
-        table.add_column("Token", style="dim", width=12)
-        table.add_column("Token String", width=20)
-        table.add_column("Sequence", width=50)
+        for column_name, column_attrs in columns:
+            table.add_column(column_name, style=column_attrs.get('style', None), width=column_attrs.get('width', None))
         return table
 
     def predict_next_token(self, input_string):
         mask_token = self.fill.tokenizer.mask_token
         predictions = self.fill(f"{input_string} {mask_token}")
 
-        table = self._create_prediction_table()
+        columns = [
+            ("Score", {"style": "dim", "width": 12}),
+            ("Token", {"style": "dim", "width": 12}),
+            ("Token String", {"width": 20}),
+            ("Sequence", {"width": 50}),
+        ]
+
+        print("\n\nThe input sequence is: ", input_string)
+
+        table = self._create_prediction_table(columns)
         for prediction in predictions:
             table.add_row(
                 str(prediction["score"]),
@@ -39,11 +46,19 @@ class PipelineWrapper:
         self.console.print(table)
 
     def predict_specific_token_within_a_passing_sequence(self, examples):
-        table = self._create_prediction_table()
+        columns = [
+            ("Sequence", {"width": 50}),
+            ("Score", {"style": "dim", "width": 12}),
+        ]
+
         for example in examples:
+            print("\n\nThe input sequence is: ", example)
+            table = self._create_prediction_table(columns)
+
             for prediction in self.fill(example):
                 table.add_row(prediction["sequence"], str(prediction["score"]))
-        self.console.print(table)
+
+            self.console.print(table)
 
 
 def main(
