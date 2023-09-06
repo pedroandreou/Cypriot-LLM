@@ -16,7 +16,7 @@ from src.utils.common_utils import echo_with_color
 class PipelineWrapper:
     def __init__(self, model, tokenizer):
         self.fill = pipeline("fill-mask", model=model, tokenizer=tokenizer)
-        # self.console = Console(force_terminal=True)
+        self.console = Console(force_terminal=True)
 
     def _create_prediction_table(self, columns):
         table = Table(show_header=True, header_style="bold magenta")
@@ -61,8 +61,7 @@ class PipelineWrapper:
 
             highlighted_example = example.replace("[MASK]", "[yellow][MASK][/yellow]")
 
-            console = Console(force_terminal=True)
-            console.print(f"\n\nThe input sequence is: {highlighted_example}")
+            self.console.print(f"\n\nThe input sequence is: {highlighted_example}")
 
             table = self._create_prediction_table(columns)
 
@@ -72,7 +71,7 @@ class PipelineWrapper:
                 )
                 table.add_row(diff_result, str(prediction["score"]))
 
-            console.print(table)
+            self.console.print(table)
 
     @staticmethod
     def _highlight_difference(text1, text2):
