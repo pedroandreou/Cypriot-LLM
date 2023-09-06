@@ -2,6 +2,7 @@ import difflib
 import json
 import os
 from typing import List
+import re
 
 from rich.console import Console
 from rich.table import Table
@@ -15,7 +16,7 @@ from src.utils.common_utils import echo_with_color
 class PipelineWrapper:
     def __init__(self, model, tokenizer):
         self.fill = pipeline("fill-mask", model=model, tokenizer=tokenizer)
-        self.console = Console()
+        # self.console = Console(force_terminal=True)
 
     def _create_prediction_table(self, columns):
         table = Table(show_header=True, header_style="bold magenta")
@@ -57,7 +58,12 @@ class PipelineWrapper:
         ]
 
         for example in examples:
-            print("\n\nThe input sequence is: ", example)
+
+            highlighted_example = example.replace("[MASK]", "[yellow][MASK][/yellow]")
+            
+            console = Console(force_terminal=True)
+            console.print(f"\n\nThe input sequence is: {highlighted_example}")
+
             table = self._create_prediction_table(columns)
 
             for prediction in self.fill(example):
@@ -65,22 +71,72 @@ class PipelineWrapper:
                     example, prediction["sequence"]
                 )
                 table.add_row(diff_result, str(prediction["score"]))
-
-            self.console.print(table)
+            
+            console.print(table)
 
     @staticmethod
     def _highlight_difference(text1, text2):
-        diff = list(difflib.ndiff(text1, text2))
-        highlighted_diff = "".join(
-            [
-                (part[2:] if part.startswith("- ") else part)
-                if part.startswith("- ") or part.startswith("+ ")
-                else part
-                for part in diff
-            ]
-        )
+        words1 = text1.split()
+        words2 = text2.split()
+        
+        wordslen1 = len(words1)
+        wordslen2 = len(words2)
 
-        return highlighted_diff.replace("+", "[yellow]+[/]").replace("-", "[red]-[/]")
+        if wordslen1 != wordslen2:
+            if wordslen1 > wordslen2:
+                # Look if wordpiece was added to an existing word token
+                extra_wordpiece_found = False
+
+                # Remove the MASK token from text1
+                pattern = r'\[MASK\][,.!?;:]*'
+                text1 = re.sub(pattern, '', text1).strip()
+                words1 = text1.split()
+
+
+                highlighted_words = []
+                
+                for w1, w2 in zip(words1, words2):
+                    if len(w1) == len(w2):
+                        highlighted_words.append(w2)
+                    else:
+                        diff = len(w2) - len(w1)
+                        common_part = w1
+                        added_part = w2[len(w1):]  # Take the extra part of w2
+                        highlighted_words.append(f"{common_part}[yellow]{added_part}[/yellow]")
+                        extra_wordpiece_found = True
+
+
+                if extra_wordpiece_found:
+                    return ' '.join(highlighted_words)
+                
+                else:
+                    # it means the mask token was jsut replaced by a whitespace
+                    # in the prediction
+                    return text2
+            
+            elif wordslen1 < wordslen2:
+                mask_index = words1.index("[MASK]")
+
+                diff = wordslen2 - wordslen1
+
+                # Color the tokens in words2 based on the difference.
+                for i in range(diff):
+                    if mask_index + i < len(words2):
+                        words2[mask_index + i] = f"[yellow]{words2[mask_index + i]}[/yellow]"
+                
+                return ' '.join(words2)
+        else: 
+            # equal lengths 
+            # just yellow the token that replaced the mask token
+            highlighted_words = []
+            
+            for w1, w2 in zip(words1, words2):
+                if w1.strip(',.!') == '[MASK]' and w1 != w2:
+                    highlighted_words.append(f"[yellow]{w2}[/yellow]")
+                else:
+                    highlighted_words.append(w2)
+            
+            return ' '.join(highlighted_words)
 
 
 def main(
@@ -117,7 +173,10 @@ def main(
     )
 
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_transformers_tokenizer)
+    # print("Predict next token based on the passing sequence")
     # pipeline_wrapper.predict_next_token(input_unmasked_sequence)
+    
+    print("\n\nPredict specific token within a passing a sequence")
     pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
         input_masked_sequences
     )
