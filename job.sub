@@ -57,7 +57,7 @@ NUM_TRAIN_EPOCHS=3
 # --- Inference Config ---
 MODEL_VERSION=1
 INPUT_UNMASKED_SEQUENCE="είσαι"
-INPUT_MASKED_SEQUENCES="Θώρει τη [MASK]." "Η τηλεόραση, το [MASK], τα φώτα." "Μεν τον [MASK] κόρη μου."
+# INPUT_MASKED_SEQUENCES="Θώρει τη [MASK]." "Η τηλεόραση, το [MASK], τα φώτα." "Μεν τον [MASK] κόρη μου."
 
 # ==============================
 # ==============================
@@ -143,8 +143,7 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
             --model_type $MODEL_TYPE \
             --model_version $MODEL_VERSION \
             --tokenizer_version $TOKENIZER_VERSION \
-            --block_size $BLOCK_SIZE \
-            --input_unmasked_sequence $INPUT_UNMASKED_SEQUENCE \
-            --input_masked_sequences $INPUT_MASKED_SEQUENCES
+            --input_unmasked_sequence $INPUT_UNMASKED_SEQUENCE
+            # --input_masked_sequences $INPUT_MASKED_SEQUENCES
 
 fi

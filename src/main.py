@@ -318,7 +318,6 @@ def main():
             model_type=args.model_type,
             model_version=args.model_version,
             tokenizer_version=args.tokenizer_version,
-            block_size=args.block_size,
             input_unmasked_sequence=args.input_unmasked_sequence,
             # input_masked_sequences=args.input_masked_sequences,
         )

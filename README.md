@@ -111,8 +111,8 @@ python main.py \
 
     --do_inference \
     --model_version 1 \
-    --input_unmasked_sequence "είσαι" \
-    --input_masked_sequences "Θώρει τη [MASK]." "Η τηλεόραση, το [MASK], τα φώτα." "Μεν τον [MASK] κόρη μου."
+    --input_unmasked_sequence "είσαι"
+    <!-- --input_masked_sequences "Θώρει τη [MASK]." "Η τηλεόραση, το [MASK], τα φώτα." "Μεν τον [MASK] κόρη μου." -->
 ```
 
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.

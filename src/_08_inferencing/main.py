@@ -5,6 +5,7 @@ from transformers import BertTokenizer, pipeline
 from src._02_tokenizer_training.main import TokenizerWrapper
 from src._07_model_training.main import load_model
 from src.utils.common_utils import echo_with_color
+import os
 
 
 class PipelineWrapper:
@@ -32,7 +33,6 @@ def main(
     model_type: str,
     model_version: str,
     tokenizer_version: int,
-    block_size: int,
     input_unmasked_sequence: str,
     # input_masked_sequences: list,
 ):
@@ -54,12 +54,13 @@ def main(
 
     # Load configurations
     with open(config_path, "r") as file:
-        config = json.load(file)
+        loaded_tokenizer_config = json.load(file)
 
     loaded_transformers_tokenizer = BertTokenizer.from_pretrained(
-        vocab_path,
-        handle_chinese_chars=config["handle_chinese_chars"],
-        do_lower_case=config["do_lower_case"],
+        os.path.dirname(
+            vocab_path
+        ),  # Using directory path due to deprecation of direct file path in transformers v5
+        **loaded_tokenizer_config,
     )
 
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_transformers_tokenizer)
@@ -82,9 +83,6 @@ def parse_arguments():
     )
     parser.add_argument(
         "--tokenizer_version", type=int, default=1, help="Version of tokenizer to use"
-    )
-    parser.add_argument(
-        "--block_size", type=int, default=512, help="Define the block size."
     )
     parser.add_argument(
         "--input_unmasked_sequence",
@@ -113,7 +111,6 @@ if __name__ == "__main__":
         args.model_type,
         args.model_version,
         args.tokenizer_version,
-        args.block_size,
         args.input_unmasked_sequence,
         args.input_masked_sequences,
     )
