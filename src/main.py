@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
 from dotenv import find_dotenv, load_dotenv
 from transformers import HfArgumentParser

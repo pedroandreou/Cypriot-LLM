@@ -1,5 +1,7 @@
+import difflib
 import json
 import os
+from typing import List
 
 from rich.console import Console
 from rich.table import Table
@@ -8,7 +10,6 @@ from transformers import BertTokenizer, pipeline
 from src._02_tokenizer_training.main import TokenizerWrapper
 from src._07_model_training.main import load_model
 from src.utils.common_utils import echo_with_color
-from typing import List
 
 
 class PipelineWrapper:
@@ -19,7 +20,11 @@ class PipelineWrapper:
     def _create_prediction_table(self, columns):
         table = Table(show_header=True, header_style="bold magenta")
         for column_name, column_attrs in columns:
-            table.add_column(column_name, style=column_attrs.get('style', None), width=column_attrs.get('width', None))
+            table.add_column(
+                column_name,
+                style=column_attrs.get("style", None),
+                width=column_attrs.get("width", None),
+            )
         return table
 
     def predict_next_token(self, input_string):
@@ -56,9 +61,26 @@ class PipelineWrapper:
             table = self._create_prediction_table(columns)
 
             for prediction in self.fill(example):
-                table.add_row(prediction["sequence"], str(prediction["score"]))
+                diff_result = self._highlight_difference(
+                    example, prediction["sequence"]
+                )
+                table.add_row(diff_result, str(prediction["score"]))
 
             self.console.print(table)
+
+    @staticmethod
+    def _highlight_difference(text1, text2):
+        diff = list(difflib.ndiff(text1, text2))
+        highlighted_diff = "".join(
+            [
+                (part[2:] if part.startswith("- ") else part)
+                if part.startswith("- ") or part.startswith("+ ")
+                else part
+                for part in diff
+            ]
+        )
+
+        return highlighted_diff.replace("+", "[yellow]+[/]").replace("-", "[red]-[/]")
 
 
 def main(
@@ -95,7 +117,7 @@ def main(
     )
 
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_transformers_tokenizer)
-    #pipeline_wrapper.predict_next_token(input_unmasked_sequence)
+    # pipeline_wrapper.predict_next_token(input_unmasked_sequence)
     pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
         input_masked_sequences
     )
