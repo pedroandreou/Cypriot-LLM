@@ -151,14 +151,14 @@ class ScriptArguments:
         default="είσαι",
         metadata={"help": "Define input sequence for its next token to be predicted."},
     )
-    input_masked_sequences: list = field(
-        default=[
-            "Θώρει τη [MASK].",
-            "Η τηλεόραση, το [MASK], τα φώτα.",
-            "Μεν τον [MASK] κόρη μου.",
-        ],
-        metadata={"help": "Define input masked sequence to predict its masked tokens."},
-    )
+    # input_masked_sequences: list = field(
+    #     default=[
+    #         "Θώρει τη [MASK].",
+    #         "Η τηλεόραση, το [MASK], τα φώτα.",
+    #         "Μεν τον [MASK] κόρη μου.",
+    #     ],
+    #     metadata={"help": "Define input masked sequence to predict its masked tokens."},
+    # )
 
 
 def main():
@@ -320,7 +320,7 @@ def main():
             tokenizer_version=args.tokenizer_version,
             block_size=args.block_size,
             input_unmasked_sequence=args.input_unmasked_sequence,
-            input_masked_sequences=args.input_masked_sequences,
+            # input_masked_sequences=args.input_masked_sequences,
         )
 
     else:

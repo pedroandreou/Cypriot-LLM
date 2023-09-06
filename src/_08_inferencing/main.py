@@ -34,7 +34,7 @@ def main(
     tokenizer_version: int,
     block_size: int,
     input_unmasked_sequence: str,
-    input_masked_sequences: list,
+    # input_masked_sequences: list,
 ):
 
     echo_with_color("Loading the saved model...", color="bright_white")
@@ -52,9 +52,9 @@ def main(
 
     pipeline_wrapper = PipelineWrapper(loaded_model, loaded_tokenizer)
     pipeline_wrapper.predict_next_token(input_unmasked_sequence)
-    pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
-        input_masked_sequences
-    )
+    # pipeline_wrapper.predict_specific_token_within_a_passing_sequence(
+    #     input_masked_sequences
+    # )
 
 
 def parse_arguments():
@@ -80,14 +80,14 @@ def parse_arguments():
         default="είσαι",
         help="Define input sequence for its next token to be predicted.",
     )
-    parser.add_argument(
-        "--input_masked_sequences",
-        nargs="+",
-        default="Θώρει τη [MASK]."
-        "Η τηλεόραση, το [MASK], τα φώτα."
-        "Μεν τον [MASK] κόρη μου.",
-        help="Define list of input masked sequences to predict their masked tokens.",
-    )
+    # parser.add_argument(
+    #     "--input_masked_sequences",
+    #     nargs="+",
+    #     default="Θώρει τη [MASK]."
+    #     "Η τηλεόραση, το [MASK], τα φώτα."
+    #     "Μεν τον [MASK] κόρη μου.",
+    #     help="Define list of input masked sequences to predict their masked tokens.",
+    # )
 
     return parser.parse_args()
 
