@@ -17,7 +17,7 @@ class PipelineWrapper:
         predictions = self.fill(f"{input_string} {mask_token}")
 
         for prediction in predictions:
-            echo_with_color(json.dumps(prediction, indent=4), color="bright_white")
+            print(prediction)
 
     def predict_specific_token_within_a_passing_sequence(self, examples):
         for example in examples:

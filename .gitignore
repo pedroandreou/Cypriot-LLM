@@ -21,15 +21,13 @@
 
 # Content of tokenizers and models
 **/*.json
+**/*.bin
 
 # Initial configs
 !**/initial_configs/*
 
 # Dataset saved encodings
 **/*.pth
-
-# Inference directory
-inference/
 
 # Batch script's files
 **/dataset/
@@ -46,3 +44,6 @@ inference/
 
 # for puml
 # pyreverse -A -S -o puml --color-palette aliceblue,antiquewhite,aquamarine,burlywood,cadetblue,chartreuse,chocolate,coral,cornflowerblue,cyan,darkgoldenrod,darkseagreen,dodgerblue,forestgreen,gold,hotpink,mediumspringgreen $(find . -name "*.py")
+
+# WANDB
+**/wandb
