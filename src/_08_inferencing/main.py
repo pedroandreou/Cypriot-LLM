@@ -6,6 +6,8 @@ from src._02_tokenizer_training.main import TokenizerWrapper
 from src._07_model_training.main import load_model
 from src.utils.common_utils import echo_with_color
 import os
+from rich.table import Table
+from rich.console import Console
 
 
 class PipelineWrapper:
@@ -16,8 +18,23 @@ class PipelineWrapper:
         mask_token = self.fill.tokenizer.mask_token
         predictions = self.fill(f"{input_string} {mask_token}")
 
+        # Create a new table
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Score", style="dim", width=12)
+        table.add_column("Token", style="dim", width=12)
+        table.add_column("Token String", width=20)
+        table.add_column("Sequence", width=50)
+
         for prediction in predictions:
-            print(prediction)
+            table.add_row(
+                str(prediction["score"]),
+                str(prediction["token"]),
+                prediction["token_str"],
+                prediction["sequence"],
+            )
+
+        console = Console()
+        console.print(table)
 
     def predict_specific_token_within_a_passing_sequence(self, examples):
         for example in examples:
