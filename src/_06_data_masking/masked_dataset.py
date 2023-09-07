@@ -42,10 +42,10 @@ class MaskedDataset(Dataset):
         self.model_type = model_type
         self.mlm_type = mlm_type
         self.mlm_probability = mlm_probability
-        self.masked_encodings = self._create_masked_dataset()
+        self._create_masked_dataset()
 
     def _create_masked_dataset(self):
-        entire_masked_encodings = {
+        self.masked_encodings = {
             "input_ids": [],
             "attention_mask": [],
             "labels": [],
@@ -55,9 +55,9 @@ class MaskedDataset(Dataset):
             range(len(self.encodings)), desc="Masking encodings"
         ):  # Loop over each tensor in the dataset
 
-            current_tensor_labels = self.encodings[i].clone()
-            current_tensor_mask = (current_tensor_labels != 0).long()
-            current_tensor_input_ids = current_tensor_labels.detach().clone()
+            current_tensor_input_ids = self.encodings[i]["input_ids"].clone()
+            current_tensor_mask = self.encodings[i]["attention_mask"].clone()
+            current_tensor_labels = self.encodings[i]["labels"].clone()
 
             if self.mlm_type == "manual":
                 current_tensor_masked_input_ids = self.manual_mlm(
@@ -75,12 +75,12 @@ class MaskedDataset(Dataset):
             }
 
             for key in current_tensor_encodings:
-                entire_masked_encodings[key].append(current_tensor_encodings[key])
+                self.masked_encodings[key].append(current_tensor_encodings[key])
 
-        for key in entire_masked_encodings:
-            entire_masked_encodings[key] = torch.stack(entire_masked_encodings[key])
+        for key in self.masked_encodings:
+            self.masked_encodings[key] = torch.stack(self.masked_encodings[key])
 
-        return entire_masked_encodings
+        return self.masked_encodings
 
     def manual_mlm(self, input_ids):
         # create random array of floats with equal dims to input_ids

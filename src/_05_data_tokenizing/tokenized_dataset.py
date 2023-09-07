@@ -22,6 +22,8 @@ class TokenizedDataset(Dataset):
         files_list: list = None,
         block_size: str = None,
     ):
+        self.encodings = None
+
         if all(
             arg is None
             for arg in (model_type, tokenizer_version, files_list, block_size)
@@ -41,23 +43,28 @@ class TokenizedDataset(Dataset):
     def parameterized_constructor(
         self, model_type, tokenizer_version, files_list, block_size
     ):
+        self.model_type = model_type
+        self.tokenizer_version = tokenizer_version
+        self.files_list = files_list
+        self.block_size = block_size
+
+        self._create_dataset()
+
+    def _create_dataset(self):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
         """
 
-        self.model_type = model_type
-        self.examples = []
-
         echo_with_color(f"Loading {self.model_type} tokenizer", color="bright_yellow")
         tokenizer = TokenizerWrapper().load_tokenizer(
             self.model_type,
-            tokenizer_version,
-            block_size,
+            self.tokenizer_version,
+            self.block_size,
         )
 
-        # Wrapping files_list with tqdm to display the progress bar
-        tqdm_iterator = tqdm(files_list, desc="Tokenizing files")
+        examples = []
+        tqdm_iterator = tqdm(self.files_list, desc="Tokenizing files")
         for file_path in tqdm_iterator:
             tqdm_iterator.set_description(f"Tokenizing file: {file_path}")
 
@@ -70,7 +77,31 @@ class TokenizedDataset(Dataset):
                     for line in f.read().splitlines()
                     if (len(line) > 0 and not line.isspace())
                 ]
-            self.examples.extend(tokenizer.encode_batch(lines))
+            examples.extend(tokenizer.encode_batch(lines))
+
+        # Prepare the dataset
+        self.encodings = {
+            "input_ids": [],
+            "attention_mask": [],
+            "labels": [],
+        }
+
+        for example in examples:
+            current_tensor_labels = example.clone()
+            current_tensor_mask = (current_tensor_labels != 0).long()
+            current_tensor_input_ids = current_tensor_labels.detach().clone()
+
+            current_tensor_encodings = {
+                "input_ids": current_tensor_input_ids,
+                "attention_mask": current_tensor_mask,
+                "labels": current_tensor_labels,
+            }
+
+            for key in current_tensor_encodings:
+                self.encodings[key].append(current_tensor_encodings[key])
+
+        for key in self.encodings:
+            self.encodings[key] = torch.stack(self.encodings[key])
 
     def __repr__(self):
         tokenizer_type = (
@@ -81,10 +112,10 @@ class TokenizedDataset(Dataset):
         return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.examples)}>"
 
     def __len__(self):
-        return len(self.examples)
+        return self.encodings["input_ids"].shape[0]
 
-    def __getitem__(self, i):
-        return torch.tensor(self.examples[i].ids, dtype=torch.long)
+    def __getitem__(self, index):
+        return {key: tensor[index] for key, tensor in self.encodings.items()}
 
     @staticmethod
     def load_encodings(model_type: str, encodings_version: int):
