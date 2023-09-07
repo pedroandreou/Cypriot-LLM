@@ -118,20 +118,6 @@ python main.py \
 As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
 
 
-# :eyes: Weight & Biases
-
-The model's loss is logged in the W&B Platform.
-Provide your API key when prompted; finding it [here](https://wandb.ai/settings).
-
-<br>
-Create the necessary directories, set and export the environment variables, adjust permissions, and add the environment variables to your .bashrc for persistence
-
-<pre>
-chmod +x setup_wandb.sh
-./setup_wandb.sh
-</pre>
-
-
 # :computer: Cyclone
 
 Cyclone is the name of the super computer at the Cyprus Institute. In order to run a job you need to request access by following
@@ -181,6 +167,21 @@ Login by doing:
 huggingface-cli login
 ```
 and enter your huggingface token by creating it with `write` access [here](https://huggingface.co/settings/tokens)
+
+
+### Weight & Biases
+
+The model's loss is logged in the W&B Platform.
+Provide your API key when prompted; finding it [here](https://wandb.ai/settings).
+
+<br>
+We do not have sudo permissions for writing to `/tmp` on the supercomputer.
+
+Thus, create the necessary directories, set and export the environment variables, adjust permissions, and add the environment variables to your .bashrc for persistence by doing:
+<pre>
+chmod +x setup_wandb.sh
+./setup_wandb.sh
+</pre>
 
 
 ### Submitting batch jobs
