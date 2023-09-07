@@ -195,5 +195,11 @@ sbatch --job-name=Stage<task> --array=<task> job.sub
 ```
 where `<task>` can be any number from 1 to 11
 
+<br>
+<br>
+Suggestion: when you inference, you will see many unicode characters in the output `train.log` file if you access it with a text editor as I am doing `Console(force_terminal=True)` for adding color to the token that replaced the mask token in the output Table that contains the predictions.
+That said, just do `cat train.log`for seeing the file.
+<br>
+<br>
 
 More information on how to run jobs here https://hpcf.cyi.ac.cy/documentation/running_jobs.html
