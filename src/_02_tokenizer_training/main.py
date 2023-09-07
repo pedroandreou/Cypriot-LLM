@@ -85,6 +85,14 @@ class TokenizerWrapper:
         )
         self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
 
+        # Create output directory
+        tokenizer_dir_path_w_model_type = os.path.join(
+            tokenizer_dir_path, f"cy{self.model_type}"
+        )
+        self.tokenizer_dir_path_w_model_type_n_version = get_new_subdirectory_path(
+            tokenizer_dir_path_w_model_type, "tokenizer"
+        )
+
     def get_tokenizer_and_train_args(self):
         common_tokenizer_args = {
             "lowercase": self.lowercase,
@@ -139,19 +147,13 @@ class TokenizerWrapper:
         echo_with_color(
             f"Saving the {self.model_type}'s tokenizer files...", color="black"
         )
-        tokenizer_dir_path_w_model_type = os.path.join(
-            tokenizer_dir_path, f"cy{self.model_type}"
-        )
-        tokenizer_dir_path_w_model_type_n_version = get_new_subdirectory_path(
-            tokenizer_dir_path_w_model_type, "tokenizer"
-        )
-        tokenizer.save_model(tokenizer_dir_path_w_model_type_n_version)
+        tokenizer.save_model(self.tokenizer_dir_path_w_model_type_n_version)
 
         # Save BERT's config json file to disk
         # as it is not saved automatically
         if self.model_type == "bert":
             config_path = os.path.join(
-                tokenizer_dir_path_w_model_type_n_version, "config.json"
+                self.tokenizer_dir_path_w_model_type_n_version, "config.json"
             )
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
