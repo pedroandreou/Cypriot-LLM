@@ -5,13 +5,8 @@ import torch
 import wandb
 from dotenv import find_dotenv, load_dotenv
 from tqdm import tqdm
-from transformers import (
-    AdamW,
-    BertConfig,
-    BertForMaskedLM,
-    RobertaConfig,
-    RobertaForMaskedLM,
-)
+from torch.optim import AdamW
+
 
 load_dotenv(find_dotenv())
 
@@ -78,7 +73,7 @@ class PyTorchModelTrainer:
         )
 
         optim = AdamW(
-            self.model.parameters(), lr=self.learning_rate
+            self.model.parameters(), lr=self.learning_rate, no_deprecation_warning=True
         )  # Initialize optimizer
 
         for epoch in tqdm(

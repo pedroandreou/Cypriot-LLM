@@ -5,9 +5,9 @@ class HuggingFaceTrainer:
     def __init__(self, train_set, test_set, model, model_path, data_collator=None):
         self.train_set = train_set
         self.test_set = test_set
-        self.data_collator = data_collator
         self.model = model
         self.model_path = model_path
+        self.data_collator = data_collator
 
     def train(self):
         """
