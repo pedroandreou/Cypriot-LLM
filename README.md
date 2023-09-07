@@ -125,10 +125,11 @@ Provide your API key when prompted; finding it [here](https://wandb.ai/settings)
 
 <br>
 Create the necessary directories, set and export the environment variables, adjust permissions, and add the environment variables to your .bashrc for persistence
-```
+
+<pre>
 chmod +x setup_wandb.sh
 ./setup_wandb.sh
-```
+</pre>
 
 
 # :computer: Cyclone
