@@ -83,25 +83,23 @@ class TokenizedDataset(Dataset):
         self.encodings = {
             "input_ids": [],
             "attention_mask": [],
-            "labels": [],
         }
 
         for example in examples:
-            current_tensor_labels = example.clone()
-            current_tensor_mask = (current_tensor_labels != 0).long()
-            current_tensor_input_ids = current_tensor_labels.detach().clone()
+            current_input_ids = example.ids  # Access the ids attribute of the Encoding object
+            current_attention_mask = example.attention_mask  # Access the attention_mask attribute
 
-            current_tensor_encodings = {
-                "input_ids": current_tensor_input_ids,
-                "attention_mask": current_tensor_mask,
-                "labels": current_tensor_labels,
+            current_encodings = {
+                "input_ids": current_input_ids,
+                "attention_mask": current_attention_mask,
             }
 
-            for key in current_tensor_encodings:
-                self.encodings[key].append(current_tensor_encodings[key])
+            for key in current_encodings:
+                self.encodings[key].append(current_encodings[key])
 
+        # Convert each list in encodings into a PyTorch tensor
         for key in self.encodings:
-            self.encodings[key] = torch.stack(self.encodings[key])
+            self.encodings[key] = torch.tensor(self.encodings[key])
 
     def __repr__(self):
         tokenizer_type = (
@@ -109,7 +107,7 @@ class TokenizedDataset(Dataset):
             if self.model_type == "bert"
             else "ByteLevelBPETokenizer"
         )
-        return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.examples)}>"
+        return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.encodings['input_ids'])}>"
 
     def __len__(self):
         return self.encodings["input_ids"].shape[0]

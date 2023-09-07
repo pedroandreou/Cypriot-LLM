@@ -57,7 +57,7 @@ class MaskedDataset(Dataset):
 
             current_tensor_input_ids = self.encodings[i]["input_ids"].clone()
             current_tensor_mask = self.encodings[i]["attention_mask"].clone()
-            current_tensor_labels = self.encodings[i]["labels"].clone()
+            current_tensor_labels = self.encodings[i]["input_ids"].clone()
 
             if self.mlm_type == "manual":
                 current_tensor_masked_input_ids = self.manual_mlm(
