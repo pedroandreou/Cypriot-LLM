@@ -86,8 +86,12 @@ class TokenizedDataset(Dataset):
         }
 
         for example in examples:
-            current_input_ids = example.ids  # Access the ids attribute of the Encoding object
-            current_attention_mask = example.attention_mask  # Access the attention_mask attribute
+            current_input_ids = (
+                example.ids
+            )  # Access the ids attribute of the Encoding object
+            current_attention_mask = (
+                example.attention_mask
+            )  # Access the attention_mask attribute
 
             current_encodings = {
                 "input_ids": current_input_ids,
@@ -115,6 +119,9 @@ class TokenizedDataset(Dataset):
     def __getitem__(self, index):
         return {key: tensor[index] for key, tensor in self.encodings.items()}
 
+    ##############################
+    ### Load Encodings Methods ###
+    ##############################
     def _get_dataset_path(self, model_type: str, set_type: str, encodings_version: int):
         folder_name = os.path.join(
             "encodings", f"cy{model_type}", f"encodings_v{encodings_version}"
@@ -125,15 +132,24 @@ class TokenizedDataset(Dataset):
 
     def load_and_set_train_encodings(self, model_type: str, encodings_version: int):
         self.model_type = model_type
-        train_dataset_path = self._get_dataset_path(self.model_type, "train", encodings_version)
-        self.encodings  = torch.load(train_dataset_path)
+        train_dataset_path = self._get_dataset_path(
+            self.model_type, "train", encodings_version
+        )
+        self.encodings = torch.load(train_dataset_path)
 
         return self.encodings
 
     def load_and_set_test_encodings(self, model_type: str, encodings_version: int):
         self.model_type = model_type
-        test_dataset_path = self._get_dataset_path(self.model_type, "test", encodings_version)
+        test_dataset_path = self._get_dataset_path(
+            self.model_type, "test", encodings_version
+        )
         self.encodings = torch.load(test_dataset_path)
 
         return self.encodings
 
+    def load_encodings(self, model_type: str, encodings_version: int):
+        train_set = self.load_and_set_train_encodings(model_type, encodings_version)
+        test_set = self.load_and_set_test_encodings(model_type, encodings_version)
+
+        return train_set, test_set

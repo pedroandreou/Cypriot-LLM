@@ -124,28 +124,63 @@ class MaskedDataset(Dataset):
         # return self.data_collator(data)
         pass
 
+    def __repr__(self):
+        tokenizer_type = (
+            "BertWordPieceTokenizer"
+            if self.model_type == "bert"
+            else "ByteLevelBPETokenizer"
+        )
+        return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.masked_encodings['input_ids'])}>"
+
     def __len__(self):
         return self.masked_encodings["input_ids"].shape[0]
 
     def __getitem__(self, index):
         return {key: tensor[index] for key, tensor in self.masked_encodings.items()}
 
-    @staticmethod
-    def load_masked_encodings(model_type: str, masked_encodings_version: int):
-        def get_dataset_path(dataset_type):
-            folder_name = os.path.join(
-                "masked_encodings",
-                f"cy{model_type}",
-                f"masked_encodings_v{masked_encodings_version}",
-            )
-            filename = f"masked_{dataset_type}_dataset.pth"
+    ##############################
+    ### Load Encodings Methods ###
+    ##############################
+    def _get_dataset_path(
+        self, model_type: str, set_type: str, masked_encodings_version: int
+    ):
+        folder_name = os.path.join(
+            "masked_encodings",
+            f"cy{model_type}",
+            f"masked_encodings_v{masked_encodings_version}",
+        )
+        filename = f"masked_{set_type}_dataset.pth"
 
-            return os.path.join(curr_dir, folder_name, filename)
+        return os.path.join(curr_dir, folder_name, filename)
 
-        train_dataset_path = get_dataset_path("train")
-        train_dataset = torch.load(train_dataset_path)
+    def load_and_set_train_encodings(
+        self, model_type: str, masked_encodings_version: int
+    ):
+        self.model_type = model_type
+        train_dataset_path = self._get_dataset_path(
+            self.model_type, "train", masked_encodings_version
+        )
+        self.masked_encodings = torch.load(train_dataset_path)
 
-        test_dataset_path = get_dataset_path("test")
-        test_dataset = torch.load(test_dataset_path)
+        return self.masked_encodings
 
-        return train_dataset, test_dataset
+    def load_and_set_test_encodings(
+        self, model_type: str, masked_encodings_version: int
+    ):
+        self.model_type = model_type
+        test_dataset_path = self._get_dataset_path(
+            self.model_type, "test", masked_encodings_version
+        )
+        self.masked_encodings = torch.load(test_dataset_path)
+
+        return self.masked_encodings
+
+    def load_masked_encodings(self, model_type: str, masked_encodings_version: int):
+        train_set = self.load_and_set_train_encodings(
+            model_type, masked_encodings_version
+        )
+        test_set = self.load_and_set_test_encodings(
+            model_type, masked_encodings_version
+        )
+
+        return train_set, test_set

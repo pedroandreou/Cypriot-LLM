@@ -4,9 +4,8 @@ import numpy as np
 import torch
 import wandb
 from dotenv import find_dotenv, load_dotenv
-from tqdm import tqdm
 from torch.optim import AdamW
-
+from tqdm import tqdm
 
 load_dotenv(find_dotenv())
 
