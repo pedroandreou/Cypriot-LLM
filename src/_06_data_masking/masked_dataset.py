@@ -80,8 +80,6 @@ class MaskedDataset(Dataset):
         for key in self.masked_encodings:
             self.masked_encodings[key] = torch.stack(self.masked_encodings[key])
 
-        return self.masked_encodings
-
     def manual_mlm(self, input_ids):
         # create random array of floats with equal dims to input_ids
         rand = torch.rand(input_ids.shape)

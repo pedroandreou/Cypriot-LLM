@@ -23,9 +23,7 @@ def main(
     )
 
     echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
-    train_dataset, test_dataset = TokenizedDataset().load_encodings(
-        model_type, encodings_version
-    )
+    train_dataset, test_dataset = TokenizedDataset().load_and_set_train_encodings(model_type, encodings_version), TokenizedDataset().load_and_set_test_encodings(model_type, encodings_version)
 
     echo_with_color("Creating masked datasets...", color="bright_magenta")
     masked_train_dataset = MaskedDataset(

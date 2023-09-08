@@ -115,20 +115,25 @@ class TokenizedDataset(Dataset):
     def __getitem__(self, index):
         return {key: tensor[index] for key, tensor in self.encodings.items()}
 
-    @staticmethod
-    def load_encodings(model_type: str, encodings_version: int):
-        def get_dataset_path(set_type: str, encodings_version: int):
-            folder_name = os.path.join(
-                "encodings", f"cy{model_type}", f"encodings_v{encodings_version}"
-            )
-            filename = f"tokenized_{set_type}_dataset.pth"
+    def _get_dataset_path(self, model_type: str, set_type: str, encodings_version: int):
+        folder_name = os.path.join(
+            "encodings", f"cy{model_type}", f"encodings_v{encodings_version}"
+        )
+        filename = f"tokenized_{set_type}_dataset.pth"
 
-            return os.path.join(curr_dir, folder_name, filename)
+        return os.path.join(curr_dir, folder_name, filename)
 
-        train_dataset_path = get_dataset_path("train", encodings_version)
-        train_dataset = torch.load(train_dataset_path)
+    def load_and_set_train_encodings(self, model_type: str, encodings_version: int):
+        self.model_type = model_type
+        train_dataset_path = self._get_dataset_path(self.model_type, "train", encodings_version)
+        self.encodings  = torch.load(train_dataset_path)
 
-        test_dataset_path = get_dataset_path("test", encodings_version)
-        test_dataset = torch.load(test_dataset_path)
+        return self.encodings
 
-        return train_dataset, test_dataset
+    def load_and_set_test_encodings(self, model_type: str, encodings_version: int):
+        self.model_type = model_type
+        test_dataset_path = self._get_dataset_path(self.model_type, "test", encodings_version)
+        self.encodings = torch.load(test_dataset_path)
+
+        return self.encodings
+
