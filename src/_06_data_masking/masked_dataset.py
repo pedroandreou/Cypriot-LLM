@@ -88,16 +88,16 @@ class MaskedDataset(Dataset):
         if self.model_type == "bert":
             mask_arr = (
                 (rand < self.mlm_probability)
-                * (input_ids != 101)
-                * (input_ids != 102)
-                * (input_ids != 0)
+                * (input_ids != 2)  # [CLS]
+                * (input_ids != 0)  # [PAD]
+                * (input_ids != 3)  # [SEP]
             )
         else:
             mask_arr = (
                 (rand < self.mlm_probability)
-                * (input_ids != 1)
-                * (input_ids != 2)
-                * (input_ids != 0)
+                * (input_ids != 1)  # need to be changed
+                * (input_ids != 2)  # need to be changed
+                * (input_ids != 0)  # need to be changed
             )
 
         for _ in range(input_ids.shape[0]):
@@ -106,9 +106,9 @@ class MaskedDataset(Dataset):
 
             # mask input ids
             if self.model_type == "bert":
-                input_ids[selection] = 103
+                input_ids[selection] = 4  # [MASK]
             else:
-                input_ids[selection] = 3
+                input_ids[selection] = 3  # need to be changed
 
         # masked input ids
         return input_ids

@@ -5,9 +5,23 @@ class HuggingFaceTrainer:
     def __init__(self, train_set, test_set, model, model_path, data_collator=None):
         self.train_set = train_set
         self.test_set = test_set
+
+        self.device = device
+
+        self.model_type = model_type
         self.model = model
         self.model_path = model_path
+
         self.data_collator = data_collator
+
+        device,
+        model_type,
+        model,
+        model_path,
+        train_batch_size,
+        eval_batch_size,
+        learning_rate,
+        num_train_epochs,
 
     def train(self):
         """
