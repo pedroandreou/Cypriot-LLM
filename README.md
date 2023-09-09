@@ -1,23 +1,9 @@
-# :memo: Google Colab Notebooks
-All of the following Notebooks are integral components of this repository. They come equipped with additional debugging functions designed to assist future developers in expanding upon them.<br>
-- Preprocessing<br>
-    https://colab.research.google.com/drive/15PowGyrbMmuWo7UHDszL79fqgvVenKMj#scrollTo=AxXFXqijO9yW
-- Testing different use cases following various tutorials<br>
-    https://colab.research.google.com/drive/1HctL2fAkkYQi-POhiISeXLrLn5rPNTJe#scrollTo=XiB3JcbY1WS4
-- Training<br>
-    https://colab.research.google.com/drive/1n0M7negqCKG--658g3hBdmpZ0IcgZgNe#scrollTo=Bzr8cCpGeqJO&uniqifier=3
-<br>
-<br>
+# Cypriot LLM
 
 ## :building_construction: Environment
 
 ### You should create a virtualenv with the required dependencies by running
 ```
-## Linux
-make virtualenv
-
-
-## Windows
 python -m venv .venv
 ```
 
