@@ -130,7 +130,7 @@ class MaskedDataset(Dataset):
             if self.model_type == "bert"
             else "ByteLevelBPETokenizer"
         )
-        return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.masked_encodings['input_ids'])}>"
+        return f"<MaskedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.masked_encodings['input_ids'])}>"
 
     def __len__(self):
         return self.masked_encodings["input_ids"].shape[0]
