@@ -92,7 +92,7 @@ python main.py \
 
     --do_mask_files \
     --encodings_version 1 \
-    --mlm_type manual \
+    --mlm_type static \
     --mlm_probability 0.15 \
 
     --do_train_model \

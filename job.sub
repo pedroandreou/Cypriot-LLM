@@ -43,7 +43,7 @@ TOKENIZER_VERSION=1
 
 # --- Mask Tokens Config ---
 ENCODINGS_VERSION=1
-MLM_TYPE="manual"
+MLM_TYPE="static"
 MLM_PROBABILITY=0.15
 
 # --- Train Model Config ---
