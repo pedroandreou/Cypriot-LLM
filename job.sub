@@ -32,7 +32,7 @@ cd src
 MODEL_TYPE="bert"
 BLOCK_SIZE=512
 VOCAB_SIZE=30522
-STRIP_ACCENTS="False"
+STRIP_ACCENTS="" # Set to true to activate
 LOWERCASE="" # Set to True to activate
 
 # --- Reformat Files Config ---
