@@ -114,7 +114,7 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
 
 elif [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
     python main.py \
-            --do_create_masked_encodings \
+            --do_mask_files \
             --encodings_version $ENCODINGS_VERSION \
             --mlm_type $MLM_TYPE \
             --mlm_probability $MLM_PROBABILITY

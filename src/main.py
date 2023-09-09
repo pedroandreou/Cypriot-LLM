@@ -102,7 +102,7 @@ class ScriptArguments:
     )
 
     ### MASK TOKENS ###
-    do_create_masked_encodings: bool = field(default=False)
+    do_mask_files: bool = field(default=False)
     encodings_version: int = field(
         default=1, metadata={"help": "Version of encodings to use"}
     )
@@ -267,7 +267,7 @@ def main():
         )
 
     ### MASK TOKENS ###
-    if args.do_create_masked_encodings:
+    if args.do_mask_files:
         echo_with_color(
             "Creating masked encodings for the files...",
             color="bright_magenta",

@@ -90,7 +90,7 @@ python main.py \
     --do_tokenize_files \
     --tokenizer_version 1 \
 
-    --do_create_masked_encodings \
+    --do_mask_files \
     --encodings_version 1 \
     --mlm_type manual \
     --mlm_probability 0.15 \
