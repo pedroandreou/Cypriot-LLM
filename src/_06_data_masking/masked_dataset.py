@@ -43,6 +43,22 @@ class MaskedDataset(Dataset):
         self.mlm_type = mlm_type
         self.mlm_probability = mlm_probability
         self._create_masked_dataset()
+    
+    def _generate_mask(self, input_ids: torch.Tensor):
+        """Generate a mask array for input_ids based on the model type and mlm_probability."""
+        rand = torch.rand(input_ids.shape)
+
+        # mask random 15% where token is not [CLS], [PAD], [SEP]
+        if self.model_type == "bert":
+            return (rand < self.mlm_probability) * (input_ids != 2) * (input_ids != 0) * (input_ids != 3)
+        else:
+            # these numbers need to be changed
+            return (rand < self.mlm_probability) * (input_ids != 1) * (input_ids != 2) * (input_ids != 0)
+
+        # get indices of mask positions from mask array
+        selection = torch.flatten(mask_arr.nonzero()).tolist()
+        
+        return selection
 
     def _create_masked_dataset(self):
         self.masked_encodings = {
@@ -50,6 +66,11 @@ class MaskedDataset(Dataset):
             "attention_mask": [],
             "labels": [],
         }
+        
+        
+        # manual static masked array
+        static_selection = self._generate_mask(self.encodings[0]["input_ids"])
+
 
         for i in tqdm(
             range(len(self.encodings)), desc="Masking encodings"
@@ -59,12 +80,12 @@ class MaskedDataset(Dataset):
             current_tensor_mask = self.encodings[i]["attention_mask"].clone()
             current_tensor_labels = self.encodings[i]["input_ids"].clone()
 
-            if self.mlm_type == "manual":
-                current_tensor_masked_input_ids = self.manual_mlm(
-                    current_tensor_input_ids
+            if self.mlm_type == "manual_static":
+                current_tensor_masked_input_ids = self.manual_static_masking(
+                    current_tensor_input_ids, static_selection
                 )
-            else:  # automatic
-                current_tensor_masked_input_ids = self.automatic_mlm(
+            else:  # manual_dynamic
+                current_tensor_masked_input_ids = self.manual_dynamic_masking(
                     current_tensor_input_ids
                 )
 
@@ -80,38 +101,25 @@ class MaskedDataset(Dataset):
         for key in self.masked_encodings:
             self.masked_encodings[key] = torch.stack(self.masked_encodings[key])
 
-    def manual_mlm(self, input_ids):
-        # create random array of floats with equal dims to input_ids
-        rand = torch.rand(input_ids.shape)
-
-        # mask random 15% where token is not [CLS], [PAD], [SEP]
+    def manual_static_masking(self, input_ids, static_selection):
         if self.model_type == "bert":
-            mask_arr = (
-                (rand < self.mlm_probability)
-                * (input_ids != 2)  # [CLS]
-                * (input_ids != 0)  # [PAD]
-                * (input_ids != 3)  # [SEP]
-            )
+            input_ids[static_selection] = 4  # add [MASK]
         else:
-            mask_arr = (
-                (rand < self.mlm_probability)
-                * (input_ids != 1)  # need to be changed
-                * (input_ids != 2)  # need to be changed
-                * (input_ids != 0)  # need to be changed
-            )
+            input_ids[static_selection] = 102 # need to be changed
 
-        for _ in range(input_ids.shape[0]):
-            # get indices of mask positions from mask array
-            selection = torch.flatten(mask_arr.nonzero()).tolist()
-
-            # mask input ids
-            if self.model_type == "bert":
-                input_ids[selection] = 4  # [MASK]
-            else:
-                input_ids[selection] = 3  # need to be changed
-
-        # masked input ids
         return input_ids
+
+    def manual_dynamic_masking(self, input_ids):
+        # changes every time a new tensor is coming through
+        dynamic_selection = self._generate_mask(input_ids)
+
+        if model_type == "bert":
+            input_ids[dynamic_selection] = 4  # add [MASK]
+        else:
+            input_ids[dynamic_selection] = 102 # need to be changed
+
+        return input_ids
+
 
     def automatic_mlm(self, data):
         # data_collator = DataCollatorForLanguageModeling(
