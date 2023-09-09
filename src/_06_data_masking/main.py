@@ -23,19 +23,19 @@ def main(
     )
 
     echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
-    train_dataset, test_dataset = TokenizedDataset().load_encodings(
+    train_set, test_set = TokenizedDataset().load_encodings(
         model_type, encodings_version
     )
 
     echo_with_color("Creating masked datasets...", color="bright_magenta")
-    masked_train_dataset = MaskedDataset(
-        train_dataset,
+    masked_train_set = MaskedDataset(
+        train_set,
         model_type,
         mlm_type,
         mlm_probability,
     )
-    masked_test_dataset = MaskedDataset(
-        test_dataset,
+    masked_test_set = MaskedDataset(
+        test_set,
         model_type,
         mlm_type,
         mlm_probability,
@@ -46,13 +46,13 @@ def main(
         masked_dataset_dir_path_w_model_type_n_version,
         "masked",
         "train",
-        masked_train_dataset,
+        masked_train_set,
     )
     save_dataset(
         masked_dataset_dir_path_w_model_type_n_version,
         "masked",
         "test",
-        masked_test_dataset,
+        masked_test_set,
     )
 
 

@@ -132,19 +132,19 @@ class TokenizedDataset(Dataset):
 
     def load_and_set_train_encodings(self, model_type: str, encodings_version: int):
         self.model_type = model_type
-        train_dataset_path = self._get_dataset_path(
+        train_set_path = self._get_dataset_path(
             self.model_type, "train", encodings_version
         )
-        self.encodings = torch.load(train_dataset_path)
+        self.encodings = torch.load(train_set_path)
 
         return self.encodings
 
     def load_and_set_test_encodings(self, model_type: str, encodings_version: int):
         self.model_type = model_type
-        test_dataset_path = self._get_dataset_path(
+        test_set_path = self._get_dataset_path(
             self.model_type, "test", encodings_version
         )
-        self.encodings = torch.load(test_dataset_path)
+        self.encodings = torch.load(test_set_path)
 
         return self.encodings
 

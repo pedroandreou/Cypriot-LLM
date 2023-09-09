@@ -91,7 +91,7 @@ def main(
         "Loading the masked encodings of the train and test sets...",
         color="bright_cyan",
     )
-    masked_train_dataset, masked_test_dataset = MaskedDataset().load_masked_encodings(
+    masked_train_set, masked_test_set = MaskedDataset().load_masked_encodings(
         model_type, masked_encodings_version
     )
 
@@ -101,8 +101,8 @@ def main(
     )
     if trainer_type == "pytorch":
         pytorch_trainer = PyTorchModelTrainer(
-            train_set=masked_train_dataset,
-            test_set=masked_test_dataset,
+            train_set=masked_train_set,
+            test_set=masked_test_set,
             device=device,
             model_type=model_type,
             model=model,
@@ -117,8 +117,8 @@ def main(
     else:
         # should load the data collator here
         huggingface_trainer = HuggingFaceTrainer(
-            train_set=masked_train_dataset,
-            test_set=masked_test_dataset,
+            train_set=masked_train_set,
+            test_set=masked_test_set,
             model=model,
             model_path=model_dir_path_w_model_type_n_version,
             # data_collator=self.data_collator,

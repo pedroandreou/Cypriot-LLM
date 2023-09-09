@@ -43,39 +43,43 @@ class MaskedDataset(Dataset):
         self.mlm_type = mlm_type
         self.mlm_probability = mlm_probability
         self._create_masked_dataset()
-    
+
     def _create_masked_dataset(self):
         labels = torch.stack([x["input_ids"] for x in self.encodings])
         mask = torch.stack([x["attention_mask"] for x in self.encodings])
         input_ids = labels.detach().clone()
-        
+
         if self.mlm_type == "static":
             masked_input_ids = self.manual_static_masking(input_ids)
-            
+
             self.masked_encodings = {
                 "input_ids": masked_input_ids,
                 "attention_mask": mask,
-                "labels": labels
+                "labels": labels,
             }
 
         else:  # dynamic
             pass
 
-
     def manual_static_masking(self, input_ids):
         rand = torch.rand(input_ids.shape)
 
         # mask random 15% where token is not [CLS], [PAD], [SEP]
-        mask_arr = (rand < self.mlm_probability) * (input_ids != 2) * (input_ids != 0) * (input_ids != 3)
+        mask_arr = (
+            (rand < self.mlm_probability)
+            * (input_ids != 2)
+            * (input_ids != 0)
+            * (input_ids != 3)
+        )
 
         # loop through each row in input_ids tensor (cannot do in parallel)
         for i in range(input_ids.shape[0]):
             # get indices of mask positions from mask array
             selection = torch.flatten(mask_arr[i].nonzero()).tolist()
-            
+
             # mask input_ids
             input_ids[i, selection] = 4
-        
+
         return input_ids
 
     def automatic_dynamic_masking(self, data):
@@ -122,10 +126,10 @@ class MaskedDataset(Dataset):
         self, model_type: str, masked_encodings_version: int
     ):
         self.model_type = model_type
-        train_dataset_path = self._get_dataset_path(
+        train_set_path = self._get_dataset_path(
             self.model_type, "train", masked_encodings_version
         )
-        self.masked_encodings = torch.load(train_dataset_path)
+        self.masked_encodings = torch.load(train_set_path)
 
         return self.masked_encodings
 
@@ -133,10 +137,10 @@ class MaskedDataset(Dataset):
         self, model_type: str, masked_encodings_version: int
     ):
         self.model_type = model_type
-        test_dataset_path = self._get_dataset_path(
+        test_set_path = self._get_dataset_path(
             self.model_type, "test", masked_encodings_version
         )
-        self.masked_encodings = torch.load(test_dataset_path)
+        self.masked_encodings = torch.load(test_set_path)
 
         return self.masked_encodings
 
