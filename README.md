@@ -83,13 +83,13 @@ python main.py \
 
     --do_train_model \
     --masked_encodings_version 1 \
-    --trainer_type pytorch \
     --seed 42 \
     --vocab_size 30522 \
+    --num_hidden_layers 6  \
     --hidden_size 768 \
     --num_attention_heads 12 \
-    --num_hidden_layers 6  \
-    --type_vocab_size 2 \
+    --type_vocab_size 1 \
+    --trainer_type pytorch \
     --train_batch_size 32 \
     --eval_batch_size 8 \
     --learning_rate 1e-4 \

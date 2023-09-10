@@ -124,14 +124,14 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
             --do_train_model \
             --masked_encodings_version $MASKED_ENCODINGS_VERSION \
             --model_type $MODEL_TYPE \
-            --trainer_type $TRAINER_TYPE \
             --seed 42 \
             --vocab_size $VOCAB_SIZE \
             --block_size $BLOCK_SIZE \
+            --num_hidden_layers 6  \
             --hidden_size 768 \
             --num_attention_heads 12 \
-            --num_hidden_layers 6  \
-            --type_vocab_size 2 \
+            --type_vocab_size 1 \
+            --trainer_type $TRAINER_TYPE \
             --train_batch_size $TRAIN_BATCH_SIZE \
             --eval_batch_size $EVAL_BATCH_SIZE \
             --learning_rate $LEARNING_RATE \
