@@ -70,7 +70,9 @@ class ScriptArguments:
 
     ### DO TOKENIZER TRAINING ###
     do_train_tokenizer: bool = field(default=False)
-    model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
+    tokenizer_type: str = field(
+        default="WP", metadata={"help": "Type of tokenizer to use: WP or BPE"}
+    )
     block_size: int = field(default=512, metadata={"help": "Define the block size."})
     clean_text: bool = field(default=True)
     handle_chinese_chars: bool = field(default=False)
@@ -101,7 +103,7 @@ class ScriptArguments:
         default=1, metadata={"help": "Version of tokenizer to use"}
     )
 
-    ### MASK TOKENS ###
+    ### MASK FILES ###
     do_mask_files: bool = field(default=False)
     encodings_version: int = field(
         default=1, metadata={"help": "Version of encodings to use"}
@@ -122,16 +124,19 @@ class ScriptArguments:
     masked_encodings_version: int = field(
         default=1, metadata={"help": "Version of masked encodings to use"}
     )
+    model_type: str = field(default="bert", metadata={"help": "Type of model to use"})
+    seed: int = field(default=42, metadata={"help": "Seed for reproducibility"})
+
+    hidden_size: int = field(default=768)
+    type_vocab_size: int = field(default=2)
+
+    num_hidden_layers: int = field(default=12)
+    num_attention_heads: int = field(default=12)
+
     trainer_type: str = field(
         default="pytorch",
         metadata={"help": "Type of trainer to use: pytorch or huggingface"},
     )
-    seed: int = field(default=42, metadata={"help": "Seed for reproducibility"})
-    hidden_size: int = field(default=768)
-    num_attention_heads: int = field(default=12)
-    num_hidden_layers: int = field(default=12)
-    type_vocab_size: int = field(default=2)
-
     train_batch_size: int = field(default=32, metadata={"help": "Training batch size."})
     eval_batch_size: int = field(default=8, metadata={"help": "Evaluation batch size."})
     learning_rate: float = field(
@@ -211,7 +216,7 @@ def main():
         echo_with_color("Training a tokenizer from scratch...", color="black")
 
         train_tokenizer(
-            args.model_type,
+            args.tokenizer_type,
             args.block_size,
             args.clean_text,
             args.handle_chinese_chars,
@@ -256,7 +261,7 @@ def main():
         )
 
         tokenize_files(
-            args.model_type,
+            args.tokenizer_type,
             args.tokenizer_version,
             args.block_size,
         )
@@ -266,7 +271,7 @@ def main():
             color="bright_yellow",
         )
 
-    ### MASK TOKENS ###
+    ### MASK FILES ###
     if args.do_mask_files:
         echo_with_color(
             "Creating masked encodings for the files...",
@@ -274,7 +279,7 @@ def main():
         )
 
         create_masked_encodings(
-            args.model_type,
+            args.tokenizer_type,
             args.encodings_version,
             args.mlm_type,
             args.mlm_probability,
@@ -292,15 +297,16 @@ def main():
 
         train_model(
             model_type=args.model_type,
+            tokenizer_type=args.tokenizer_type,
             masked_encodings_version=args.masked_encodings_version,
-            trainer_type=args.trainer_type,
             seed=args.seed,
             vocab_size=args.vocab_size,
-            block_size=args.block_size,
             hidden_size=args.hidden_size,
-            num_attention_heads=args.num_attention_heads,
-            num_hidden_layers=args.num_hidden_layers,
+            block_size=args.block_size,
             type_vocab_size=args.type_vocab_size,
+            num_hidden_layers=args.num_hidden_layers,
+            num_attention_heads=args.num_attention_heads,
+            trainer_type=args.trainer_type,
             train_batch_size=args.train_batch_size,
             eval_batch_size=args.eval_batch_size,
             learning_rate=args.learning_rate,

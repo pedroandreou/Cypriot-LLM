@@ -11,7 +11,7 @@ from src.utils.common_utils import echo_with_color, get_new_subdirectory_path
 class TokenizerWrapper:
     def __init__(
         self,
-        model_type: str = None,
+        tokenizer_type: str = None,
         block_size: int = None,
         clean_text: bool = None,
         handle_chinese_chars: bool = None,
@@ -24,7 +24,7 @@ class TokenizerWrapper:
         if all(
             arg is None
             for arg in (
-                model_type,
+                tokenizer_type,
                 block_size,
                 clean_text,
                 handle_chinese_chars,
@@ -38,7 +38,7 @@ class TokenizerWrapper:
             self.default_constructor()
         else:
             self.parameterized_constructor(
-                model_type,
+                tokenizer_type,
                 block_size,
                 clean_text,
                 handle_chinese_chars,
@@ -56,7 +56,7 @@ class TokenizerWrapper:
 
     def parameterized_constructor(
         self,
-        model_type,
+        tokenizer_type,
         block_size,
         clean_text,
         handle_chinese_chars,
@@ -66,7 +66,7 @@ class TokenizerWrapper:
         limit_alphabet,
         min_frequency,
     ):
-        self.model_type = model_type
+        self.tokenizer_type = tokenizer_type
         self.block_size = block_size
         self.clean_text = clean_text
         self.handle_chinese_chars = handle_chinese_chars
@@ -86,11 +86,11 @@ class TokenizerWrapper:
         self.filepaths = list(glob(os.path.join(filepaths_dir, "*.txt")))
 
         # Create output directory
-        tokenizer_dir_path_w_model_type = os.path.join(
-            tokenizer_dir_path, f"cy{self.model_type}"
+        tokenizer_dir_path_w_tokenizer_type = os.path.join(
+            tokenizer_dir_path, f"cy{self.tokenizer_type}"
         )
-        self.tokenizer_dir_path_w_model_type_n_version = get_new_subdirectory_path(
-            tokenizer_dir_path_w_model_type, "tokenizer"
+        self.tokenizer_dir_path_w_tokenizer_type_n_version = get_new_subdirectory_path(
+            tokenizer_dir_path_w_tokenizer_type, "tokenizer"
         )
 
     def get_tokenizer_and_train_args(self):
@@ -102,7 +102,7 @@ class TokenizerWrapper:
             "vocab_size": self.vocab_size,
         }
 
-        if self.model_type == "bert":
+        if self.tokenizer_type == "bert":
             return (
                 BertWordPieceTokenizer(
                     **common_tokenizer_args,
@@ -137,23 +137,25 @@ class TokenizerWrapper:
     def train_tokenizer(self):
 
         echo_with_color(
-            f"Initalizing the {self.model_type}'s tokenizer...", color="black"
+            f"Initalizing the {self.tokenizer_type}'s tokenizer...", color="black"
         )
         tokenizer, train_args = self.get_tokenizer_and_train_args()
 
-        echo_with_color(f"Training the {self.model_type}'s tokenizer...", color="black")
+        echo_with_color(
+            f"Training the {self.tokenizer_type}'s tokenizer...", color="black"
+        )
         tokenizer.train(**train_args)
 
         echo_with_color(
-            f"Saving the {self.model_type}'s tokenizer files...", color="black"
+            f"Saving the {self.tokenizer_type}'s tokenizer files...", color="black"
         )
-        tokenizer.save_model(self.tokenizer_dir_path_w_model_type_n_version)
+        tokenizer.save_model(self.tokenizer_dir_path_w_tokenizer_type_n_version)
 
-        # Save BERT's config json file to disk
+        # Save WordPiece's config json file to disk
         # as it is not saved automatically
-        if self.model_type == "bert":
+        if self.tokenizer_type == "WP":
             config_path = os.path.join(
-                self.tokenizer_dir_path_w_model_type_n_version, "config.json"
+                self.tokenizer_dir_path_w_tokenizer_type_n_version, "config.json"
             )
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
@@ -172,7 +174,7 @@ class TokenizerWrapper:
                 json.dump(tokenizer_cfg, f)
 
     @staticmethod
-    def get_tokenizer_paths(model_type: str, tokenizer_version: int):
+    def get_tokenizer_paths(tokenizer_type: str, tokenizer_version: int):
         """
         This method is used to get the paths to the tokenizer's files.
         Essentially it should a nested function of the 'load_tokenizer' function below but since our tokenizer is trained using the 'tokenizers' library
@@ -183,15 +185,15 @@ class TokenizerWrapper:
         try:
             specific_tokenizer_dir_path = os.path.join(
                 tokenizer_dir_path,
-                f"cy{model_type}",
+                f"cy{tokenizer_type}",
                 f"tokenizer_v{tokenizer_version}",
             )
         except FileNotFoundError:
             print(
-                f"Directory '{specific_tokenizer_dir_path}' does not exist. Please ensure the provided model version is correct."
+                f"Directory '{specific_tokenizer_dir_path}' does not exist. Please ensure the provided tokenizer version is correct."
             )
 
-        if model_type == "bert":
+        if tokenizer_type == "WP":
             config_path = os.path.join(specific_tokenizer_dir_path, "config.json")
             vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.txt")
             paths.append(config_path)
@@ -206,15 +208,15 @@ class TokenizerWrapper:
         return paths
 
     @staticmethod
-    def load_tokenizer(model_type: str, tokenizer_version: int, block_size: int):
+    def load_tokenizer(tokenizer_type: str, tokenizer_version: int, block_size: int):
         """
         Taken by https://zablo.net/blog/post/training-roberta-from-scratch-the-missing-guide-polish-language-model/
         but modified
         """
 
-        if model_type == "bert":
+        if tokenizer_type == "WP":
             config_path, vocab_path = TokenizerWrapper.get_tokenizer_paths(
-                model_type, tokenizer_version
+                tokenizer_type, tokenizer_version
             )
 
             # Load configurations
@@ -230,7 +232,7 @@ class TokenizerWrapper:
 
         else:  # roberta
             vocab_path, merges_path = TokenizerWrapper.get_tokenizer_paths(
-                model_type, tokenizer_version
+                tokenizer_type, tokenizer_version
             )
 
             # Load tokenizer
@@ -251,7 +253,7 @@ tokenizer_dir_path = os.path.join(curr_dir, "trained_tokenizer_bundle")
 
 
 def main(
-    model_type: str,
+    tokenizer_type: str,
     block_size: int,
     clean_text: bool,
     handle_chinese_chars: bool,
@@ -264,7 +266,7 @@ def main(
 ):
 
     TokenizerWrapper(
-        model_type=model_type,
+        tokenizer_type=tokenizer_type,
         block_size=block_size,
         clean_text=clean_text,
         handle_chinese_chars=handle_chinese_chars,
@@ -281,7 +283,7 @@ def main(
         # Normally we push the whole tokenizer
         # but since we are using 'tokenizers' instead of 'transformers' library
         # we need to push the files manually
-        tokenizer_paths = TokenizerWrapper().get_tokenizer_paths(model_type)
+        tokenizer_paths = TokenizerWrapper().get_tokenizer_paths(tokenizer_type)
 
         push_tokenizer(
             curr_dir,
@@ -300,7 +302,7 @@ def parse_arguments():
 
     # Basic arguments
     parser.add_argument(
-        "--model_type", type=str, default="bert", help="Model type to use."
+        "--tokenizer_type", type=str, default="WP", help="Tokenizer type to use."
     )
     parser.add_argument("--block_size", type=int, default=512, help="Block size.")
 
@@ -362,7 +364,7 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     main(
-        args.model_type,
+        args.tokenizer_type,
         args.block_size,
         args.clean_text,
         args.handle_chinese_chars,

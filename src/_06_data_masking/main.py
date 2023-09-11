@@ -12,44 +12,44 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def main(
-    model_type: str, encodings_version: int, mlm_type: str, mlm_probability: float
+    tokenizer_type: str, encodings_version: int, mlm_type: str, mlm_probability: float
 ):
     # Create a directory for the masked datasets
-    masked_dataset_dir_path_w_model_type = os.path.join(
-        curr_dir, "masked_encodings", f"cy{model_type}"
+    masked_dataset_dir_path_w_tokenizer_type = os.path.join(
+        curr_dir, "masked_encodings", f"cy{tokenizer_type}"
     )
-    masked_dataset_dir_path_w_model_type_n_version = get_new_subdirectory_path(
-        masked_dataset_dir_path_w_model_type, "masked_encodings"
+    masked_dataset_dir_path_w_tokenizer_type_n_version = get_new_subdirectory_path(
+        masked_dataset_dir_path_w_tokenizer_type, "masked_encodings"
     )
 
     echo_with_color("Loading the tokenized datasets...", color="bright_magenta")
     train_set, test_set = TokenizedDataset().load_encodings(
-        model_type, encodings_version
+        tokenizer_type, encodings_version
     )
 
     echo_with_color("Creating masked datasets...", color="bright_magenta")
     masked_train_set = MaskedDataset(
         train_set,
-        model_type,
+        tokenizer_type,
         mlm_type,
         mlm_probability,
     )
     masked_test_set = MaskedDataset(
         test_set,
-        model_type,
+        tokenizer_type,
         mlm_type,
         mlm_probability,
     )
 
     echo_with_color("Saving masked datasets...", color="bright_magenta")
     save_dataset(
-        masked_dataset_dir_path_w_model_type_n_version,
+        masked_dataset_dir_path_w_tokenizer_type_n_version,
         "masked",
         "train",
         masked_train_set,
     )
     save_dataset(
-        masked_dataset_dir_path_w_model_type_n_version,
+        masked_dataset_dir_path_w_tokenizer_type_n_version,
         "masked",
         "test",
         masked_test_set,
@@ -57,12 +57,13 @@ def main(
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(
-        description="Arguments for model setup and data handling."
-    )
+    parser = argparse.ArgumentParser(description="Arguments for masking setup.")
 
     parser.add_argument(
-        "--model_type", type=str, default="bert", help="Type of model to use"
+        "--tokenizer_type",
+        type=str,
+        default="WP",
+        help="Type of tokenizer to use: WP or BPE",
     )
 
     parser.add_argument(
@@ -75,8 +76,8 @@ def parse_arguments():
     parser.add_argument(
         "--mlm_type",
         type=str,
-        choices=["manual", "automatic"],
-        default="manual",
+        choices=["static", "dynamic"],
+        default="static",
         help="Type of masking to use for masked language modeling. Pass either 'manual' or 'automatic'.",
     )
 
@@ -96,7 +97,7 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     main(
-        model_type=args.model_type,
+        tokenizer_type=args.tokenizer_type,
         encodings_version=args.encodings_version,
         mlm_type=args.mlm_type,
         mlm_probability=args.mlm_probability,

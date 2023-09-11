@@ -17,7 +17,7 @@ curr_dir = os.path.dirname(os.path.realpath(__file__))
 class TokenizedDataset(Dataset):
     def __init__(
         self,
-        model_type: str = None,
+        tokenizer_type: str = None,
         tokenizer_version: int = None,
         files_list: list = None,
         block_size: str = None,
@@ -26,12 +26,12 @@ class TokenizedDataset(Dataset):
 
         if all(
             arg is None
-            for arg in (model_type, tokenizer_version, files_list, block_size)
+            for arg in (tokenizer_type, tokenizer_version, files_list, block_size)
         ):
             self.default_constructor()
         else:
             self.parameterized_constructor(
-                model_type, tokenizer_version, files_list, block_size
+                tokenizer_type, tokenizer_version, files_list, block_size
             )
 
     def default_constructor(self):
@@ -41,9 +41,9 @@ class TokenizedDataset(Dataset):
         pass
 
     def parameterized_constructor(
-        self, model_type, tokenizer_version, files_list, block_size
+        self, tokenizer_type, tokenizer_version, files_list, block_size
     ):
-        self.model_type = model_type
+        self.tokenizer_type = tokenizer_type
         self.tokenizer_version = tokenizer_version
         self.files_list = files_list
         self.block_size = block_size
@@ -56,9 +56,11 @@ class TokenizedDataset(Dataset):
         but modified
         """
 
-        echo_with_color(f"Loading {self.model_type} tokenizer", color="bright_yellow")
+        echo_with_color(
+            f"Loading {self.tokenizer_type} tokenizer", color="bright_yellow"
+        )
         tokenizer = TokenizerWrapper().load_tokenizer(
-            self.model_type,
+            self.tokenizer_type,
             self.tokenizer_version,
             self.block_size,
         )
@@ -106,12 +108,12 @@ class TokenizedDataset(Dataset):
             self.encodings[key] = torch.tensor(self.encodings[key])
 
     def __repr__(self):
-        tokenizer_type = (
+        real_tokenizer_type = (
             "BertWordPieceTokenizer"
-            if self.model_type == "bert"
+            if self.tokenizer_type == "WP"
             else "ByteLevelBPETokenizer"
         )
-        return f"<TokenizedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.encodings['input_ids'])}>"
+        return f"<TokenizedDataset: TokenizerType={real_tokenizer_type}, NumExamples={len(self.encodings['input_ids'])}>"
 
     def __len__(self):
         return self.encodings["input_ids"].shape[0]
@@ -122,34 +124,36 @@ class TokenizedDataset(Dataset):
     ##############################
     ### Load Encodings Methods ###
     ##############################
-    def _get_dataset_path(self, model_type: str, set_type: str, encodings_version: int):
+    def _get_dataset_path(
+        self, tokenizer_type: str, set_type: str, encodings_version: int
+    ):
         folder_name = os.path.join(
-            "encodings", f"cy{model_type}", f"encodings_v{encodings_version}"
+            "encodings", f"cy{tokenizer_type}", f"encodings_v{encodings_version}"
         )
         filename = f"tokenized_{set_type}_dataset.pth"
 
         return os.path.join(curr_dir, folder_name, filename)
 
-    def load_and_set_train_encodings(self, model_type: str, encodings_version: int):
-        self.model_type = model_type
+    def load_and_set_train_encodings(self, tokenizer_type: str, encodings_version: int):
+        self.tokenizer_type = tokenizer_type
         train_set_path = self._get_dataset_path(
-            self.model_type, "train", encodings_version
+            self.tokenizer_type, "train", encodings_version
         )
         self.encodings = torch.load(train_set_path)
 
         return self.encodings
 
-    def load_and_set_test_encodings(self, model_type: str, encodings_version: int):
-        self.model_type = model_type
+    def load_and_set_test_encodings(self, tokenizer_type: str, encodings_version: int):
+        self.tokenizer_type = tokenizer_type
         test_set_path = self._get_dataset_path(
-            self.model_type, "test", encodings_version
+            self.tokenizer_type, "test", encodings_version
         )
         self.encodings = torch.load(test_set_path)
 
         return self.encodings
 
-    def load_encodings(self, model_type: str, encodings_version: int):
-        train_set = self.load_and_set_train_encodings(model_type, encodings_version)
-        test_set = self.load_and_set_test_encodings(model_type, encodings_version)
+    def load_encodings(self, tokenizer_type: str, encodings_version: int):
+        train_set = self.load_and_set_train_encodings(tokenizer_type, encodings_version)
+        test_set = self.load_and_set_test_encodings(tokenizer_type, encodings_version)
 
         return train_set, test_set

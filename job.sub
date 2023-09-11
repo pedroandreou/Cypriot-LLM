@@ -29,7 +29,7 @@ cd src
 # ==============================
 
 # --- Tokenizer Config ---
-MODEL_TYPE="bert"
+TOKENIZER_TYPE="WP"
 BLOCK_SIZE=512
 VOCAB_SIZE=30522
 STRIP_ACCENTS="" # Set to true to activate
@@ -47,6 +47,7 @@ MLM_TYPE="static"
 MLM_PROBABILITY=0.15
 
 # --- Train Model Config ---
+MODEL_TYPE="bert"
 MASKED_ENCODINGS_VERSION=1
 TRAINER_TYPE="pytorch"
 TRAIN_BATCH_SIZE=32
@@ -64,28 +65,33 @@ INPUT_MASKED_SEQUENCES=("Θώρει τη [MASK]." "Η τηλεόραση, το [
 # ==============================
 
 
+### MERGE DOCS ###
 if [ $SLURM_ARRAY_TASK_ID -eq 1 ]; then
     python main.py \
             --do_merge_docs
 
+### CLEAN DATA ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 2 ]; then
     python main.py \
-            --do_clean_data
+            --do_clean_data \
             --do_push_dataset_to_hub False
 
+### FILE ANALYSIS ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 3 ]; then
     python main.py \
             --do_file_analysis
 
+### EXPORT CSV TO TXT FILES ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 4 ]; then
     python main.py \
             --do_export_csv_to_txt_files \
             --do_load_dataset_from_hub False
 
+### TRAIN TOKENIZER ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
     python main.py \
             --do_train_tokenizer \
-            --model_type $MODEL_TYPE \
+            --tokenizer_type $TOKENIZER_TYPE \
             --block_size $BLOCK_SIZE \
             --clean_text \
             --handle_chinese_chars False \
@@ -96,34 +102,41 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 5 ]; then
             --min_frequency 2 \
             --do_push_tokenizer_to_hub False
 
+### REFORMAT FILES ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 6 ]; then
     python main.py \
             --do_reformat_files \
             --sliding_window_size $SLIDING_WINDOW_SIZE
 
+### SPLIT PATHS ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 7 ]; then
     python main.py \
             --do_split_paths
 
+### TOKENIZE FILES ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 8 ]; then
     python main.py \
             --do_tokenize_files \
-            --model_type $MODEL_TYPE \
+            --tokenizer_type $TOKENIZER_TYPE \
             --tokenizer_version $TOKENIZER_VERSION \
             --block_size $BLOCK_SIZE
 
+### MASK FILES ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 9 ]; then
     python main.py \
             --do_mask_files \
+            --tokenizer_type $TOKENIZER_TYPE \
             --encodings_version $ENCODINGS_VERSION \
             --mlm_type $MLM_TYPE \
             --mlm_probability $MLM_PROBABILITY
 
+### TRAIN MODEL ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
     python main.py \
             --do_train_model \
-            --masked_encodings_version $MASKED_ENCODINGS_VERSION \
             --model_type $MODEL_TYPE \
+            --tokenizer_type $TOKENIZER_TYPE \
+            --masked_encodings_version $MASKED_ENCODINGS_VERSION \
             --seed 42 \
             --vocab_size $VOCAB_SIZE \
             --block_size $BLOCK_SIZE \
@@ -137,6 +150,7 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
             --learning_rate $LEARNING_RATE \
             --num_train_epochs $NUM_TRAIN_EPOCHS
 
+### INFERENCE ###
 elif [ $SLURM_ARRAY_TASK_ID -eq 11 ]; then
     python main.py \
             --do_inference \

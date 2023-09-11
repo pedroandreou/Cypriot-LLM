@@ -57,7 +57,7 @@ python main.py \
     --do_load_dataset_from_hub False \
 
     --do_train_tokenizer \
-    --model_type bert \
+    --tokenizer_type WP \
     --block_size 512 \
     --clean_text \
     --handle_chinese_chars False \
@@ -82,6 +82,7 @@ python main.py \
     --mlm_probability 0.15 \
 
     --do_train_model \
+    --model_type bert \
     --masked_encodings_version 1 \
     --seed 42 \
     --vocab_size 30522 \

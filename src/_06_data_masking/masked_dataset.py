@@ -13,7 +13,7 @@ class MaskedDataset(Dataset):
     def __init__(
         self,
         tokenized_dataset=None,
-        model_type: str = None,
+        tokenizer_type: str = None,
         mlm_type: str = None,
         mlm_probability: float = None,
     ):
@@ -21,12 +21,12 @@ class MaskedDataset(Dataset):
 
         if all(
             arg is None
-            for arg in (tokenized_dataset, model_type, mlm_type, mlm_probability)
+            for arg in (tokenized_dataset, tokenizer_type, mlm_type, mlm_probability)
         ):
             self.default_constructor()
         else:
             self.parameterized_constructor(
-                tokenized_dataset, model_type, mlm_type, mlm_probability
+                tokenized_dataset, tokenizer_type, mlm_type, mlm_probability
             )
 
     def default_constructor(self):
@@ -36,10 +36,10 @@ class MaskedDataset(Dataset):
         pass
 
     def parameterized_constructor(
-        self, tokenized_dataset, model_type, mlm_type, mlm_probability
+        self, tokenized_dataset, tokenizer_type, mlm_type, mlm_probability
     ):
         self.encodings = tokenized_dataset
-        self.model_type = model_type
+        self.tokenizer_type = tokenizer_type
         self.mlm_type = mlm_type
         self.mlm_probability = mlm_probability
         self._create_masked_dataset()
@@ -94,12 +94,12 @@ class MaskedDataset(Dataset):
         pass
 
     def __repr__(self):
-        tokenizer_type = (
+        real_tokenizer_type = (
             "BertWordPieceTokenizer"
-            if self.model_type == "bert"
+            if self.tokenizer_type == "WP"
             else "ByteLevelBPETokenizer"
         )
-        return f"<MaskedDataset: ModelType={self.model_type}, TokenizerType={tokenizer_type}, NumExamples={len(self.masked_encodings['input_ids'])}>"
+        return f"<MaskedDataset: TokenizerType={real_tokenizer_type}, NumExamples={len(self.masked_encodings['input_ids'])}>"
 
     def __len__(self):
         return self.masked_encodings["input_ids"].shape[0]
@@ -111,11 +111,11 @@ class MaskedDataset(Dataset):
     ### Load Encodings Methods ###
     ##############################
     def _get_dataset_path(
-        self, model_type: str, set_type: str, masked_encodings_version: int
+        self, tokenizer_type: str, set_type: str, masked_encodings_version: int
     ):
         folder_name = os.path.join(
             "masked_encodings",
-            f"cy{model_type}",
+            f"cy{tokenizer_type}",
             f"masked_encodings_v{masked_encodings_version}",
         )
         filename = f"masked_{set_type}_dataset.pth"
@@ -123,33 +123,33 @@ class MaskedDataset(Dataset):
         return os.path.join(curr_dir, folder_name, filename)
 
     def load_and_set_train_encodings(
-        self, model_type: str, masked_encodings_version: int
+        self, tokenizer_type: str, masked_encodings_version: int
     ):
-        self.model_type = model_type
+        self.tokenizer_type = tokenizer_type
         train_set_path = self._get_dataset_path(
-            self.model_type, "train", masked_encodings_version
+            self.tokenizer_type, "train", masked_encodings_version
         )
         self.masked_encodings = torch.load(train_set_path)
 
         return self.masked_encodings
 
     def load_and_set_test_encodings(
-        self, model_type: str, masked_encodings_version: int
+        self, tokenizer_type: str, masked_encodings_version: int
     ):
-        self.model_type = model_type
+        self.tokenizer_type = tokenizer_type
         test_set_path = self._get_dataset_path(
-            self.model_type, "test", masked_encodings_version
+            self.tokenizer_type, "test", masked_encodings_version
         )
         self.masked_encodings = torch.load(test_set_path)
 
         return self.masked_encodings
 
-    def load_masked_encodings(self, model_type: str, masked_encodings_version: int):
+    def load_masked_encodings(self, tokenizer_type: str, masked_encodings_version: int):
         train_set = self.load_and_set_train_encodings(
-            model_type, masked_encodings_version
+            tokenizer_type, masked_encodings_version
         )
         test_set = self.load_and_set_test_encodings(
-            model_type, masked_encodings_version
+            tokenizer_type, masked_encodings_version
         )
 
         return train_set, test_set
