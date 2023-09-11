@@ -102,7 +102,7 @@ class TokenizerWrapper:
             "vocab_size": self.vocab_size,
         }
 
-        if self.tokenizer_type == "bert":
+        if self.tokenizer_type == "WP":
             return (
                 BertWordPieceTokenizer(
                     **common_tokenizer_args,
@@ -302,7 +302,10 @@ def parse_arguments():
 
     # Basic arguments
     parser.add_argument(
-        "--tokenizer_type", type=str, default="WP", help="Tokenizer type to use."
+        "--tokenizer_type",
+        type=str,
+        default="WP",
+        help="Tokenizer type to use: WP or BPE",
     )
     parser.add_argument("--block_size", type=int, default=512, help="Block size.")
 
