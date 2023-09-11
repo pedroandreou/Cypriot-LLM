@@ -142,6 +142,7 @@ class PipelineWrapper:
 def main(
     model_type: str,
     model_version: str,
+    tokenizer_type: str,
     tokenizer_version: int,
     input_unmasked_sequence: str,
     input_masked_sequences: List[str],
@@ -157,7 +158,7 @@ def main(
     # Our trained tokenizer is not compatible with the pipeline API (as our tokenizer is from the 'tokenizers' while the API from 'transformers').
     # Therefore, we need to get the paths and load it from the 'transformers' library.
     config_path, vocab_path = TokenizerWrapper().get_tokenizer_paths(
-        model_type,
+        tokenizer_type,
         tokenizer_version,
     )
 
@@ -193,6 +194,13 @@ def parse_arguments():
     parser.add_argument(
         "--model_version", type=str, required=True, help="Path to the model"
     )
+
+    parser.add_argument(
+        "--tokenizer_type",
+        type=str,
+        default="bert",
+        help="Type of tokenizer to use: WP or BPE",
+    )
     parser.add_argument(
         "--tokenizer_version", type=int, default=1, help="Version of tokenizer to use"
     )
@@ -222,6 +230,7 @@ if __name__ == "__main__":
     main(
         args.model_type,
         args.model_version,
+        args.tokenizer_type,
         args.tokenizer_version,
         args.input_unmasked_sequence,
         args.input_masked_sequences,

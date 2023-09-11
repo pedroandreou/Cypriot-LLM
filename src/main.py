@@ -323,6 +323,7 @@ def main():
         infer(
             model_type=args.model_type,
             model_version=args.model_version,
+            tokenizer_type=args.tokenizer_type,
             tokenizer_version=args.tokenizer_version,
             input_unmasked_sequence=args.input_unmasked_sequence,
             input_masked_sequences=args.input_masked_sequences,
