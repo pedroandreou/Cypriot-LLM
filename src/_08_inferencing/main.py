@@ -14,7 +14,7 @@ from src.utils.common_utils import echo_with_color
 
 class PipelineWrapper:
     def __init__(self, model, tokenizer):
-        self.fill = pipeline("fill-mask", model=model, tokenizer=tokenizer)
+        self.fill = pipeline(task="fill-mask", model=model, tokenizer=tokenizer)
         self.console = Console(force_terminal=True)
 
     def _create_prediction_table(self, columns):

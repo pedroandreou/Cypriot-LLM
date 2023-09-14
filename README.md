@@ -178,11 +178,11 @@ The array mechanism was used for partitioning my tasks into distinct jobs, savin
 
 <br>
 
-Typically, the job mechanism is utilized to submit multiple similar jobs that run concurrently. This might result in the second job completing faster than the first. However, in our setup, each stage relies on the completion of the previous one.
+Typically, the job mechanism is utilized to submit multiple similar jobs that run concurrently. This might result in the second job completing faster than the first leading to errors. However, in our setup, each stage relies on the completion of the previous one.
 
 <br>
 
-In other words, do not submit more than a single job at once as it will lead to errors.
+In other words, do not submit more than a single job at once and expect the single submitted job to finish before you execute its successor job.
 
 <br>
 

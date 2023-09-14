@@ -61,7 +61,7 @@ class PyTorchModelTrainer:
             "num_train_epochs": self.num_train_epochs,
             "total_trainable_params": self.model.num_parameters(),
         }
-        wandb.init(project=f"cy{self.model_type}", config=config)
+        wandb.init(project=f"cypriot-model", config=config)
 
         train_loader = torch.utils.data.DataLoader(
             self.train_set,
