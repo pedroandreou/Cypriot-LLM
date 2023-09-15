@@ -76,7 +76,7 @@ class PyTorchModelTrainer:
         )
 
         optim = AdamW(
-            self.model.parameters(), lr=self.learning_rate, no_deprecation_warning=True
+            self.model.parameters(), lr=self.learning_rate
         )  # Initialize optimizer
 
         for epoch in tqdm(
