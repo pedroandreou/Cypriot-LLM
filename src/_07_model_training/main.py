@@ -108,6 +108,7 @@ def main(
             model_type=model_type,
             model=model,
             model_path=model_dir_path_w_model_type_n_version,
+            tokenizer_type=tokenizer_type,
             train_batch_size=train_batch_size,
             eval_batch_size=eval_batch_size,
             learning_rate=learning_rate,

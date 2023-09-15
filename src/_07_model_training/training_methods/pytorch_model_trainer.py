@@ -23,6 +23,7 @@ class PyTorchModelTrainer:
         model_type,
         model,
         model_path,
+        tokenizer_type,
         train_batch_size,
         eval_batch_size,
         learning_rate,
@@ -35,6 +36,8 @@ class PyTorchModelTrainer:
         self.model_type = model_type
         self.model = model
         self.model_path = model_path
+
+        self.tokenizer_type = tokenizer_type
 
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
@@ -55,6 +58,7 @@ class PyTorchModelTrainer:
         config = {
             "model": self.model_type,
             "model_path": self.model_path,
+            "tokenizer": self.tokenizer_type,
             "learning_rate": self.learning_rate,
             "train_batch_size": self.train_batch_size,
             "eval_batch_size": self.eval_batch_size,
