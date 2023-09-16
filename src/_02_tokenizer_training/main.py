@@ -151,12 +151,11 @@ class TokenizerWrapper:
         )
         tokenizer.save_model(self.tokenizer_dir_path_w_tokenizer_type_n_version)
 
+        config_path = os.path.join(
+            self.tokenizer_dir_path_w_tokenizer_type_n_version, "config.json"
+        )
         # Save WordPiece's config json file to disk
-        # as it is not saved automatically
         if self.tokenizer_type == "WP":
-            config_path = os.path.join(
-                self.tokenizer_dir_path_w_tokenizer_type_n_version, "config.json"
-            )
             with open(config_path, "w") as f:
                 tokenizer_cfg = {
                     # "model_type": "bert", # For AutoTokenizer.from_pretrained
@@ -168,8 +167,12 @@ class TokenizerWrapper:
                     "pad_token": "[PAD]",
                     "cls_token": "[CLS]",
                     "mask_token": "[MASK]",
-                    "model_max_length": self.block_size,
-                    "max_len": self.block_size,
+                }
+                json.dump(tokenizer_cfg, f)
+        else:  # BPE
+            with open(config_path, "w") as f:
+                tokenizer_cfg = {
+                    "lowercase": self.lowercase,
                 }
                 json.dump(tokenizer_cfg, f)
 
@@ -199,9 +202,11 @@ class TokenizerWrapper:
             paths.append(config_path)
             paths.append(vocab_path)
 
-        else:  # roberta
+        else:  # BPE
+            config_path = os.path.join(specific_tokenizer_dir_path, "config.json")
             vocab_path = os.path.join(specific_tokenizer_dir_path, "vocab.json")
             merges_path = os.path.join(specific_tokenizer_dir_path, "merges.txt")
+            paths.append(config_path)
             paths.append(vocab_path)
             paths.append(merges_path)
 
@@ -230,13 +235,19 @@ class TokenizerWrapper:
                 lowercase=config["do_lower_case"],
             )
 
-        else:  # roberta
-            vocab_path, merges_path = TokenizerWrapper.get_tokenizer_paths(
+        else:  # BPE
+            config_path, vocab_path, merges_path = TokenizerWrapper.get_tokenizer_paths(
                 tokenizer_type, tokenizer_version
             )
 
+            # Load configurations
+            with open(config_path, "r") as file:
+                config = json.load(file)
+
             # Load tokenizer
-            tokenizer = ByteLevelBPETokenizer(vocab_path, merges_path)
+            tokenizer = ByteLevelBPETokenizer(
+                vocab_path, merges_path, lowercase=config["lowercase"]
+            )
             tokenizer._tokenizer.post_processor = BertProcessing(
                 ("</s>", tokenizer.token_to_id("</s>")),
                 ("<s>", tokenizer.token_to_id("<s>")),
