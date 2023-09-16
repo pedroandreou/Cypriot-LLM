@@ -65,12 +65,20 @@ class MaskedDataset(Dataset):
         rand = torch.rand(input_ids.shape)
 
         # mask random 15% where token is not [CLS], [PAD], [SEP]
-        mask_arr = (
-            (rand < self.mlm_probability)
-            * (input_ids != 2)
-            * (input_ids != 0)
-            * (input_ids != 3)
-        )
+        if self.tokenizer_type == "WP":
+            mask_arr = (
+                (rand < self.mlm_probability)
+                * (input_ids != 2)
+                * (input_ids != 0)
+                * (input_ids != 3)
+            )
+        else:  # BPE
+            mask_arr = (
+                (rand < self.mlm_probability)
+                * (input_ids != 1)
+                * (input_ids != 0)
+                * (input_ids != 2)
+            )
 
         # loop through each row in input_ids tensor (cannot do in parallel)
         for i in range(input_ids.shape[0]):
@@ -78,7 +86,7 @@ class MaskedDataset(Dataset):
             selection = torch.flatten(mask_arr[i].nonzero()).tolist()
 
             # mask input_ids
-            input_ids[i, selection] = 4
+            input_ids[i, selection] = 4  # same for both WP and BPE
 
         return input_ids
 
