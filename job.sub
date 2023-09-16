@@ -49,6 +49,7 @@ MLM_PROBABILITY=0.15
 # --- Train Model Config ---
 MODEL_TYPE="bert"
 MASKED_ENCODINGS_VERSION=1
+MAX_POS_EMBEDS=512 # Set 514 for RoBERTa
 TRAINER_TYPE="pytorch"
 TRAIN_BATCH_SIZE=32
 EVAL_BATCH_SIZE=8
@@ -139,7 +140,7 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
             --masked_encodings_version $MASKED_ENCODINGS_VERSION \
             --seed 42 \
             --vocab_size $VOCAB_SIZE \
-            --block_size $BLOCK_SIZE \
+            --max_position_embeddings $MAX_POS_EMBEDS \
             --num_hidden_layers 6  \
             --hidden_size 768 \
             --num_attention_heads 12 \

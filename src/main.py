@@ -128,6 +128,7 @@ class ScriptArguments:
     seed: int = field(default=42, metadata={"help": "Seed for reproducibility"})
 
     hidden_size: int = field(default=768)
+    max_position_embeddings: int = field(default=512)
     type_vocab_size: int = field(default=2)
 
     num_hidden_layers: int = field(default=12)
@@ -302,7 +303,7 @@ def main():
             seed=args.seed,
             vocab_size=args.vocab_size,
             hidden_size=args.hidden_size,
-            block_size=args.block_size,
+            max_position_embeddings=args.max_position_embeddings,
             type_vocab_size=args.type_vocab_size,
             num_hidden_layers=args.num_hidden_layers,
             num_attention_heads=args.num_attention_heads,

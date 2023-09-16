@@ -46,7 +46,7 @@ def main(
     seed: int,
     vocab_size: int,
     hidden_size: int,
-    block_size: int,
+    max_position_embeddings: int,
     type_vocab_size: int,
     num_hidden_layers: int,
     num_attention_heads: int,
@@ -75,7 +75,7 @@ def main(
     ConfigClass = BertConfig if model_type == "bert" else RobertaConfig
     config = ConfigClass(
         vocab_size=vocab_size,
-        max_position_embeddings=block_size,
+        max_position_embeddings=max_position_embeddings,  # set 514 for roberta
         hidden_size=hidden_size,
         num_attention_heads=num_attention_heads,
         num_hidden_layers=num_hidden_layers,
@@ -154,7 +154,7 @@ def parse_arguments():
 
     parser.add_argument("--vocab_size", type=int, default=30522)
     parser.add_argument("--hidden_size", type=int, default=768)
-    parser.add_argument("--block_size", type=int, default=512)
+    parser.add_argument("--max_position_embeddings", type=int, default=512)
     parser.add_argument("--type_vocab_size", type=int, default=1)
 
     parser.add_argument("--num_hidden_layers", type=int, default=6)

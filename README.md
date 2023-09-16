@@ -85,7 +85,7 @@ python main.py \
     --model_type bert \
     --masked_encodings_version 1 \
     --seed 42 \
-    --vocab_size 30522 \
+    --max_position_embeddings 512 \
     --num_hidden_layers 6  \
     --hidden_size 768 \
     --num_attention_heads 12 \
