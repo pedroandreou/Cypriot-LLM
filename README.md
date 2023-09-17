@@ -1,5 +1,10 @@
 # Cypriot LLM
 
+A Cypriot edition of Google's BERT pre-trained language model.
+
+<img src="https://github.com/pedroandreou/Cypriot-LLM/cypriot-bert-logo.png" width="600"/>
+
+
 ## :building_construction: Environment
 
 ### You should create a virtualenv with the required dependencies by running
@@ -37,72 +42,6 @@ When a new requirement is needed you should add it to `unpinned_requirements.txt
 ```
 cmd.exe /C setup_new_environment.bat
 ```
-
-
-# :runner: How to run the code
-```
-cd ./src
-```
-
-```
-python main.py \
-    --do_merge_docs \
-
-    --do_clean_data \
-    --do_push_dataset_to_hub \
-
-    --do_file_analysis \
-
-    --do_export_csv_to_txt_files \
-    --do_load_dataset_from_hub False \
-
-    --do_train_tokenizer \
-    --tokenizer_type WP \
-    --block_size 512 \
-    --clean_text \
-    --handle_chinese_chars False \
-    --strip_accents False \
-    --lowercase \
-    --vocab_size 30522 \
-    --limit_alphabet 1000 \
-    --min_frequency 2 \
-    --do_push_tokenizer_to_hub \
-
-    --do_reformat_files \
-    --sliding_window_size 8 \
-
-    --do_split_paths \
-
-    --do_tokenize_files \
-    --tokenizer_version 1 \
-
-    --do_mask_files \
-    --encodings_version 1 \
-    --mlm_type static \
-    --mlm_probability 0.15 \
-
-    --do_train_model \
-    --model_type bert \
-    --masked_encodings_version 1 \
-    --seed 42 \
-    --max_position_embeddings 512 \
-    --num_hidden_layers 6  \
-    --hidden_size 768 \
-    --num_attention_heads 12 \
-    --type_vocab_size 1 \
-    --trainer_type pytorch \
-    --train_batch_size 32 \
-    --eval_batch_size 8 \
-    --learning_rate 1e-4 \
-    --num_train_epochs 3 \
-
-    --do_inference \
-    --model_version 1 \
-    --input_unmasked_sequence "είσαι"
-    <!-- --input_masked_sequences "Θώρει τη [MASK]." "Η τηλεόραση, το [MASK], τα φώτα." "Μεν τον [MASK] κόρη μου." -->
-```
-
-As I am using the `tokenizers` library and not the `transfomers` one, I cannot just do `tokenizer.push_to_hub(huggingface_repo_name, private=True)`, but rather once training the tokenizer, I am cloning  the HuggingFace repo, moving the tokenizer files into the cloned repo, and pushing the tokenizer to HuggingFace. Don't worry though, as all there are done programmatically - look at `.src/hub_pusher.py`'s `push_tokenizer` function.
 
 
 # :computer: Cyclone
