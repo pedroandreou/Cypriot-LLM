@@ -1,9 +1,10 @@
 # Cypriot LLM
 
-A Cypriot edition of Google's BERT pre-trained language model.
-
-<img src="https://github.com/pedroandreou/Cypriot-LLM/cypriot-bert-logo.png" width="600"/>
-
+<p align="center">
+  A Cypriot edition of Google's BERT pre-trained language model.
+  <br><br>
+  <img src="./cypriot-bert-logo.png" width="300"/>
+</p>
 
 ## :building_construction: Environment
 
