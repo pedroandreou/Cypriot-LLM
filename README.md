@@ -4,6 +4,8 @@
   A Cypriot edition of Google's BERT pre-trained language model.
   <br><br>
   <img src="./cypriot-bert-logo.png" width="300"/>
+  <br><br>
+  HuggingFace Repo: https://huggingface.co/petros/bert-base-cypriot-uncased-v1
 </p>
 
 ## :building_construction: Environment
