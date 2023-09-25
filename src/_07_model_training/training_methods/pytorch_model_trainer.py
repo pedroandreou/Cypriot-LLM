@@ -114,9 +114,10 @@ class PyTorchModelTrainer:
                 labels = batch["labels"].to(self.device)
 
                 # process
-                outputs = self.model(
-                    input_ids, attention_mask=attention_mask, labels=labels
-                )
+                # outputs = self.model(
+                #     input_ids, attention_mask=attention_mask, labels=labels
+                # )
+                outputs = self.model(input_ids, attention_mask=attention_mask)
 
                 # Normalize logits
                 normalized_logits = self.logit_norm(outputs.logits)
@@ -175,12 +176,19 @@ class PyTorchModelTrainer:
             labels = batch["labels"].to(self.device)
 
             # predict
-            outputs = self.model(
-                input_ids, attention_mask=attention_mask, labels=labels
-            )
+            # outputs = self.model(
+            #     input_ids, attention_mask=attention_mask, labels=labels
+            # )
+            outputs = self.model(input_ids, attention_mask=attention_mask)
 
-            # extract loss
-            loss = outputs.loss
+            # Normalize logits
+            normalized_logits = self.logit_norm(outputs.logits)
+
+            # Compute the loss based on the normalized logits
+            loss = F.cross_entropy(normalized_logits, labels)
+
+            # # extract loss
+            # loss = outputs.loss
 
             # output current loss
             pbar.set_postfix(loss=loss.item())
