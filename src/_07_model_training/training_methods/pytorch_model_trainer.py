@@ -1,7 +1,10 @@
 import os
+from typing import Tuple, Union
 
 import numpy as np
+import tensorflow as tf
 import torch
+import torch.nn.functional as F
 import wandb
 from dotenv import find_dotenv, load_dotenv
 from torch.optim import AdamW
@@ -45,6 +48,19 @@ class PyTorchModelTrainer:
         self.learning_rate = learning_rate
 
         self.num_train_epochs = num_train_epochs
+
+    def logit_norm(
+        self, input_tensor: tf.Tensor, axis: Union[int, Tuple[int, int]] = -1
+    ) -> tf.Tensor:
+
+        DEFAULT_EPSILON = 0.0001
+
+        x = input_tensor
+        x_denominator = tf.square(x)
+        x_denominator = tf.reduce_sum(x_denominator, axis=axis, keepdims=True)
+        x_denominator = tf.sqrt(x_denominator + DEFAULT_EPSILON) + DEFAULT_EPSILON
+
+        return x / (x_denominator)
 
     def train(self):
         """
@@ -102,10 +118,18 @@ class PyTorchModelTrainer:
                     input_ids, attention_mask=attention_mask, labels=labels
                 )
 
-                # extract loss
-                loss = outputs.loss
+                # Normalize logits
+                normalized_logits = self.logit_norm(outputs.logits)
+
+                # Compute the loss based on the normalized logits
+                loss = F.cross_entropy(normalized_logits, labels)
+
+                # # extract loss
+                # loss = outputs.loss
+
                 # calculate loss for every parameter that needs grad update
                 loss.backward()
+
                 # update parameters
                 optim.step()
 
