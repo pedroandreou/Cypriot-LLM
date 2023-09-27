@@ -138,6 +138,9 @@ class ScriptArguments:
         default="pytorch",
         metadata={"help": "Type of trainer to use: pytorch or huggingface"},
     )
+    do_apply_logit_norm: bool = field(
+        default=False, metadata={"help": "Whether to apply logit norm"}
+    )
     train_batch_size: int = field(default=32, metadata={"help": "Training batch size."})
     eval_batch_size: int = field(default=8, metadata={"help": "Evaluation batch size."})
     learning_rate: float = field(
@@ -308,6 +311,7 @@ def main():
             num_hidden_layers=args.num_hidden_layers,
             num_attention_heads=args.num_attention_heads,
             trainer_type=args.trainer_type,
+            do_apply_logit_norm=args.do_apply_logit_norm,
             train_batch_size=args.train_batch_size,
             eval_batch_size=args.eval_batch_size,
             learning_rate=args.learning_rate,

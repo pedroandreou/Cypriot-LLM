@@ -13,4 +13,3 @@ datasets
 wandb
 # huggingface_hub
 # tqdm
-tensorflow # logitnorm

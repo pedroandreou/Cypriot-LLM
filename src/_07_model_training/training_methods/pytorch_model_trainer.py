@@ -27,6 +27,7 @@ class PyTorchModelTrainer:
         model,
         model_path,
         tokenizer_type,
+        do_apply_logit_norm,
         train_batch_size,
         eval_batch_size,
         learning_rate,
@@ -42,6 +43,8 @@ class PyTorchModelTrainer:
 
         self.tokenizer_type = tokenizer_type
 
+        self.do_apply_logit_norm = do_apply_logit_norm
+
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
 
@@ -49,18 +52,16 @@ class PyTorchModelTrainer:
 
         self.num_train_epochs = num_train_epochs
 
-    def logit_norm(
-        self, input_tensor: tf.Tensor, axis: Union[int, Tuple[int, int]] = -1
-    ) -> tf.Tensor:
-
-        DEFAULT_EPSILON = 0.0001
-
+    def logit_norm_pytorch(self, input_tensor, axis=-1):
+        DEFAULT_EPSILON = 1e-4
         x = input_tensor
-        x_denominator = tf.square(x)
-        x_denominator = tf.reduce_sum(x_denominator, axis=axis, keepdims=True)
-        x_denominator = tf.sqrt(x_denominator + DEFAULT_EPSILON) + DEFAULT_EPSILON
+        x_denominator = x.square()
+        x_denominator_sum = x_denominator.sum(dim=axis, keepdim=True)
+        x_denominator = (
+            torch.sqrt(x_denominator_sum + DEFAULT_EPSILON) + DEFAULT_EPSILON
+        )
 
-        return x / (x_denominator)
+        return x / x_denominator
 
     def train(self):
         """
@@ -114,19 +115,24 @@ class PyTorchModelTrainer:
                 labels = batch["labels"].to(self.device)
 
                 # process
-                # outputs = self.model(
-                #     input_ids, attention_mask=attention_mask, labels=labels
-                # )
-                outputs = self.model(input_ids, attention_mask=attention_mask)
+                if not self.do_apply_logit_norm:
+                    outputs = self.model(
+                        input_ids, attention_mask=attention_mask, labels=labels
+                    )
 
-                # Normalize logits
-                normalized_logits = self.logit_norm(outputs.logits)
+                    # extract loss
+                    loss = outputs.loss
+                else:
+                    outputs = self.model(input_ids, attention_mask=attention_mask)
 
-                # Compute the loss based on the normalized logits
-                loss = F.cross_entropy(normalized_logits, labels)
+                    normalized_logits = self.logit_norm_pytorch(outputs.logits)
 
-                # # extract loss
-                # loss = outputs.loss
+                    # compute the loss
+                    criterion = torch.nn.CrossEntropyLoss()
+                    loss = criterion(
+                        normalized_logits.view(-1, normalized_logits.size(-1)),
+                        labels.view(-1),
+                    )
 
                 # calculate loss for every parameter that needs grad update
                 loss.backward()
@@ -175,20 +181,25 @@ class PyTorchModelTrainer:
             attention_mask = batch["attention_mask"].to(self.device)
             labels = batch["labels"].to(self.device)
 
-            # predict
-            # outputs = self.model(
-            #     input_ids, attention_mask=attention_mask, labels=labels
-            # )
-            outputs = self.model(input_ids, attention_mask=attention_mask)
+            if not self.do_apply_logit_norm:
+                # predict
+                outputs = self.model(
+                    input_ids, attention_mask=attention_mask, labels=labels
+                )
 
-            # Normalize logits
-            normalized_logits = self.logit_norm(outputs.logits)
+                # extract loss
+                loss = outputs.loss
+            else:
+                outputs = self.model(input_ids, attention_mask=attention_mask)
 
-            # Compute the loss based on the normalized logits
-            loss = F.cross_entropy(normalized_logits, labels)
+                normalized_logits = self.logit_norm_pytorch(outputs.logits)
 
-            # # extract loss
-            # loss = outputs.loss
+                # compute the loss
+                criterion = torch.nn.CrossEntropyLoss()
+                loss = criterion(
+                    normalized_logits.view(-1, normalized_logits.size(-1)),
+                    labels.view(-1),
+                )
 
             # output current loss
             pbar.set_postfix(loss=loss.item())
