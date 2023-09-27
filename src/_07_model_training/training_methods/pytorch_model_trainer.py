@@ -27,6 +27,7 @@ class PyTorchModelTrainer:
         model,
         model_path,
         tokenizer_type,
+        do_apply_logit_norm,
         train_batch_size,
         eval_batch_size,
         learning_rate,
@@ -42,6 +43,8 @@ class PyTorchModelTrainer:
 
         self.tokenizer_type = tokenizer_type
 
+        self.do_apply_logit_norm = do_apply_logit_norm
+
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
 
@@ -54,10 +57,11 @@ class PyTorchModelTrainer:
         x = input_tensor
         x_denominator = x.square()
         x_denominator_sum = x_denominator.sum(dim=axis, keepdim=True)
-        x_denominator = torch.sqrt(x_denominator_sum + DEFAULT_EPSILON) + DEFAULT_EPSILON
-        
-        return x / x_denominator
+        x_denominator = (
+            torch.sqrt(x_denominator_sum + DEFAULT_EPSILON) + DEFAULT_EPSILON
+        )
 
+        return x / x_denominator
 
     def train(self):
         """
@@ -111,21 +115,24 @@ class PyTorchModelTrainer:
                 labels = batch["labels"].to(self.device)
 
                 # process
-                # outputs = self.model(
-                #     input_ids, attention_mask=attention_mask, labels=labels
-                # )
-                outputs = self.model(input_ids, attention_mask=attention_mask)
-                
+                if not self.do_apply_logit_norm:
+                    outputs = self.model(
+                        input_ids, attention_mask=attention_mask, labels=labels
+                    )
 
-                normalized_logits = self.logit_norm_pytorch(outputs.logits)
-                
-                # computer the loss
-                criterion = torch.nn.CrossEntropyLoss()
-                loss = criterion(normalized_logits.view(-1, normalized_logits.size(-1)), labels.view(-1))
+                    # extract loss
+                    loss = outputs.loss
+                else:
+                    outputs = self.model(input_ids, attention_mask=attention_mask)
 
+                    normalized_logits = self.logit_norm_pytorch(outputs.logits)
 
-                # # extract loss
-                # loss = outputs.loss
+                    # compute the loss
+                    criterion = torch.nn.CrossEntropyLoss()
+                    loss = criterion(
+                        normalized_logits.view(-1, normalized_logits.size(-1)),
+                        labels.view(-1),
+                    )
 
                 # calculate loss for every parameter that needs grad update
                 loss.backward()
@@ -174,22 +181,25 @@ class PyTorchModelTrainer:
             attention_mask = batch["attention_mask"].to(self.device)
             labels = batch["labels"].to(self.device)
 
-            # predict
-            # outputs = self.model(
-            #     input_ids, attention_mask=attention_mask, labels=labels
-            # )
-            outputs = self.model(input_ids, attention_mask=attention_mask)
+            if not self.do_apply_logit_norm:
+                # predict
+                outputs = self.model(
+                    input_ids, attention_mask=attention_mask, labels=labels
+                )
 
+                # extract loss
+                loss = outputs.loss
+            else:
+                outputs = self.model(input_ids, attention_mask=attention_mask)
 
-            normalized_logits = self.logit_norm_pytorch(outputs.logits)
+                normalized_logits = self.logit_norm_pytorch(outputs.logits)
 
-            # computer the loss
-            criterion = torch.nn.CrossEntropyLoss()
-            loss = criterion(normalized_logits.view(-1, normalized_logits.size(-1)), labels.view(-1))
-
-
-            # # extract loss
-            # loss = outputs.loss
+                # compute the loss
+                criterion = torch.nn.CrossEntropyLoss()
+                loss = criterion(
+                    normalized_logits.view(-1, normalized_logits.size(-1)),
+                    labels.view(-1),
+                )
 
             # output current loss
             pbar.set_postfix(loss=loss.item())

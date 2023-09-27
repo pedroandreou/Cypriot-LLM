@@ -51,6 +51,7 @@ def main(
     num_hidden_layers: int,
     num_attention_heads: int,
     trainer_type: str,
+    do_apply_logit_norm: bool,
     train_batch_size: int,
     eval_batch_size: int,
     learning_rate: float,
@@ -109,6 +110,7 @@ def main(
             model=model,
             model_path=model_dir_path_w_model_type_n_version,
             tokenizer_type=tokenizer_type,
+            do_apply_logit_norm=do_apply_logit_norm,
             train_batch_size=train_batch_size,
             eval_batch_size=eval_batch_size,
             learning_rate=learning_rate,
@@ -165,6 +167,11 @@ def parse_arguments():
         type=str,
         default="pytorch",
         help="Type of trainer to use: pytorch or huggingface",
+    )
+    parser.add_argument(
+        "--do_apply_logit_norm",
+        action="store_false",
+        help="Whether to apply logit norm",
     )
     parser.add_argument(
         "--train_batch_size", default=32, type=int, help="Training batch size."

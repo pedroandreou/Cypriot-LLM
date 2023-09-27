@@ -146,6 +146,7 @@ elif [ $SLURM_ARRAY_TASK_ID -eq 10 ]; then
             --num_attention_heads 12 \
             --type_vocab_size 1 \
             --trainer_type $TRAINER_TYPE \
+            --do_apply_logit_norm False \
             --train_batch_size $TRAIN_BATCH_SIZE \
             --eval_batch_size $EVAL_BATCH_SIZE \
             --learning_rate $LEARNING_RATE \
