@@ -49,18 +49,15 @@ class PyTorchModelTrainer:
 
         self.num_train_epochs = num_train_epochs
 
-    def logit_norm(
-        self, input_tensor: tf.Tensor, axis: Union[int, Tuple[int, int]] = -1
-    ) -> tf.Tensor:
-
-        DEFAULT_EPSILON = 0.0001
-
+    def logit_norm_pytorch(self, input_tensor, axis=-1):
+        DEFAULT_EPSILON = 1e-4
         x = input_tensor
-        x_denominator = tf.square(x)
-        x_denominator = tf.reduce_sum(x_denominator, axis=axis, keepdims=True)
-        x_denominator = tf.sqrt(x_denominator + DEFAULT_EPSILON) + DEFAULT_EPSILON
+        x_denominator = x.square()
+        x_denominator_sum = x_denominator.sum(dim=axis, keepdim=True)
+        x_denominator = torch.sqrt(x_denominator_sum + DEFAULT_EPSILON) + DEFAULT_EPSILON
+        
+        return x / x_denominator
 
-        return x / (x_denominator)
 
     def train(self):
         """
@@ -118,12 +115,14 @@ class PyTorchModelTrainer:
                 #     input_ids, attention_mask=attention_mask, labels=labels
                 # )
                 outputs = self.model(input_ids, attention_mask=attention_mask)
+                
 
-                # Normalize logits
-                normalized_logits = self.logit_norm(outputs.logits)
+                normalized_logits = self.logit_norm_pytorch(outputs.logits)
+                
+                # computer the loss
+                criterion = torch.nn.CrossEntropyLoss()
+                loss = criterion(normalized_logits.view(-1, normalized_logits.size(-1)), labels.view(-1))
 
-                # Compute the loss based on the normalized logits
-                loss = F.cross_entropy(normalized_logits, labels)
 
                 # # extract loss
                 # loss = outputs.loss
@@ -181,11 +180,13 @@ class PyTorchModelTrainer:
             # )
             outputs = self.model(input_ids, attention_mask=attention_mask)
 
-            # Normalize logits
-            normalized_logits = self.logit_norm(outputs.logits)
 
-            # Compute the loss based on the normalized logits
-            loss = F.cross_entropy(normalized_logits, labels)
+            normalized_logits = self.logit_norm_pytorch(outputs.logits)
+
+            # computer the loss
+            criterion = torch.nn.CrossEntropyLoss()
+            loss = criterion(normalized_logits.view(-1, normalized_logits.size(-1)), labels.view(-1))
+
 
             # # extract loss
             # loss = outputs.loss
