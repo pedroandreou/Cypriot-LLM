@@ -96,6 +96,8 @@ class PyTorchModelTrainer:
             self.model.parameters(), lr=self.learning_rate
         )  # Initialize optimizer
 
+        accumulation_steps = 8
+
         for epoch in tqdm(
             range(self.num_train_epochs), leave=True, total=self.num_train_epochs
         ):
@@ -103,42 +105,55 @@ class PyTorchModelTrainer:
 
             # setup loop with TQDM and dataloader
             pbar = tqdm(train_loader, leave=True)
-            for batch in pbar:
-                self.model.train()  # Activate training mode
-
-                # initialize calculated gradients (from prev step)
-                optim.zero_grad()
+            for i, batch in enumerate(pbar):
+                # Activate training mode
+                self.model.train()
 
                 # pull all tensor batches required for training
                 input_ids = batch["input_ids"].to(self.device)
                 attention_mask = batch["attention_mask"].to(self.device)
                 labels = batch["labels"].to(self.device)
 
-                # process
                 if not self.do_apply_logit_norm:
+                    # Forward pass
                     outputs = self.model(
                         input_ids, attention_mask=attention_mask, labels=labels
                     )
+                    loss = outputs.loss  # extract loss
 
-                    # extract loss
-                    loss = outputs.loss
                 else:
+                    # Forward pass
                     outputs = self.model(input_ids, attention_mask=attention_mask)
-
                     normalized_logits = self.logit_norm_pytorch(outputs.logits)
-
-                    # compute the loss
-                    criterion = torch.nn.CrossEntropyLoss()
+                    criterion = torch.nn.CrossEntropyLoss()  # compute loss
                     loss = criterion(
                         normalized_logits.view(-1, normalized_logits.size(-1)),
                         labels.view(-1),
                     )
 
-                # calculate loss for every parameter that needs grad update
+                # Backward pass
                 loss.backward()
 
-                # update parameters
-                optim.step()
+                if not self.do_apply_logit_norm:
+                    # Perform weight update
+                    optim.step()
+
+                    # Zero out gradients
+                    optim.zero_grad()
+
+                else:  # Apply gradient accumulation
+                    # Check if it's time for a weight update
+                    if (i + 1) % accumulation_steps == 0:
+                        # Divide accumulated graadients by accumulation steps
+                        for param in self.model.parameters():
+                            param.grad /= accumulation_steps
+
+                        # Perform weight update
+                        optim.step()
+
+                        # Zero out gradients
+                        for param in self.model.parameters():
+                            param.grad.zero_()
 
                 # Log the loss at each step
                 wandb.log({"batch_loss": loss.item()})
@@ -185,20 +200,17 @@ class PyTorchModelTrainer:
                 labels = batch["labels"].to(self.device)
 
                 if not self.do_apply_logit_norm:
-                    # predict
+                    # Forward pass
                     outputs = self.model(
                         input_ids, attention_mask=attention_mask, labels=labels
                     )
+                    loss = outputs.loss  # extract loss
 
-                    # extract loss
-                    loss = outputs.loss
                 else:
+                    # Forward pass
                     outputs = self.model(input_ids, attention_mask=attention_mask)
-
                     normalized_logits = self.logit_norm_pytorch(outputs.logits)
-
-                    # compute the loss
-                    criterion = torch.nn.CrossEntropyLoss()
+                    criterion = torch.nn.CrossEntropyLoss()  # compute the loss
                     loss = criterion(
                         normalized_logits.view(-1, normalized_logits.size(-1)),
                         labels.view(-1),
