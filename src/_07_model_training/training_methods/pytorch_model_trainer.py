@@ -96,7 +96,7 @@ class PyTorchModelTrainer:
             self.model.parameters(), lr=self.learning_rate
         )  # Initialize optimizer
 
-        accumulation_steps = 8
+        accumulation_steps = 2
 
         for epoch in tqdm(
             range(self.num_train_epochs), leave=True, total=self.num_train_epochs
