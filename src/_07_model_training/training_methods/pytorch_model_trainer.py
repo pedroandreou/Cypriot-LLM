@@ -175,35 +175,38 @@ class PyTorchModelTrainer:
         losses = []
 
         pbar = tqdm(test_loader, leave=True)
-        for batch in pbar:
-            # copy input to device
-            input_ids = batch["input_ids"].to(self.device)
-            attention_mask = batch["attention_mask"].to(self.device)
-            labels = batch["labels"].to(self.device)
 
-            if not self.do_apply_logit_norm:
-                # predict
-                outputs = self.model(
-                    input_ids, attention_mask=attention_mask, labels=labels
-                )
+        # No gradient computation during evaluation
+        with torch.no_grad():
+            for batch in pbar:
+                # copy input to device
+                input_ids = batch["input_ids"].to(self.device)
+                attention_mask = batch["attention_mask"].to(self.device)
+                labels = batch["labels"].to(self.device)
 
-                # extract loss
-                loss = outputs.loss
-            else:
-                outputs = self.model(input_ids, attention_mask=attention_mask)
+                if not self.do_apply_logit_norm:
+                    # predict
+                    outputs = self.model(
+                        input_ids, attention_mask=attention_mask, labels=labels
+                    )
 
-                normalized_logits = self.logit_norm_pytorch(outputs.logits)
+                    # extract loss
+                    loss = outputs.loss
+                else:
+                    outputs = self.model(input_ids, attention_mask=attention_mask)
 
-                # compute the loss
-                criterion = torch.nn.CrossEntropyLoss()
-                loss = criterion(
-                    normalized_logits.view(-1, normalized_logits.size(-1)),
-                    labels.view(-1),
-                )
+                    normalized_logits = self.logit_norm_pytorch(outputs.logits)
 
-            # output current loss
-            pbar.set_postfix(loss=loss.item())
-            losses.append(loss.item())
+                    # compute the loss
+                    criterion = torch.nn.CrossEntropyLoss()
+                    loss = criterion(
+                        normalized_logits.view(-1, normalized_logits.size(-1)),
+                        labels.view(-1),
+                    )
+
+                # output current loss
+                pbar.set_postfix(loss=loss.item())
+                losses.append(loss.item())
 
         mean_test_loss = np.mean(losses)
         return mean_test_loss
